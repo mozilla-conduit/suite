@@ -1,0 +1,5 @@
+{
+  "config": {
+    "phabricator.uri": "http://phabricator.dev"
+  }
+}
