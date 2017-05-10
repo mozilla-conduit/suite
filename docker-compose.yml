@@ -14,6 +14,7 @@ services:
     volumes:
       - .:/root/repo:ro
     depends_on:
+      - tinyproxy
       - phabricator.dev
       - bmo.dev
 
@@ -26,6 +27,7 @@ services:
       - MYSQL_PASS=password
       - PHABRICATOR_URI=http://phabricator.dev/
       - PHABRICATOR_CDN_URI=http://phabricator.dev/
+    restart: on-failure
     depends_on:
       - phabdb
 
@@ -43,6 +45,7 @@ services:
     volumes:
       - phabricator-mysql-db:/var/lib/mysql
       - ./docker/phabricator/mysql:/etc/mysql/conf.d:ro
+      - ./docker/phabricator/demo.sql.gz:/docker-entrypoint-initdb.d/demo.sql.gz
     environment:
       - MYSQL_ROOT_PASSWORD=password
 
