@@ -5,9 +5,7 @@
 version: '2'
 services:
   bmo:
-    build:
-      context: docker/bmo
-      dockerfile: Dockerfile
+    image: mozillaconduit/docker-bmo
     ports:
       - "7777:80"
     volumes:
