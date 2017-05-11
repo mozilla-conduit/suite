@@ -4,12 +4,8 @@
 
 version: '2'
 services:
-  bmo:
+  bmo.dev:
     image: mozillaconduit/docker-bmo
-    ports:
-      - "7777:80"
-    volumes:
-      - bmo-mysql-db:/var/lib/mysql
 
   demo:
     build:
@@ -19,7 +15,7 @@ services:
       - .:/root/repo:ro
     depends_on:
       - phabricator.dev
-      - bmo
+      - bmo.dev
 
   phabricator:
     image: mozilla/mozphab
@@ -28,16 +24,12 @@ services:
       - MYSQL_PORT=3306
       - MYSQL_USER=root
       - MYSQL_PASS=password
-      - PHABRICATOR_URI=http://phabricator.dev:7788/
+      - PHABRICATOR_URI=http://phabricator.dev/
     depends_on:
       - phabdb
 
-  # Use '.dev' in the name so 'phabricator.dev' resolves to the correct
-  # IP both inside and outside the docker-compose network.
   phabricator.dev:
     image: nginx:alpine
-    ports:
-      - "7788:80"
     volumes:
       - ./docker/phabricator/site.conf:/etc/nginx/conf.d/default.conf:ro
     volumes_from:
@@ -53,6 +45,12 @@ services:
     environment:
       - MYSQL_ROOT_PASSWORD=password
 
+  tinyproxy:
+    build:
+      context: docker/tinyproxy
+      dockerfile: ./Dockerfile
+    ports:
+      - "1080:1080"
+
 volumes:
-  bmo-mysql-db:
   phabricator-mysql-db:

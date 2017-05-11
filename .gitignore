@@ -90,3 +90,6 @@ ENV/
 
 # docker-compose
 docker-compose.override.yml
+
+# proxied firefox profile
+fxprofile/
