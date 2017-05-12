@@ -25,6 +25,7 @@ services:
       - MYSQL_USER=root
       - MYSQL_PASS=password
       - PHABRICATOR_URI=http://phabricator.dev/
+      - PHABRICATOR_CDN_URI=http://phabricator.dev/
     depends_on:
       - phabdb
 
