@@ -17,6 +17,9 @@ services:
       - phabricator.dev
       - bmo.dev
 
+  phabext:
+    image: mozilla/phabext
+
   phabricator:
     image: mozilla/mozphab
     environment:
@@ -28,6 +31,9 @@ services:
       - PHABRICATOR_CDN_URI=http://phabricator.dev/
     depends_on:
       - phabdb
+      - phabext
+    volumes_from:
+      - phabext
 
   phabricator.dev:
     image: nginx:alpine
