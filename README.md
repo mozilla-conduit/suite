@@ -25,7 +25,7 @@ database with the settings we want.
 To update the pre-loaded database with new settings:
  
  1. **Important:** Run `docker-compose down` and 
-    `docker volume rm conduitdemo_phabricator-mysql-db` to ensure you have a 
+    `docker volume rm demo_phabricator-mysql-db` to ensure you have a 
     fresh DB!
  1. Start the application with `docker-compose up` and log in with the 
     appropriate user ("admin" to update global settings, "phab" for 
