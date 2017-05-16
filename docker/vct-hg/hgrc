@@ -1,10 +1,6 @@
 [ui]
 username = Wavid Dalsh <wdalsh@mozilla.com>
 
-[extensions]
-reviewboard = /root/version-control-tools/hgext/reviewboard/client.py
-conduit = /root/version-control-tools/hgext/conduit-client/client.py
-
 [bugzilla]
 username = conduit@mozilla.bugs
 apikey = zQ5TSBzq7tTZMtKYq9K1ZqJMjifKx3cPL7pIGk9Q
