@@ -12,7 +12,7 @@ services:
       context: docker/vct-hg
       dockerfile: ./Dockerfile
     volumes:
-      - .:/root/repo:ro
+      - .:/home/phab/repo:ro
     depends_on:
       - tinyproxy
       - phabricator.dev
@@ -45,6 +45,7 @@ services:
       - phabricator
     depends_on:
       - phabricator
+      - tinyproxy
 
   phabdb:
     image: mysql:5.5
