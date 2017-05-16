@@ -7,13 +7,8 @@ FROM alpine:3.3
 ENV HG_RELEASE=4.1 \
     VCT_VERSION=tip
 
-WORKDIR /root
-
-
-# Install Mercurial
-# Runtime dependencies
-RUN apk --no-cache add python ca-certificates curl
 # Build/install dependencies
+RUN apk --no-cache add python ca-certificates curl bash php-cli php-curl php-json git
 RUN apk --no-cache add --virtual build-dependencies \
       build-base \
       python-dev \
@@ -22,26 +17,26 @@ RUN apk --no-cache add --virtual build-dependencies \
     && pip install --no-cache mercurial==$HG_RELEASE \
     && apk del build-dependencies
 
-RUN hg clone https://hg.mozilla.org/hgcustom/version-control-tools -r $VCT_VERSION /root/version-control-tools
+# add a non-privileged user
+RUN addgroup -g 1000 phab && adduser -D -u 1000 -G phab -s /bin/bash phab
 
-COPY hgrc /root/.hgrc
+WORKDIR /home/phab
+
+RUN hg clone https://hg.mozilla.org/hgcustom/version-control-tools -r $VCT_VERSION
+
+COPY hgrc .hgrc
 
 # Install Arcanist
-# Runtime dependencies
-RUN apk --no-cache add bash php-cli php-curl php-json
-# Build/install dependencies
-RUN apk --no-cache add --virtual arc-install-deps \
-        git \
-    && mkdir -p phabricator \
+RUN mkdir -p phabricator \
     && cd phabricator \
     && git clone https://github.com/phacility/libphutil.git \
-    && git clone https://github.com/phacility/arcanist.git \
-    && apk del arc-install-deps
+    && git clone https://github.com/phacility/arcanist.git 
 
-COPY arcrc /root/.arcrc
-RUN chmod 600 /root/.arcrc
+COPY arcrc .arcrc
+RUN chmod 600 .arcrc \
+    && echo "export PATH=/home/phab/phabricator/arcanist/bin:\$PATH" >> .bash_profile \
+    && echo "export EDITOR=vi" >> .bash_profile \
+    && chown -R phab:phab /home/phab
 
-ENV PATH=/root/phabricator/arcanist/bin:$PATH
-ENV EDITOR=vi
-
-CMD /bin/bash
+USER phab
+CMD ["/bin/bash", "-l"]
