@@ -1,9 +1,9 @@
 {
   "config": {
-    "phabricator.uri": "http://phabricator.dev"
+    "phabricator.uri": "http://phabricator.test"
   },
   "hosts": {
-    "http://phabricator.dev/api/": {
+    "http://phabricator.test/api/": {
       "token": "cli-wnxaaftwm34jjfheiokqevsshlg7"
     }
   }

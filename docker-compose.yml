@@ -4,7 +4,7 @@
 
 version: '2'
 services:
-  bmo.dev:
+  bmo.test:
     image: mozillaconduit/docker-bmo
 
   demo:
@@ -15,8 +15,8 @@ services:
       - .:/home/phab/repo:ro
     depends_on:
       - tinyproxy
-      - phabricator.dev
-      - bmo.dev
+      - phabricator.test
+      - bmo.test
 
   phabext:
     image: mozilla/phabext
@@ -28,8 +28,8 @@ services:
       - MYSQL_PORT=3306
       - MYSQL_USER=root
       - MYSQL_PASS=password
-      - PHABRICATOR_URI=http://phabricator.dev/
-      - PHABRICATOR_CDN_URI=http://phabricator.dev/
+      - PHABRICATOR_URI=http://phabricator.test/
+      - PHABRICATOR_CDN_URI=http://phabricator.test/
     restart: on-failure
     depends_on:
       - phabdb
@@ -37,7 +37,7 @@ services:
     volumes_from:
       - phabext
 
-  phabricator.dev:
+  phabricator.test:
     image: nginx:alpine
     volumes:
       - ./docker/phabricator/site.conf:/etc/nginx/conf.d/default.conf:ro
