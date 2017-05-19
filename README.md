@@ -8,7 +8,7 @@ Interactive demo of Mozilla's code submission pipeline.
     use `arc diff` to submit a review.
  1. In a new terminal, run `firefox-proxy`.  A new browser with an empty
     profile will open.
- 1. Visit `http://phabricator.dev` in the new browser window and log in
+ 1. Visit `http://phabricator.test` in the new browser window and log in
     with `user:phab` and `password:phab` to work with your new review.
 
 Preconfigured users:
