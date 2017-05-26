@@ -1,0 +1,23 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+version: '2'
+services:
+  phabricator:
+    build:
+      context: ../phabricator-extensions
+      dockerfile: ./Dockerfile-test
+    environment:
+      - MYSQL_HOST=phabdb
+      - MYSQL_PORT=3306
+      - MYSQL_USER=root
+      - MYSQL_PASS=password
+      - PHABRICATOR_URI=http://phabricator.dev/
+      - PHABRICATOR_CDN_URI=http://phabricator.dev/
+    restart: on-failure
+    depends_on:
+      - phabdb
+    # volumes:
+    #   - /tmp/phutil_map:/app/phabricator/src/__phutil_library_map__.php
+    #   - /tmp/phutil_init:/app/phabricator/src/__phutil_library_init__.php
