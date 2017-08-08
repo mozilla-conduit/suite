@@ -4,6 +4,18 @@
 
 version: '2'
 services:
+  lando-ui.test:
+    image: jwilder/nginx-proxy
+    container_name: lando-ui.test
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+
+  lando-api.test:
+    image: jwilder/nginx-proxy
+    container_name: lando-api.test
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+
   bmo.test:
     image: mozillaconduit/docker-bmo
 
@@ -18,34 +30,41 @@ services:
       - phabricator.test
       - bmo.test
 
-  lando-ui.test:
+  lando-ui:
     image: mozilla/landoui
     environment:
+      # The VIRTUAL_HOST/PORT is only for the demo, for nginx to proxy on port 80.
+      - VIRTUAL_HOST=lando-ui.test
+      - VIRTUAL_PORT=9000
       - HOST=0.0.0.0
-      - PORT=80
+      - PORT=9000
       - OIDC_DOMAIN=oidc_domain_change_me
       - OIDC_CLIENT_ID=oidc_client_id_change_me
       - OIDC_CLIENT_SECRET=oidc_client_secret_change_me
       - SECRET_KEY=secret_key_change_me
-      - SESSION_COOKIE_NAME=lando-ui.test:9000
-      - SESSION_COOKIE_DOMAIN=lando-ui.test:9000
+      - VERSION_PATH=/app/version.json
+      - SESSION_COOKIE_NAME=lando-ui.test
+      - SESSION_COOKIE_DOMAIN=lando-ui.test
       - SESSION_COOKIE_SECURE=0
       - USE_HTTPS=0
-      - LANDO_API_URL=http://lando-api.test:9000
+      - LANDO_API_URL=http://lando-api.test
       - ENV=localdev
       - SENTRY_DSN=
       - UWSGI_SOCKET=:9001
       - UWSGI_HTTP=:9000
 
-  lando-api.test:
+  lando-api:
     image: mozilla/landoapi
     environment:
-      - PORT=80
+      # The VIRTUAL_HOST/PORT is only for the demo, for nginx to proxy on port 80.
+      - VIRTUAL_HOST=lando-api.test
+      - VIRTUAL_PORT=9000
+      - PORT=9000
       - PHABRICATOR_URL=http://phabricator.test
       - PHABRICATOR_UNPRIVILEGED_API_KEY=cli-wnxaaftwm34jjfheiokqevsshlg7
       - TRANSPLANT_URL=https://stub.transplant.example.com
       - DATABASE_URL=sqlite:////db/sqlite.db
-      - HOST_URL=https://lando-api
+      - HOST_URL=http://lando-api.test
       - ENV=localdev
       - SENTRY_DSN=
       - UWSGI_SOCKET=:9001
