@@ -15,15 +15,42 @@ Interactive demo of Mozilla's code-submission pipeline.
     use `arc diff` to submit a review.
  1. In a new terminal, run `firefox-proxy`, or
     `firefox-proxy $(docker-machine ip)` if you are using `docker-machine`.
+    Please set the environment variable `FIREFOX_CMD=path/to/firefox` if your
+    system does not recognize the `firefox` command.
     A new browser with an empty profile will open.  If you don't want to use
     the script, configure your browser to use the demo SOCKS proxy, available
     on port 1080 of your Docker host's IP.
  1. Visit `http://phabricator.test` in the new browser window and log in
     with `user:phab` and `password:phab` to work with your new review.
+ 1. Visit `http://lando-ui.test` For full Lando experience.
+ 1. Visit `http://lando-api.test` to use Lando API via Swagger UI.
+
 
 Preconfigured users:
  * `user:phab`, `password:phab`
  * `user:admin`, `password:admin`
+
+### Local configuration
+
+To configure Lando API create `docker-compose.override.yml` file with
+content as below
+```yaml
+version: '2'
+services:
+  lando-api:
+    environment:
+      # To set the API key, login as a user on http://phabricator.test/,
+      # create a new Conduit API token and add it here.
+      - PHABRICATOR_UNPRIVILEGED_API_KEY=api-set-the-hashtag
+      - TRANSPLANT_API_KEY=some-api-key
+      - PATCH_BUCKET_NAME=your.personal.bucket.name
+      - AWS_ACCESS_KEY=YOUR_ACCESS_KEY
+      - AWS_SECRET_KEY=YOUR_SECRET_KEY
+```
+
+### First run
+For the first run of the Lando API please instantiate the database by running
+`docker exec -it demo_lando-api_1 python landoapi/manage.py upgrade`.
 
 ## Updating the preloaded demo
 
