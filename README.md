@@ -21,14 +21,29 @@ Interactive demo of Mozilla's code-submission pipeline.
     the script, configure your browser to use the demo SOCKS proxy, available
     on port 1080 of your Docker host's IP.
  1. Visit `http://phabricator.test` in the new browser window and log in
-    with `user:phab` and `password:phab` to work with your new review.
+    using BMO auth-delegation to work with your new review.
  1. Visit `http://lando-ui.test` For full Lando experience.
  1. Visit `http://lando-api.test` to use Lando API via Swagger UI.
 
+## Preconfigured users:
 
-Preconfigured users:
- * `user:phab`, `password:phab`
- * `user:admin`, `password:admin`
+For performing administration tasks in Phabricator, first log out of Phabricator and then go to:
+
+`http://phabricator.test/?admin=1`
+
+`user:admin`, `password:password123456789!`
+
+For logging in as a normal test user, you will need to use BMO for auth-delegation. Log out in Phabricator and then click on 'Log In or Register'. You will be redirected to BMOs login page.
+
+`user:conduit@mozilla.bugs`, `password:password123456789!`
+
+After login, if it complains that you do not have MFA enabled on your BMO account, click on the 'preferences' link that will allow you to configure TOTP and then you should be able to login to Phabricator.
+
+For performing administrative tasks on BMO, you will need to log out of BMO and then login with the following credentials:
+
+`http://bmo.test/login`
+
+`user:admin@mozilla.bugs`, `password:Te6Oovohch`
 
 ### Local configuration
 
@@ -64,7 +79,7 @@ To update the preloaded database with new settings:
     `docker volume rm demo_phabricator-mysql-db` to ensure you have a
     fresh DB!
  1. Start the application with `docker-compose up` and log in with the
-    appropriate user ("admin" to update global settings, "phab" for
+    appropriate user ("admin" to update global settings, "phab-bot" for
     things like API keys).
  1. Change the desired setting.
  1. Run `docker-compose run phabricator dump > demo.sql` to dump the
