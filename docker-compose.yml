@@ -231,6 +231,9 @@ services:
       - tinyproxy
       - phabricator.test
       - bmo.test
+      - bmo.projects
+      - bmo.feed
+      - bmo.pushd
 
 # Volume Containers
 volumes:
