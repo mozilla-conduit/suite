@@ -102,6 +102,8 @@ services:
     container_name: lando-ui.test
     volumes:
       - ./docker/landoui/site.conf:/etc/nginx/conf.d/default.conf:ro
+    volumes_from:
+      - lando-ui
     restart: on-failure
     depends_on:
       - lando-ui
@@ -128,6 +130,7 @@ services:
       - OIDC_CLIENT_ID=oidc_client_id_change_me
       - OIDC_CLIENT_SECRET=oidc_client_secret_change_me
       - OIDC_DOMAIN=oidc_domain_change_me
+      - OIDC_IDENTIFIER=lando-ui-oidc-identifier
       - PORT=9000
       - SECRET_KEY=secret_key_change_me
       - SENTRY_DSN=
@@ -149,15 +152,17 @@ services:
       - ENV=localdev
       - HOST_URL=http://lando-api.test
       - OIDC_DOMAIN=
-      - OIDC_IDENTIFIER=
+      - OIDC_IDENTIFIER=http://lando-api.test
       - PATCH_BUCKET_NAME=
       - PINGBACK_ENABLED=y
       - PINGBACK_HOST_URL=http://lando-api.test
       - PHABRICATOR_URL=http://phabricator.test
-      - PHABRICATOR_UNPRIVILEGED_API_KEY=cli-wnxaaftwm34jjfheiokqevsshlg7
+      # To set the API key, login as a user on phabricator-dev,
+      # create a new Conduit API token and add it here.
+      - PHABRICATOR_UNPRIVILEGED_API_KEY=api-qdaethogwpld3wmn2cnhbh57wkux
       - PORT=9000
       - TRANSPLANT_API_KEY=set-api-key
-      - TRANSPLANT_URL=https://stub.transplant.example.com
+      - TRANSPLANT_URL=https://fake-transplant.herokuapp.com/
       - SENTRY_DSN=
       - UWSGI_HTTP=:9000
       - UWSGI_SOCKET=:9001
@@ -172,7 +177,7 @@ services:
     volumes:
       - lando-postgres-db:/var/lib/postgresql/data
     ports:
-      - "54321:5432"
+      - "54322:5432"
 
   # Phabricator Containers
   phabricator.test:
@@ -225,6 +230,7 @@ services:
     build:
       context: docker/vct-hg
       dockerfile: ./Dockerfile
+    container_name: demo
     volumes:
       - .:/home/phab/repo:ro
     depends_on:

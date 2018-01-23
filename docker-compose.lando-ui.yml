@@ -1,0 +1,19 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+# This is a configuration which allows to run Lando API development repo.
+# Please place the Lando UI code in `lando-ui` directory on the same level
+# as `demo` one.
+# docker-compose -f docker-compose.yml -f docker-compose.lando-ui.yml up
+version: '2'
+services:
+  lando-ui:
+    build:
+      context: ../lando-ui/
+      dockerfile: ./docker/Dockerfile-dev
+    environment:
+      - VERSION_PATH=/version.json
+    volumes:
+      - ../lando-ui/landoui/:/app/landoui
+      - ../lando-ui/tests/:/app/tests

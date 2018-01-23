@@ -1,0 +1,16 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+# This is a configuration which allows to run Lando API development repo.
+# Please place the Phabricator code in `phabricator-extensions` directory on 
+# the same level as `demo` one.
+# docker-compose -f docker-compose.yml -f docker-compose.phabricator.yml up
+version: '2'
+services:
+  phabricator:
+    build:
+      context: ../phabricator-extensions/ 
+      dockerfile: ./Dockerfile-test
+    volumes:
+      - ../phabricator-extensions/extensions:/app/moz-extensions

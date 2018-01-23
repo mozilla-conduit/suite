@@ -25,6 +25,44 @@ Interactive demo of Mozilla's code-submission pipeline.
  1. Visit `http://lando-ui.test` For full Lando experience.
  1. Visit `http://lando-api.test` to use Lando API via Swagger UI.
 
+## Running apps from local repositories
+
+Each related application cluster also has its own corresponding Docker Compose configuration file.
+There are useful for doing development work as it allows you you to specify which application cluster
+should instead run from a local repository.
+
+For example, to run a Phabricator extension code from a local repository instead of the code already
+in the `mozilla/phabext` Docker image:
+
+```
+$ docker-compose -f docker-compose.yml -f docker-compose.phabricator.yml build
+$ docker-compose -f docker-compose.yml -f docker-compose.phabricator.yml run demo
+```
+
+Note you normally must have `-f docker-compose.yml` included as the first one. Also to allow the override
+compose files to work properly, you need to have your repository directory structure set up correctly.
+
+```
+conduit
+├── bmo/
+│   ├── Dockerfile
+├── demo/
+│   ├── docker/
+│   ├── docker-compose.bmo.yml
+│   ├── docker-compose.lando-api.yml
+│   ├── docker-compose.lando-ui.yml
+│   ├── docker-compose.phabricator.yml
+│   ├── docker-compose.yml
+├── lando-api/
+│   └── docker/
+│       └── Dockerfile-dev
+├── lando-ui/
+│   └── docker/
+│       └── Dockerfile-dev
+└── phabricator-extensions/
+    └── Dockerfile-test
+```
+
 ## Preconfigured users:
 
 For performing administration tasks in Phabricator, first log out of Phabricator and then go to:
@@ -45,7 +83,7 @@ For performing administrative tasks on BMO, you will need to log out of BMO and 
 
 `user:admin@mozilla.bugs`, `password:Te6Oovohch`
 
-### Local configuration
+## Local configuration
 
 To configure Lando API create `docker-compose.override.yml` file with
 content as below
