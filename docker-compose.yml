@@ -193,6 +193,7 @@ services:
 
   phabricator:
     image: mozilla/phabext
+    entrypoint: /app/entrypoint.sh
     command: dev_start
     environment:
       - MYSQL_HOST=phabdb
