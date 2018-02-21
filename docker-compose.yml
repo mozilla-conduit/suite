@@ -21,6 +21,7 @@ services:
       - BMO_memcached_namespace=bugzilla
       - BMO_memcached_servers=memcached:11211
       - BMO_urlbase=http://bmo.test/
+      - 'BMO_inbound_proxies=*'
       - BZ_QA_ANSWERS_FILE=/app/.circleci/checksetup_answers.txt
       - CONDUIT_USER_LOGIN=conduit@mozilla.bugs
       - CONDUIT_USER_PASSWORD=password123456789!
@@ -87,6 +88,8 @@ services:
     image: mozillabteam/bmo-mysql:5.6
     volumes:
       - bmo-mysql-db:/var/lib/mysql
+    logging:
+      driver: "none"
     environment:
       - MYSQL_DATABASE=bugs
       - MYSQL_USER=bugs
