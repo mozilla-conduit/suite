@@ -10,7 +10,7 @@ version: '2'
 services:
   phabricator:
     build:
-      context: ../phabricator-extensions/ 
-      dockerfile: ./Dockerfile-test
+      context: ../phabricator-extensions/
+      dockerfile: ./Dockerfile
     volumes:
       - ../phabricator-extensions/extensions:/app/moz-extensions
