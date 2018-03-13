@@ -46,7 +46,7 @@ services:
     environment: *bmo_env
     restart: always
     depends_on:
-      - bmo.test
+      - phabricator.test
       - bmodb
       - memcached
 
@@ -63,7 +63,7 @@ services:
     environment: *bmo_env
     restart: on-failure
     depends_on:
-      - bmo.test
+      - phabricator.test
       - bmodb
       - memcached
 
@@ -80,7 +80,7 @@ services:
     environment: *bmo_env
     restart: on-failure
     depends_on:
-      - bmo.test
+      - phabricator.test
       - bmodb
       - memcached
 
