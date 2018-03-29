@@ -103,7 +103,7 @@ services:
 
 ### First run
 For the first run of the Lando API please instantiate the database by running
-`docker exec -it demo_lando-api_1 python landoapi/manage.py upgrade`.
+`docker exec -it demo_lando-api_1 lando-cli init`.
 
 ## Updating the preloaded demo
 
