@@ -8,27 +8,35 @@ Interactive demo of Mozilla's code-submission pipeline.
  * `docker-compose`
  * Firefox, or some other way to connect your browser to a SOCKS proxy.
 
-## Running the demo
+## Installation
 
- 1. Run `docker-compose run demo`.
- 1. In the shell opened by `docker-compose run demo`, create a repo and
-    use `arc diff` to submit a review.
- 1. In a new terminal, run `firefox-proxy`, or
-    `firefox-proxy $(docker-machine ip)` if you are using `docker-machine`.
-    Please set the environment variable `FIREFOX_CMD=path/to/firefox` if your
-    system does not recognize the `firefox` command.
-    A new browser with an empty profile will open.  If you don't want to use
-    the script, configure your browser to use the demo SOCKS proxy, available
-    on port 1080 of your Docker host's IP.
- 1. Visit `http://phabricator.test` in the new browser window and log in
-    using BMO auth-delegation to work with your new review.
- 1. Visit `http://lando-ui.test` For full Lando experience.
- 1. Visit `http://lando-api.test` to use Lando API via Swagger UI.
+ 1. Pull the repository into a separate (e.g. `conduit`) directory.
+ 1. From within the `conduit/demo` directory run `docker-compose up`.
+
+## Using the demo repository
+
+ 1. Run `docker-compose run demo`. A shell will open.
+ 1. The preconfigured Mercurial repository is placed in `version-control-tools`.
+
+## Websites provided by the demo
+
+In a new terminal, run `firefox-proxy`, or
+`firefox-proxy $(docker-machine ip)` if you are using `docker-machine`.
+Please set the environment variable `FIREFOX_CMD=path/to/firefox` if your
+system does not recognize the `firefox` command.
+A new browser with an empty profile will open.  If you don't want to use
+the script, configure your browser to use the demo SOCKS proxy, available
+on port 1080 of your Docker host's IP or localhost.
+
+ * Phabricator - http://phabricator.test
+ * Lando - http://lando-ui.test
+ * Lando API - http://lando-api.test via Swagger UI.
+ * Bugzilla - http://bmo.test
 
 ## Running apps from local repositories
 
 Each related application cluster also has its own corresponding Docker Compose configuration file.
-There are useful for doing development work as it allows you you to specify which application cluster
+It is useful for doing development work as it allows you to specify which application cluster
 should instead run from a local repository.
 
 For example, to run a Phabricator extension code from a local repository instead of the code already
@@ -37,6 +45,11 @@ in the `mozilla/phabext` Docker image:
 ```
 $ docker-compose -f docker-compose.yml -f docker-compose.phabricator.yml build
 $ docker-compose -f docker-compose.yml -f docker-compose.phabricator.yml run demo
+```
+
+You can also use multiple apps from local repositories. I.e. to work on both Phabricator and Bugzilla:
+```
+$ docker-compose -f docker-compose.yml -f docker-compose.phabricator.yml -f docker-compose.bmo.yml up --build
 ```
 
 Note you normally must have `-f docker-compose.yml` included as the first one. Also to allow the override
@@ -60,7 +73,7 @@ conduit
 │   └── docker/
 │       └── Dockerfile-dev
 └── phabricator-extensions/
-    └── Dockerfile-test
+    └── Dockerfile
 ```
 
 ## Preconfigured users:
@@ -128,4 +141,3 @@ To update the preloaded database with new settings:
  1. `cp demo.sql.gz docker/phabricator/demo.sql.gz`
  1. Submit a [PR](https://github.com/mozilla-conduit/conduit-demo/pulls) with
     the changes.
-
