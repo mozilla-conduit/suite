@@ -23,6 +23,7 @@ RUN addgroup -g 1000 phab && adduser -D -u 1000 -G phab -s /bin/bash phab
 WORKDIR /home/phab
 
 RUN hg clone https://hg.mozilla.org/hgcustom/version-control-tools -r $VCT_VERSION
+COPY arcconfig version-control-tools/.arcconfig
 
 COPY hgrc .hgrc
 

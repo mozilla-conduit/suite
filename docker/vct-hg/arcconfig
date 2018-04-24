@@ -1,0 +1,5 @@
+{
+    "phabricator.uri" : "http://phabricator.test/",
+    "repository.callsign": "VCT",
+    "history.immutable": false
+}
