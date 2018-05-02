@@ -36,20 +36,6 @@ services:
       - bmodb
       - memcached
 
-  bmo.projects:
-    image: mozillabteam/bmo
-    command:
-      - perl
-      - extensions/PhabBugz/bin/update_project_members.pl
-    volumes:
-      - bmo-data-dir:/app/data
-    environment: *bmo_env
-    restart: always
-    depends_on:
-      - phabricator.test
-      - bmodb
-      - memcached
-
   bmo.feed:
     image: mozillabteam/bmo
     command:
@@ -241,7 +227,6 @@ services:
       - tinyproxy
       - phabricator.test
       - bmo.test
-      - bmo.projects
       - bmo.feed
       - bmo.pushd
 
