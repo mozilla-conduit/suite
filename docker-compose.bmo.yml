@@ -15,11 +15,6 @@ services:
       context: ../bmo/
       dockerfile: ./Dockerfile
 
-  bmo.projects:
-    build:
-      context: ../bmo/
-      dockerfile: ./Dockerfile
-
   bmo.feed:
     build:
       context: ../bmo/
