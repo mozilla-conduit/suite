@@ -57,6 +57,7 @@ compose files to work properly, you need to have your repository directory struc
 
 ```
 conduit
+├── arcanist/
 ├── bmo/
 │   ├── Dockerfile
 ├── demo/
