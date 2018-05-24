@@ -229,6 +229,8 @@ services:
       - bmo.test
       - bmo.feed
       - bmo.pushd
+      - lando-api.test
+      - lando-ui.test
 
 # Volume Containers
 volumes:
