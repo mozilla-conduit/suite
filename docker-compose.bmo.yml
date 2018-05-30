@@ -2,11 +2,6 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-# This is a configuration which allows to run Bugzilla development repo.
-# Please place the Bugzilla code in `bmo` directory on the same level 
-# as `demo` one.
-# docker-compose -f docker-compose.yml -f docker-compose.bmo.yml up
-
 version: '2'
 
 services:
@@ -14,13 +9,16 @@ services:
     build:
       context: ../bmo/
       dockerfile: ./Dockerfile
+    image: suite_bmo
 
   bmo.feed:
     build:
       context: ../bmo/
       dockerfile: ./Dockerfile
+    image: suite_bmo
 
   bmo.pushd:
     build:
       context: ../bmo/
       dockerfile: ./Dockerfile
+    image: suite_bmo

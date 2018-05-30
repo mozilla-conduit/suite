@@ -1,5 +1,5 @@
 {
     "phabricator.uri" : "http://phabricator.test/",
-    "repository.callsign": "VCT",
+    "repository.callsign": "TESTREPO",
     "history.immutable": false
 }

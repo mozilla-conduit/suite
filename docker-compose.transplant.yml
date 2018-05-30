@@ -1,0 +1,34 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+version: '2'
+services:
+  autoland.transplant-api:
+    build:
+      context: ../autoland-transplant/
+      dockerfile: ./Dockerfile
+    image: suite_transplant
+    volumes:
+      - ../autoland-transplant/autoland:/home/autoland/src
+
+  autoland.transplant-daemon:
+    build:
+      context: ../autoland-transplant/
+      dockerfile: ./Dockerfile
+    image: suite_transplant
+    environment:
+      SRC_PATH: /home/autoland/src
+    volumes:
+      - ../autoland-transplant/autoland:/home/autoland/src
+
+  autoland.transplant-init:
+    build:
+      context: ../autoland-transplant/
+      dockerfile: ./Dockerfile
+    image: suite_transplant
+    command: init
+    environment:
+      SRC_PATH: /home/autoland/src
+    volumes:
+      - ../autoland-transplant/autoland:/home/autoland/src

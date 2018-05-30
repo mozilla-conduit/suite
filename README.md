@@ -30,19 +30,33 @@ version: '2'
 services:
   lando-ui:
     environment:
-      - OIDC_DOMAIN=<your auth0 domain, e.g. account.auth0.com>
-      - OIDC_CLIENT_ID=<your auth0 client id for lando-ui>
-      - OIDC_CLIENT_SECRET=<your auth0 client secret for lando-ui>
-      - LANDO_API_OIDC_IDENTIFIER=<your auth0 api identifiier for lando-api>
+      OIDC_DOMAIN: <your auth0 domain, e.g. account.auth0.com>
+      OIDC_CLIENT_ID: <your auth0 client id for lando-ui>
+      OIDC_CLIENT_SECRET: <your auth0 client secret for lando-ui>
+      LANDO_API_OIDC_IDENTIFIER: <your auth0 api identifiier for lando-api>
+
   lando-api:
     environment:
-      - PATCH_BUCKET_NAME=<your aws patch bucket name>
-      - AWS_ACCESS_KEY=<your aws access key>
-      - AWS_SECRET_KEY=<your aws secret key>
-      - OIDC_IDENTIFIER=<your auth0 api identifiier for lando-api>
-      - OIDC_DOMAIN=<your auth0 domain>
-      - LOCALDEV_MOCK_AUTH0_USER=<'default' (no quotes) or another option if you're familar with this>
-      - TRANSPLANT_API_KEY=<fake transplant API key>
+      PATCH_BUCKET_NAME: <your aws patch bucket name>
+      AWS_ACCESS_KEY: <your aws access key>
+      AWS_SECRET_KEY: <your aws secret key>
+      # Optional: 'http://lando-api.test' by default
+      OIDC_IDENTIFIER: <your auth0 api identifiier for lando-api>
+      OIDC_DOMAIN: <your auth0 domain>
+      # Optional: 'inject_valid' by default
+      LOCALDEV_MOCK_AUTH0_USER: <'default' | 'inject_valid' | 'inject_invalid'>
+
+  autoland.transplant-init:
+    environment: &transplant_secret
+      LANDO_BUCKET: <your aws patch bucket name>
+      LANDO_AWS_KEY: <your aws access key>
+      LANDO_AWS_SECRET: <your aws secret key> 
+
+  autoland.transplant-api:
+    environment: *transplant_secret
+
+  autoland.transplant-daemon:
+    environment: *transplant_secret
 ```
 * Run `docker-compose build`
 
@@ -51,25 +65,26 @@ For the first run of the Lando API please instantiate the database:
 
 ```
 $ docker-compose up --detach
-$ docker exec -it suite_lando-api_1 lando-cli init
+$ docker-compose exec lando-api lando-cli init
 $ docker-compose down
 ```
 
 ## Using the local-dev service
 
  1. `$ docker-compose run local-dev`. A shell will open.
- 1. The preconfigured Mercurial repository is placed in
-    `./version-control-tools/`.
- 1. To point the repository to the `phabricator.test` we've changed the
-    contents of the `.arcconfig` file. You can commit that change.
+ 1. `$ ./clone_repositories.sh`. Repositories will be cloned from 
+    http://hg.test/
+ 1. The Mercurial repository is placed in the `./test-repo/`.
+ 1. To point the repository to the `phabricator.test` we've added the
+    `.arcconfig` file. You can commit that change.
  1. Run `arc install-certificate` to authenticate yourself in the local-dev
     environment.  Choose one of the [Preconfigured Users](#preconfigured-users)
     (preferably the *conduit* one)
  1. Use as a normal local development repository.
 
 *Note*: For the `git-cinnabar` usage we've cloned the same repository to the
-`./vct-cinnabar/` directory. The modified Arcanist is also provided and aliased
-as the `cinnabarc`.
+`./test-repo-cinnabar/` directory. The modified Arcanist is also provided and 
+aliased as the `cinnabarc`.
 
 ## Accessing the websites provided by the suite
 
@@ -98,6 +113,7 @@ preconfigured Firefox.
  * Lando - http://lando-ui.test
  * Lando API - http://lando-api.test/ui via Swagger UI.
  * Bugzilla - http://bmo.test
+ * Mercurial - http://hg.test
 
 ## Running apps from local repositories
 
@@ -115,6 +131,7 @@ repositories you wish to use locally to the `conduit` directory.
 
 ```
 $ git clone git@github.com:mozilla-conduit/arcanist.git
+$ git clone git@github.com:mozilla-conduit/autoland-transplant.git
 $ git clone git@github.com:mozilla-bteam/bmo.git
 $ git clone git@github.com:mozilla-conduit/lando-api.git
 $ git clone git@github.com:mozilla-conduit/lando-ui.git
@@ -132,23 +149,12 @@ look as below:
 ```
 conduit
 ├── arcanist/
+├── autoland-transplant/
 ├── bmo/
-│   ├── Dockerfile
 ├── suite/
-│   ├── docker/
-│   ├── docker-compose.bmo.yml
-│   ├── docker-compose.lando-api.yml
-│   ├── docker-compose.lando-ui.yml
-│   ├── docker-compose.phabricator.yml
-│   ├── docker-compose.yml
 ├── lando-api/
-│   └── docker/
-│       └── Dockerfile-dev
 ├── lando-ui/
-│   └── docker/
-│       └── Dockerfile-dev
 └── phabricator-extensions/
-    └── Dockerfile
 ```
 
 ### Usage
@@ -173,6 +179,17 @@ $ docker-compose -f docker-compose.yml -f docker-compose.phabricator.yml -f dock
 Note you normally must have `-f docker-compose.yml` included as the first
 and `-f docker-compose.override.yml` as the last one.
 
+To work on a local version of the modified Arcanist please load the 
+`docker-compose.cinnabarc.yml` configuration. This will modify the `arc` 
+command in the `local-dev` service.
+
+If you don't want to spin up all configured containers please specify the ones
+you'd like to work on. The command below runs `phabricator.test`,
+`phabricator`, `phabdb`, `lando-api.test`, `lando-api` and `lando-api.db` 
+and allows to check the integration between the Phabricator and the Lando API.
+
+`docker-compose up phabricator.test lando-api.test`
+
 ## Preconfigured users:
 
 For performing administration tasks in Phabricator, first log out of
@@ -196,8 +213,6 @@ and then login on http://bmo.test/login with the following credentials.
 `user:admin@mozilla.bugs`, `password:Te6Oovohch`
 
 
-
-
 ## Updating the preloaded Phabricator database
 
 As noted in [this Phabricator ticket](https://secure.phabricator.com/T5310),
@@ -218,6 +233,46 @@ To update the preloaded database with new settings:
  1. Edit `demo.sql` and delete the extra shell output at the beginning and at
     the end of the file.
  1. `$ gzip demo.sql`
- 1. `$ cp demo.sql.gz docker/phabricator/demo.sql.gz`
+ 1. `$ mv demo.sql.gz docker/phabricator/demo.sql.gz`
  1. Submit a [PR](https://github.com/mozilla-conduit/suite/pulls) with
     the changes.
+
+## Clone the test repository
+
+`local-dev` service is using repositories cloned from http://hg.test/test-repo
+One needs to re-clone them every time Mercurial service images are created.
+We've prepared a bash script which will remove the existing
+directories and clone the repositories using `hg` and `git-cinnabar`:
+
+`$ ./clone_repositories.sh`
+
+## Successful landing step by step
+
+Start the suite
+
+```
+$ docker-compose up -d
+$ docker-compose exec lando-api lando-cli init
+```
+
+Create the diff
+
+```
+$ docker-compose run local-dev
+# ./clone-repositories.sh
+# cd test-repo
+# hg add .arcconfig
+# hg commit -m "arcconfig added"
+# arc install-certificate
+# arc diff .^
+```
+
+Login to the http://lando-ui.test
+
+Navigate to http://lando-ui.test/revisions/D2
+
+Confirm the warning and click on the `Land` button.
+
+Reload the page. Observe the landing confirmation.
+
+Check if the commit is present in the http://hg.test/

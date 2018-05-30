@@ -37,21 +37,19 @@ COPY arcrc .arcrc
 RUN chmod 600 .arcrc
 COPY hgrc .hgrc
 COPY gitconfig .gitconfig
+
+COPY clone_repositories.sh ./
+COPY arcconfig ./
+
 RUN chown -R phab:phab /home/phab
 
 USER phab
-
-RUN hg clone https://hg.mozilla.org/hgcustom/version-control-tools -r $VCT_VERSION
-COPY arcconfig version-control-tools/.arcconfig
 
 # Install git cinnabar
 # TODO Change the next line after `release` branch will show up.
 RUN git clone https://github.com/glandium/git-cinnabar.git --branch master --single-branch
 ENV PATH="${PATH}:/home/phab/git-cinnabar"
 RUN git cinnabar download
-
-RUN git clone hg::https://hg.mozilla.org/hgcustom/version-control-tools vct-cinnabar
-COPY arcconfig vct-cinnabar/.arcconfig
 
 # Install vanilla and modified Arcanist
 RUN mkdir -p phabricator \
