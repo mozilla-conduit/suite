@@ -2,12 +2,7 @@
 # Create a firefox profile which proxies
 # all traffic into the docker network and
 # run a new firefox instance using it.
-FIREFOX_CMD=${FIREFOX_CMD:-firefox}
-if [ "$1" ]; then
-    DOCKERHOST="$1"
-else
-    DOCKERHOST="localhost"
-fi
+DOCKERHOST=${1:-localhost}
 
 mkdir -p ./fxprofile
 if [ ! -f ./fxprofile/prefs.js ]; then
@@ -26,4 +21,5 @@ user_pref("network.proxy.ssl_port", 1080);
 user_pref("network.proxy.type", 1);
 EOL
 fi
-$FIREFOX_CMD --new-instance --profile ./fxprofile
+
+"${FIREFOX_CMD:-firefox}" --new-instance --profile ./fxprofile
