@@ -1,6 +1,7 @@
-# Conduit Demo
+# Conduit Suite
 
-Interactive demo of Mozilla's code-submission pipeline.
+Suite created to run all connected Conduit projects locally. Works as an
+interactive demo of Mozilla's code-submission pipeline.
 
 ## Installation
 
@@ -20,7 +21,7 @@ Interactive demo of Mozilla's code-submission pipeline.
 ### Steps
 
 * Pull the repository into a separate (e.g. `conduit`) directory.
-* Go to the `conduit/demo` directory
+* Go to the `conduit/suite` directory
 * Create the `docker-compose.override.yml` file. Add the following
   configuration.  If in doubt, please refer to the relevant projects.
 
@@ -50,18 +51,18 @@ For the first run of the Lando API please instantiate the database:
 
 ```
 $ docker-compose up --detach
-$ docker exec -it demo_lando-api_1 lando-cli init
+$ docker exec -it suite_lando-api_1 lando-cli init
 $ docker-compose down
 ```
 
-## Using the demo repository
+## Using the local-dev service
 
- 1. `$ docker-compose run demo`. A shell will open.
+ 1. `$ docker-compose run local-dev`. A shell will open.
  1. The preconfigured Mercurial repository is placed in
     `./version-control-tools/`.
  1. To point the repository to the `phabricator.test` we've changed the
     contents of the `.arcconfig` file. You can commit that change.
- 1. Run `arc install-certificate` to authenticate yourself in the demo
+ 1. Run `arc install-certificate` to authenticate yourself in the local-dev
     environment.  Choose one of the [Preconfigured Users](#preconfigured-users)
     (preferably the *conduit* one)
  1. Use as a normal local development repository.
@@ -70,7 +71,7 @@ $ docker-compose down
 `./vct-cinnabar/` directory. The modified Arcanist is also provided and aliased
 as the `cinnabarc`.
 
-## Accessing the websites provided by the demo
+## Accessing the websites provided by the suite
 
 ### Firefox configuration
 
@@ -91,7 +92,7 @@ preconfigured Firefox.
    `firefox-proxy $(docker-machine ip)` if you are using `docker-machine`.
 1. A new browser with an empty profile will open.
 
-### Websites provided by the demo
+### Websites provided by the suite
 
  * Phabricator - http://phabricator.test
  * Lando - http://lando-ui.test
@@ -133,7 +134,7 @@ conduit
 ├── arcanist/
 ├── bmo/
 │   ├── Dockerfile
-├── demo/
+├── suite/
 │   ├── docker/
 │   ├── docker-compose.bmo.yml
 │   ├── docker-compose.lando-api.yml
@@ -157,19 +158,20 @@ Phabricator extension code from a local repository instead of the code already
 in the `mozilla/phabext` Docker image:
 
 ```
-$ docker-compose -f docker-compose.yml -f docker-compose.phabricator.yml build
-$ docker-compose -f docker-compose.yml -f docker-compose.phabricator.yml run demo
+$ docker-compose -f docker-compose.yml -f docker-compose.phabricator.yml -f docker-compose.override.yml build
+$ docker-compose -f docker-compose.yml -f docker-compose.phabricator.yml -f docker-compose.override.yml run local-dev
 ```
 
 You can also use multiple apps from local repositories. I.e. to work on both
 Phabricator and Bugzilla:
 
 ```
-$ docker-compose -f docker-compose.yml -f docker-compose.phabricator.yml -f docker-compose.bmo.yml build
-docker-compose -f docker-compose.yml -f docker-compose.phabricator.yml -f docker-compose.bmo.yml run demo
+$ docker-compose -f docker-compose.yml -f docker-compose.phabricator.yml -f docker-compose.bmo.yml -f docker-compose.override.yml build
+$ docker-compose -f docker-compose.yml -f docker-compose.phabricator.yml -f docker-compose.bmo.yml -f docker-compose.override.yml run local-dev
 ```
 
-Note you normally must have `-f docker-compose.yml` included as the first one.
+Note you normally must have `-f docker-compose.yml` included as the first
+and `-f docker-compose.override.yml` as the last one.
 
 ## Preconfigured users:
 
@@ -196,16 +198,16 @@ and then login on http://bmo.test/login with the following credentials.
 
 
 
-## Updating the preloaded demo
+## Updating the preloaded Phabricator database
 
 As noted in [this Phabricator ticket](https://secure.phabricator.com/T5310),
-the only way we can set up an out-of-the-box demo of Phabricator is to preload
+the only way we can set up an out-of-the-box Phabricator is to preload
 the application database with the settings we want.
 
 To update the preloaded database with new settings:
 
  1. **Important:** Run `docker-compose down` and
-    `docker volume rm demo_phabricator-mysql-db` to ensure you have a
+    `docker volume rm suite_phabricator-mysql-db` to ensure you have a
     fresh DB!
  1. Start the application with `docker-compose up` and log in with the
     appropriate user ("admin" to update global settings, "phab-bot" for
@@ -217,5 +219,5 @@ To update the preloaded database with new settings:
     the end of the file.
  1. `$ gzip demo.sql`
  1. `$ cp demo.sql.gz docker/phabricator/demo.sql.gz`
- 1. Submit a [PR](https://github.com/mozilla-conduit/demo/pulls) with
+ 1. Submit a [PR](https://github.com/mozilla-conduit/suite/pulls) with
     the changes.

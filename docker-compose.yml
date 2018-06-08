@@ -216,11 +216,10 @@ services:
     ports:
       - "1080:1080"
 
-  demo:
+  local-dev:
     build:
-      context: docker/vct-hg
+      context: docker/local-dev
       dockerfile: ./Dockerfile
-    container_name: demo
     volumes:
       - .:/home/phab/repo:ro
     depends_on:
