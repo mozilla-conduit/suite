@@ -111,7 +111,7 @@ services:
   lando-ui:
     image: mozilla/landoui
     environment:
-      - DEBUG=True
+      - DEBUG=1
       - ENV=localdev
       - HOST=0.0.0.0
       - LANDO_API_OIDC_IDENTIFIER=lando-api-oidc-identifier
