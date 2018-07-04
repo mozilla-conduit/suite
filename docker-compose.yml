@@ -186,6 +186,10 @@ services:
 
   autoland.hg-init:
     image: mozilla/autolandhg:latest
+    environment:
+      ARCCONFIG: y
+      PHABRICATOR_URI: http://phabricator.test
+      REPO_CALLSIGN: TESTREPO
     command: init
     volumes:
       - autoland-hg:/repos

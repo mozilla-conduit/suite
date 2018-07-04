@@ -18,13 +18,3 @@ fi
 
 hg clone http://hg.test/ test-repo
 git clone hg::http://hg.test/ test-repo-cinnabar
-
-if [ ! -f test-repo/.arcconfig ]
-then
-  cp arcconfig test-repo/.arcconfig
-fi
-
-if [ ! -f test-repo-cinnabar/.arcconfig ]
-then
-  cp arcconfig test-repo-cinnabar/.arcconfig
-fi

@@ -75,8 +75,6 @@ $ docker-compose down
  1. `$ ./clone_repositories.sh`. Repositories will be cloned from 
     http://hg.test/
  1. The Mercurial repository is placed in the `./test-repo/`.
- 1. To point the repository to the `phabricator.test` we've added the
-    `.arcconfig` file. You can commit that change.
  1. Run `arc install-certificate` to authenticate yourself in the local-dev
     environment.  Choose one of the [Preconfigured Users](#preconfigured-users)
     (preferably the *conduit* one)
@@ -239,12 +237,12 @@ To update the preloaded database with new settings:
 
 ## Clone the test repository
 
-`local-dev` service is using repositories cloned from http://hg.test/test-repo
+`local-dev` service is using repositories cloned from http://hg.test/.
 One needs to re-clone them every time Mercurial service images are created.
 We've prepared a bash script which will remove the existing
 directories and clone the repositories using `hg` and `git-cinnabar`:
 
-`$ ./clone_repositories.sh`
+`# ./clone_repositories.sh`
 
 ## Successful landing step by step
 
@@ -261,8 +259,8 @@ Create the diff
 $ docker-compose run local-dev
 # ./clone-repositories.sh
 # cd test-repo
-# hg add .arcconfig
-# hg commit -m "arcconfig added"
+# echo test >> README
+# hg commit -m "test info added"
 # arc install-certificate
 # arc diff .^
 ```
