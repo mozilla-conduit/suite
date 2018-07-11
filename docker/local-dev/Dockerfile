@@ -39,7 +39,6 @@ COPY hgrc .hgrc
 COPY gitconfig .gitconfig
 
 COPY clone_repositories.sh ./
-COPY arcconfig ./
 
 RUN chown -R phab:phab /home/phab
 
