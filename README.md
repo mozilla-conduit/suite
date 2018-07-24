@@ -1,18 +1,38 @@
 # Conduit Suite
 
-Suite created to run all connected Conduit projects locally. Works as an
-interactive demo of Mozilla's code-submission pipeline.
+This repository contains Docker configuration files to start up a local
+installation of most of the parts of Mozilla's code-review-and-landing
+system, collectively known as "Conduit".  This includes
+
+* BMO, Mozilla's Bugzilla fork
+* Phabricator, including extensions and patches
+* Lando, both API and UI
+* Transplant, the service that lands commits
+* A Mercurial server
+* A container ("local-dev") with various command-line tools including Arcanist
+  and Mozilla's [git-cinnabar fork](https://github.com/mozilla-conduit/arcanist)
+  of Arcanist
+
+The suite allows only some services to be started up, if the whole
+system is not needed.  It also provides the option of using both local
+clones and hosted images, so you need only have the code checked out
+for the service(s) you need to modify.
+
+This suite can be used to demo Conduit services and to aid in
+development.  This repository, however, should not be viewed as a
+substitute for self-contained tests in individual repositories.
 
 ## Installation
 
 ### Prerequisites
 
-1. You need to have the [docker](https://docs.docker.com/install/) and
+1. You need to have [docker](https://docs.docker.com/install/) and
    [docker-compose](https://docs.docker.com/compose/install/) installed.
-1. An Auth0 developer account. See the
+1. For Lando, an Auth0 developer account. See the
    [lando-ui README.md](https://github.com/mozilla-conduit/lando-ui/blob/master/README.md)
    for instructions on how to set that up.
-1. Create an [AWS S3](https://aws.amazon.com/s3/) bucket. You will need to have:
+1. Also for Lando/Transplant, an [AWS S3](https://aws.amazon.com/s3/)
+   bucket, which requires
 
   * The bucket name
   * AWS Access Key
@@ -22,8 +42,10 @@ interactive demo of Mozilla's code-submission pipeline.
 
 * Pull the repository into a separate (e.g. `conduit`) directory.
 * Go to the `conduit/suite` directory
-* Create the `docker-compose.override.yml` file. Add the following
-  configuration.  If in doubt, please refer to the relevant projects.
+* Depending on what services you plan to run, you may need to create a
+  `docker-compose.override.yml` file. At the moment, this is only
+  required for Lando and Transplant. If in doubt, please refer to the
+  relevant projects.  Here is a sample file:
 
 ```
 version: '2'
@@ -50,7 +72,7 @@ services:
     environment: &transplant_secret
       LANDO_BUCKET: <your aws patch bucket name>
       LANDO_AWS_KEY: <your aws access key>
-      LANDO_AWS_SECRET: <your aws secret key> 
+      LANDO_AWS_SECRET: <your aws secret key>
 
   autoland.transplant-api:
     environment: *transplant_secret
@@ -58,38 +80,45 @@ services:
   autoland.transplant-daemon:
     environment: *transplant_secret
 ```
+
 * Run `docker-compose build`
 
-### First run
-For the first run of the Lando API please instantiate the database:
+### First run of Lando
+
+If you are running Lando, you will need to first initialize the database:
 
 ```
-$ docker-compose up --detach
+$ docker-compose up --detach lando-api
 $ docker-compose exec lando-api lando-cli init
 $ docker-compose down
 ```
 
 ## Using the local-dev service
 
+The "local-dev" container includes command-line tools used to interact
+with Conduit services.
+
+To set up the container,
+
  1. `$ docker-compose run local-dev`. A shell will open.
- 1. `$ ./clone_repositories.sh`. Repositories will be cloned from 
+ 1. `$ ./clone_repositories.sh`. Repositories will be cloned from
     http://hg.test/
  1. The Mercurial repository is placed in the `./test-repo/`.
  1. Run `arc install-certificate` to authenticate yourself in the local-dev
     environment.  Choose one of the [Preconfigured Users](#preconfigured-users)
-    (preferably the *conduit* one)
+    (preferably the `conduit` one)
  1. Use as a normal local development repository.
 
-*Note*: For the `git-cinnabar` usage we've cloned the same repository to the
-`./test-repo-cinnabar/` directory. The modified Arcanist is also provided and 
-aliased as the `cinnabarc`.
+**Note**: A `git-cinnabar` version of the same repository is located at
+`./test-repo-cinnabar/`. The forked version of Arcanist is also
+provided and aliased as the `cinnabarc`.
 
 ## Accessing the websites provided by the suite
 
 ### Firefox configuration
 
-You can either configure the existing Firefox to use our proxy, or run a
-preconfigured Firefox.
+You can either configure an existing Firefox instance to use our
+proxy, or run a preconfigured Firefox.
 
 **To configure your current browser**:
 
@@ -113,13 +142,13 @@ preconfigured Firefox.
  * Bugzilla - http://bmo.test
  * Mercurial - http://hg.test
 
-## Running apps from local repositories
+## Running apps from local clone
 
-Each related application cluster also has its own corresponding Docker Compose
+Each Conduit application also has its own corresponding Docker Compose
 configuration file.
 
-It is useful for doing development work as it allows you to specify which
-application cluster should instead run from a local repository.
+This is useful for doing development work as, it allows you to specify which
+application should run from a local clone instead of from a hosted image.
 
 ### Preparing the environment
 
@@ -136,13 +165,13 @@ $ git clone git@github.com:mozilla-conduit/lando-ui.git
 $ git clone git@github.com:mozilla-services/phabricator-extensions.git
 ```
 
-Phabricator-extensions build process requires existence of the `phabext.json`
-file. Please add it with the command:
+The `phabricator-extensions` build process requires existence of a
+`phabext.json` file. Add it with the command:
 
 `$ echo "{}" > phabricator-extensions/phabext.json`
 
-If you'd install all of the above projects your directory structure would
-look as below:
+If you've installed all of the above projects, your directory structure
+would look as below:
 
 ```
 conduit
@@ -157,59 +186,63 @@ conduit
 
 ### Usage
 
-You can use each app from its local repository. For example, to run a
-Phabricator extension code from a local repository instead of the code already
-in the `mozilla/phabext` Docker image:
+You can use each app from its local repository. For example, to run
+the phabricator-extensions code from a local repository instead of the
+`mozilla/phabext` image,
 
 ```
+# Build the containers
 $ docker-compose -f docker-compose.yml -f docker-compose.phabricator.yml -f docker-compose.override.yml build
+# Start the containers and open the `local-dev` shell
 $ docker-compose -f docker-compose.yml -f docker-compose.phabricator.yml -f docker-compose.override.yml run local-dev
 ```
 
-You can also use multiple apps from local repositories. I.e. to work on both
-Phabricator and Bugzilla:
+You can also use multiple apps from local repositories. For example,
+to work on both Phabricator and Bugzilla,
 
 ```
 $ docker-compose -f docker-compose.yml -f docker-compose.phabricator.yml -f docker-compose.bmo.yml -f docker-compose.override.yml build
 $ docker-compose -f docker-compose.yml -f docker-compose.phabricator.yml -f docker-compose.bmo.yml -f docker-compose.override.yml run local-dev
 ```
 
-Note you normally must have `-f docker-compose.yml` included as the first
-and `-f docker-compose.override.yml` as the last one.
+Note that normally you must have `-f docker-compose.yml` as the first
+option and `-f docker-compose.override.yml` as the last one.
 
-To work on a local version of the modified Arcanist please load the 
-`docker-compose.cinnabarc.yml` configuration. This will modify the `arc` 
-command in the `local-dev` service.
+To work on a local version of the Arcanist fork, load the
+`docker-compose.cinnabarc.yml` configuration. This will modify the
+`arc` command in the `local-dev` service.
 
-If you don't want to spin up all configured containers please specify the ones
-you'd like to work on. The command below runs `phabricator.test`,
-`phabricator`, `phabdb`, `lando-api.test`, `lando-api` and `lando-api.db` 
-and allows to check the integration between the Phabricator and the Lando API.
+If you don't want to spin up all configured containers, you can
+specify the ones you'd like to work on. The command below runs
+`phabricator.test`, `phabricator`, `phabdb`, `lando-api.test`,
+`lando-api` and `lando-api.db` to allow the verification of the
+integration between Phabricator and Lando API:
 
 `docker-compose up phabricator.test lando-api.test`
 
 ## Preconfigured users:
 
 For performing administration tasks in Phabricator, first log out of
-Phabricator and then go to http://phabricator.test/?admin=1
+Phabricator and then go to http://phabricator.test/?admin=1 and log in
+with
 
 `user:admin`, `password:password123456789!`
 
-For logging in as a normal test user, you will need to use BMO for
-auth-delegation. Log out in Phabricator and then click on 'Log In or
-Register'. You will be redirected to BMOs login page.
+To log in as a normal test user, you will need to use BMO for
+auth delegation. Log out of Phabricator and then click on 'Log In or
+Register'. You will be redirected to BMO's login page.
 
 `user:conduit@mozilla.bugs`, `password:password123456789!`
 
 After login, if it complains that you do not have MFA enabled on your
-BMO account, click on the 'preferences' link that will allow you to configure
-TOTP and then you should be able to login to Phabricator.
+BMO account, click on the 'Preferences' link that will allow you to
+configure TOTP and then you should be able to login to Phabricator.
 
-For performing administrative tasks on BMO, you will need to log out of BMO
-and then login on http://bmo.test/login with the following credentials.
+For performing administrative tasks on BMO, you will need to log out
+of BMO and then log in at http://bmo.test/login with the following
+credentials:
 
 `user:admin@mozilla.bugs`, `password:Te6Oovohch`
-
 
 ## Updating the preloaded Phabricator database
 
@@ -237,23 +270,23 @@ To update the preloaded database with new settings:
 
 ## Clone the test repository
 
-`local-dev` service is using repositories cloned from http://hg.test/.
-One needs to re-clone them every time Mercurial service images are created.
-We've prepared a bash script which will remove the existing
+The `local-dev` service uses repositories cloned from http://hg.test/.
+You will need to re-clone them every time Mercurial server images are
+created.  There is a bash script which will remove the existing
 directories and clone the repositories using `hg` and `git-cinnabar`:
 
 `# ./clone_repositories.sh`
 
 ## Successful landing step by step
 
-Start the suite
+Start the suite:
 
 ```
 $ docker-compose up -d
 $ docker-compose exec lando-api lando-cli init
 ```
 
-Create the diff
+Create a diff:
 
 ```
 $ docker-compose run local-dev
@@ -265,12 +298,12 @@ $ docker-compose run local-dev
 # arc diff .^
 ```
 
-Login to the http://lando-ui.test
+Log in to http://lando-ui.test.
 
-Navigate to http://lando-ui.test/revisions/D2
+Navigate to http://lando-ui.test/revisions/D2.
 
 Confirm the warning and click on the `Land` button.
 
 Reload the page. Observe the landing confirmation.
 
-Check if the commit is present in the http://hg.test/
+Check if the commit is present in the http://hg.test/.
