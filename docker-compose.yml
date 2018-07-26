@@ -38,6 +38,7 @@ services:
     depends_on:
       - bmodb
       - memcached
+      - tinyproxy
 
   bmo.feed:
     image: mozillabteam/bmo:latest
