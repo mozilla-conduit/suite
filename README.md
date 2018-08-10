@@ -163,6 +163,7 @@ $ git clone git@github.com:mozilla-bteam/bmo.git
 $ git clone git@github.com:mozilla-conduit/lando-api.git
 $ git clone git@github.com:mozilla-conduit/lando-ui.git
 $ git clone git@github.com:mozilla-services/phabricator-extensions.git
+$ git clone git@github.com:mozilla-conduit/review.git
 ```
 
 The `phabricator-extensions` build process requires existence of a
@@ -181,7 +182,9 @@ conduit
 ├── suite/
 ├── lando-api/
 ├── lando-ui/
-└── phabricator-extensions/
+├── phabricator-extensions/
+└── review/
+
 ```
 
 ### Usage
@@ -193,16 +196,15 @@ the phabricator-extensions code from a local repository instead of the
 ```
 # Build the containers
 $ docker-compose -f docker-compose.yml -f docker-compose.phabricator.yml -f docker-compose.override.yml build
-# Start the containers and open the `local-dev` shell
-$ docker-compose -f docker-compose.yml -f docker-compose.phabricator.yml -f docker-compose.override.yml run local-dev
+# Start the containers
+$ docker-compose -f docker-compose.yml -f docker-compose.phabricator.yml -f docker-compose.override.yml up --detach
 ```
 
 You can also use multiple apps from local repositories. For example,
 to work on both Phabricator and Bugzilla,
 
 ```
-$ docker-compose -f docker-compose.yml -f docker-compose.phabricator.yml -f docker-compose.bmo.yml -f docker-compose.override.yml build
-$ docker-compose -f docker-compose.yml -f docker-compose.phabricator.yml -f docker-compose.bmo.yml -f docker-compose.override.yml run local-dev
+$ docker-compose -f docker-compose.yml -f docker-compose.phabricator.yml -f docker-compose.bmo.yml -f docker-compose.override.yml up --build --detach
 ```
 
 Note that normally you must have `-f docker-compose.yml` as the first
@@ -210,7 +212,8 @@ option and `-f docker-compose.override.yml` as the last one.
 
 To work on a local version of the Arcanist fork, load the
 `docker-compose.cinnabarc.yml` configuration. This will modify the
-`arc` command in the `local-dev` service.
+`arc` command in the `local-dev` service. Similarly, to load a local version 
+of the ARC wrapper "review" , load the `docker-compose.review.yml`. 
 
 If you don't want to spin up all configured containers, you can
 specify the ones you'd like to work on. The command below runs

@@ -40,15 +40,16 @@ COPY gitconfig .gitconfig
 
 COPY clone_repositories.sh ./
 
-RUN chown -R phab:phab /home/phab
+RUN chown -R phab:phab /home/phab \
+ && ln -fs /home/phab/phabricator/cinnabarc/bin/arc /usr/local/bin/cinnabarc
 
 USER phab
 
 # Install git cinnabar
 # TODO Change the next line after `release` branch will show up.
-RUN git clone https://github.com/glandium/git-cinnabar.git --branch master --single-branch
 ENV PATH="${PATH}:/home/phab/git-cinnabar"
-RUN git cinnabar download
+RUN git clone https://github.com/glandium/git-cinnabar.git --branch release --single-branch \
+ && git cinnabar download
 
 # Install vanilla and modified Arcanist
 RUN mkdir -p phabricator \
@@ -57,8 +58,10 @@ RUN mkdir -p phabricator \
  && git clone https://github.com/phacility/arcanist.git \
  && git clone https://github.com/mozilla-conduit/arcanist.git cinnabarc
 
-RUN echo "export PATH=/home/phab/phabricator/arcanist/bin:/home/phab/git-cinnabar:\$PATH" >> .bash_profile \
- && echo "export EDITOR=vi" >> .bash_profile \
- && echo "alias cinnabarc=/home/phab/phabricator/cinnabarc/bin/arc" >> .bash_profile
+# Install ARC Wrapper
+RUN git clone https://github.com/mozilla-conduit/review.git \
+ && chmod a+x review/moz-phab \
+ && echo "export PATH=/home/phab/phabricator/arcanist/bin:/home/phab/git-cinnabar:/home/phab/review:\$PATH" >> .bash_profile \
+ && echo "export EDITOR=vi" >> .bash_profile
 
 CMD ["/bin/bash", "-l"]

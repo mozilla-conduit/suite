@@ -6,4 +6,4 @@ version: '2'
 services:
   local-dev:
     volumes: 
-      - ../arcanist:/home/phab/phabricator/cinnabarc
+      - ../review:/home/phab/review
