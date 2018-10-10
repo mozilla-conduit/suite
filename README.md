@@ -122,9 +122,9 @@ proxy, or run a preconfigured Firefox.
 
 **To configure your current browser**:
 
-1. Open `Preferences -> Net Proxy -> Settings`
+1. Open `Options -> Network Proxy -> Settings`
 1. Choose the `Manual Proxy Configuration` radio button
-1. Set the `Proxy HTTP Server` to `localhost`, and the `Port` to `1080`.
+1. Set `HTTP Proxy` to `localhost` and `Port` to `1080`.
 
 **To run Firefox with an empty profile**:
 
