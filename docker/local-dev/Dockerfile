@@ -2,7 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-FROM debian:jessie-slim
+FROM debian:stable-slim
 
 ENV HG_RELEASE=4.6 \
     VCT_VERSION=tip
@@ -15,16 +15,17 @@ RUN apt-get update \
         ca-certificates \
         curl \
         git \
-        php5-common \
-        php5-cli \
-        php5-curl \
-        php5-json \
+        php-common \
+        php-cli \
+        php-curl \
+        php-json \
         python \
         python-pip \
         python-dev \
         vim
 RUN pip install \
         mercurial==$HG_RELEASE \
+        requests \
         simplejson
 
 # add a non-privileged user
