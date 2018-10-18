@@ -26,7 +26,8 @@ RUN apt-get update \
 RUN pip install \
         mercurial==$HG_RELEASE \
         requests \
-        simplejson
+        simplejson \
+        hg-evolve
 
 # add a non-privileged user
 RUN addgroup --gid 1000 phab \

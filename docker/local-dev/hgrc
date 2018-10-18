@@ -4,3 +4,6 @@ username = Conduit Test User <conduit@mozilla.bugs>
 [bugzilla]
 username = conduit@mozilla.bugs
 apikey = zQ5TSBzq7tTZMtKYq9K1ZqJMjifKx3cPL7pIGk9Q
+
+[extensions]
+evolve=
