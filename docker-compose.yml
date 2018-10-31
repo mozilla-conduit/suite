@@ -119,7 +119,7 @@ services:
       USE_HTTPS: 0
       UWSGI_HTTP: :9000
       UWSGI_SOCKET: :9001
-      VERSION_PATH: /app/version.json
+      VERSION_PATH: /version.json
 
   lando-api:
     image: mozilla/landoapi:latest

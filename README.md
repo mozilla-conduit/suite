@@ -88,7 +88,7 @@ services:
 If you are running Lando, you will need to first initialize the database:
 
 ```
-$ docker-compose up --detach lando-api
+$ docker-compose up -d lando-api
 $ docker-compose exec lando-api lando-cli init
 $ docker-compose down
 ```
@@ -197,14 +197,19 @@ the phabricator-extensions code from a local repository instead of the
 # Build the containers
 $ docker-compose -f docker-compose.yml -f docker-compose.phabricator.yml -f docker-compose.override.yml build
 # Start the containers
-$ docker-compose -f docker-compose.yml -f docker-compose.phabricator.yml -f docker-compose.override.yml up --detach
+$ docker-compose -f docker-compose.yml -f docker-compose.phabricator.yml -f docker-compose.override.yml up -d
 ```
 
 You can also use multiple apps from local repositories. For example,
 to work on both Phabricator and Bugzilla,
 
 ```
-$ docker-compose -f docker-compose.yml -f docker-compose.phabricator.yml -f docker-compose.bmo.yml -f docker-compose.override.yml up --build --detach
+$ docker-compose -f docker-compose.yml -f docker-compose.phabricator.yml -f docker-compose.bmo.yml -f docker-compose.override.yml up --build -d
+```
+
+And for example to work on lando-ui and lando-api,
+```
+$ docker-compose -f docker-compose.yml -f docker-compose.lando-api.yml -f docker-compose.lando-ui.yml -f docker-compose.override.yml up --build -d
 ```
 
 Note that normally you must have `-f docker-compose.yml` as the first

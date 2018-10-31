@@ -7,8 +7,7 @@ services:
   lando-api:
     build:
       context: ../lando-api/
-      # By default a ./docker/Dockerfile-prod is used
-      dockerfile: ./docker/Dockerfile-dev
+      dockerfile: ./Dockerfile
     image: suite_lando-api
     environment:
       PORT: 9000
@@ -16,4 +15,5 @@ services:
 
     volumes:
       - ../lando-api/:/app
+      - ../lando-api/docker/dev-version.json:/version.json
       - ../lando-api/migrations/:/migrations/
