@@ -20,6 +20,7 @@ ENV HG_RELEASE=4.6 \
     LC_ALL=en_US.UTF-8 \
     LANGUAGE=en_US:en \
     VIRTUAL_ENV=/opt/mozphab \
+    VIRTUAL_ENV3=/opt/mozphab3 \
     HG_VIRTUAL_ENV=/opt/mercurial \
     EDITOR=vi
 
@@ -29,6 +30,8 @@ RUN apt-get install -y \
         ca-certificates \
         curl \
         git \
+        httpie \
+        iputils-ping \
         php-common \
         php-cli \
         php-curl \
@@ -36,10 +39,14 @@ RUN apt-get install -y \
         python \
         python-pip \
         python-dev \
-        vim \
-        fish \
-        httpie
+        python3 \
+        python3-pip \
+        python3-dev \
+        vim
+
 RUN pip install virtualenv \
+ && pip3 install virtualenv \
+ && python3 -m virtualenv --no-site-packages $VIRTUAL_ENV3 \
  && python -m virtualenv --no-site-packages $VIRTUAL_ENV \
  && python -m virtualenv --no-site-packages $HG_VIRTUAL_ENV
 

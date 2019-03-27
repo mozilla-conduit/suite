@@ -9,9 +9,7 @@ system, collectively known as "Conduit".  This includes
 * Lando, both API and UI
 * Transplant, the service that lands commits
 * A Mercurial server
-* A container ("local-dev") with various command-line tools including Arcanist
-  and Mozilla's [git-cinnabar fork](https://github.com/mozilla-conduit/arcanist)
-  of Arcanist
+* A container ("local-dev") with various command-line tools including MozPhab
 
 The suite allows only some services to be started up, if the whole
 system is not needed.  It also provides the option of using both local
@@ -104,7 +102,7 @@ To set up the container,
  1. `$ ./clone_repositories.sh`. Repositories will be cloned from
     http://hg.test/
  1. The Mercurial repository is placed in the `./test-repo/`.
- 1. Run `arc install-certificate` to authenticate yourself in the local-dev
+ 1. Run `moz-phab install-certificate` to authenticate yourself in the local-dev
     environment.  Choose one of the [Preconfigured Users](#preconfigured-users)
     (preferably the `conduit` one)
  1. Use as a normal local development repository.
@@ -112,6 +110,11 @@ To set up the container,
 **Note**: A `git-cinnabar` version of the same repository is located at
 `./test-repo-cinnabar/`. The forked version of Arcanist is also
 provided and aliased as the `cinnabarc`.
+
+**Note**: To run `moz-phab` under Python3 start the prepared environment:
+```
+$ source $VIRTUAL_ENV3/bin/activate
+```
 
 ## Accessing the websites provided by the suite
 
@@ -308,8 +311,8 @@ $ docker-compose run local-dev
 # cd test-repo
 # echo test >> README
 # hg commit -m "test info added"
-# arc install-certificate
-# arc diff .^
+# moz-phab install-certificate
+# moz-phab submit -b 1
 ```
 
 Log in to http://lando-ui.test.
