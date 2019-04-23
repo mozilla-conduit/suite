@@ -231,8 +231,8 @@ integration between Phabricator and Lando API:
 ## Preconfigured users:
 
 For performing administration tasks in Phabricator, first log out of
-Phabricator and then go to http://phabricator.test/?admin=1 and log in
-with
+Phabricator and then go to http://phabricator.test/auth/start/?admin and log 
+in with
 
 `user:admin`, `password:password123456789!`
 
