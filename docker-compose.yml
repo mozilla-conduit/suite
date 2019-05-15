@@ -112,7 +112,7 @@ services:
       LANDO_API_URL: http://lando-api.test
       PORT: 9000
       SECRET_KEY: secret_key_change_me
-      SENTRY_DSN: 
+      SENTRY_DSN:
       SESSION_COOKIE_DOMAIN: lando-ui.test
       SESSION_COOKIE_NAME: lando-ui.test
       SESSION_COOKIE_SECURE: 0
@@ -137,14 +137,14 @@ services:
       TRANSPLANT_USERNAME: autoland
       TRANSPLANT_PASSWORD: autoland
       TRANSPLANT_API_KEY: autoland
-      SENTRY_DSN: 
+      SENTRY_DSN:
       UWSGI_HTTP: :9000
       UWSGI_SOCKET: :9001
     depends_on:
       - lando-api.db
 
   lando-api.db:
-    image: postgres:10-alpine
+    image: postgres:9.6-alpine
     environment:
       POSTGRES_PASSWORD: password
       POSTGRES_USER: postgres
@@ -215,7 +215,7 @@ services:
       - autoland.hg-init
 
   autoland.db:
-    image: postgres:alpine
+    image: postgres:9.4-alpine
     restart: always
     environment:
       POSTGRES_DB: autoland
