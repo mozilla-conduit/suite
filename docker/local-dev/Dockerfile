@@ -22,7 +22,9 @@ RUN apt-get update \
         python \
         python-pip \
         python-dev \
-        vim
+        vim \
+        fish \
+        httpie
 RUN pip install \
         mercurial==$HG_RELEASE \
         requests \
