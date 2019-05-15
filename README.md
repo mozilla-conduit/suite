@@ -242,6 +242,12 @@ Register'. You will be redirected to BMO's login page.
 
 `user:conduit@mozilla.bugs`, `password:password123456789!`
 
+We also have a `ConduitReviewer` account that can be opened in a second private
+browser window for performing the other half of the review dance.  On the BMO 
+login page enter:
+
+`user:conduit-reviewer@mozilla.bugs`, `password:password123456789!`
+
 After login, if it complains that you do not have MFA enabled on your
 BMO account, click on the 'Preferences' link that will allow you to
 configure TOTP and then you should be able to login to Phabricator.
