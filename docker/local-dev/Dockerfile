@@ -4,12 +4,23 @@
 
 FROM debian:stable-slim
 
-ENV HG_RELEASE=4.6 \
-    VCT_VERSION=tip
-
 # Build/install dependencies
-RUN apt-get update \
- && apt-get install -y \
+
+RUN apt-get clean \
+ && apt-get update \
+ && apt-get install -y apt-utils
+
+RUN apt-get install -y locales \
+ && sed --in-place '/en_US.UTF-8/s/^#//' /etc/locale.gen \
+ && locale-gen en_US.UTF-8
+
+ENV HG_RELEASE=4.6 \
+    VCT_VERSION=tip \
+    LANG=en_US.UTF-8 \
+    LC_ALL=en_US.UTF-8 \
+    LANGUAGE=en_US:en
+
+RUN apt-get install -y \
         bash \
         build-essential \
         ca-certificates \
