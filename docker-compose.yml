@@ -208,7 +208,7 @@ services:
     image: mozilla/autolandhg:latest
     restart: always
     ports:
-      - "8101:8000"
+      - "8201:8000"
     volumes:
       - autoland-hg:/repos
     depends_on:
@@ -248,7 +248,7 @@ services:
       - autoland.db
       - autoland.transplant-init
     ports:
-      - "8100:8000"
+      - "8200:8000"
     links:
       - autoland.db:autolanddb
       - autoland.hg:autolandhg
