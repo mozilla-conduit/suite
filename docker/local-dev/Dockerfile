@@ -20,7 +20,6 @@ ENV HG_RELEASE=4.6 \
     LC_ALL=en_US.UTF-8 \
     LANGUAGE=en_US:en \
     VIRTUAL_ENV=/opt/mozphab \
-    VIRTUAL_ENV3=/opt/mozphab3 \
     HG_VIRTUAL_ENV=/opt/mercurial \
     EDITOR=vi
 
@@ -46,8 +45,7 @@ RUN apt-get install -y \
 
 RUN pip install virtualenv \
  && pip3 install virtualenv \
- && python3 -m virtualenv --no-site-packages $VIRTUAL_ENV3 \
- && python -m virtualenv --no-site-packages $VIRTUAL_ENV \
+ && python3 -m virtualenv --no-site-packages $VIRTUAL_ENV \
  && python -m virtualenv --no-site-packages $HG_VIRTUAL_ENV
 
 # Install Mercurial in virtualenv
@@ -91,8 +89,7 @@ RUN mkdir -p phabricator \
  && git clone https://github.com/mozilla-conduit/arcanist.git cinnabarc
 
 # Install moz-phab
-RUN git clone https://github.com/mozilla-conduit/review.git \
- && chmod a+x review/moz-phab \
- && echo "export PATH=$VIRTUAL_ENV/bin:/home/phab/phabricator/arcanist/bin:/home/phab/git-cinnabar:/home/phab/review:\$PATH" >> .bash_profile
+RUN pip3 install MozPhab \
+ && echo "export PATH=$VIRTUAL_ENV/bin:/home/phab/phabricator/arcanist/bin:/home/phab/git-cinnabar:/home/phab/review:/home/phab/.local/bin:\$PATH" >> .bash_profile
 
 CMD ["/bin/bash", "-l"]
