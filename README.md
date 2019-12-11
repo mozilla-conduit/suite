@@ -102,6 +102,7 @@ To set up the container,
  1. `$ ./clone_repositories.sh`. Repositories will be cloned from
     http://hg.test/
  1. The Mercurial repository is placed in the `./test-repo/`.
+ 1. `source $VIRTUAL_ENV3/bin/activate` to get `moz-phab` on your `PATH`
  1. Run `moz-phab install-certificate` to authenticate yourself in the local-dev
     environment.  Choose one of the [Preconfigured Users](#preconfigured-users)
     (preferably the `conduit` one)
@@ -110,11 +111,6 @@ To set up the container,
 **Note**: A `git-cinnabar` version of the same repository is located at
 `./test-repo-cinnabar/`. The forked version of Arcanist is also
 provided and aliased as the `cinnabarc`.
-
-**Note**: To run `moz-phab` under Python3 start the prepared environment:
-```
-$ source $VIRTUAL_ENV3/bin/activate
-```
 
 ## Accessing the websites provided by the suite
 
