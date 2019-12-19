@@ -90,6 +90,6 @@ RUN mkdir -p phabricator \
 
 # Install moz-phab
 RUN pip3 install MozPhab \
- && echo "export PATH=$VIRTUAL_ENV/bin:/home/phab/phabricator/arcanist/bin:/home/phab/git-cinnabar:/home/phab/review:/home/phab/.local/bin:\$PATH" >> .bash_profile
+ && echo "export PATH=$VIRTUAL_ENV/bin:/home/phab/phabricator/arcanist/bin:/home/phab/git-cinnabar:/home/phab/review:/home/phab/.local/bin:\$PATH" >> .bashrc
 
 CMD ["/bin/bash", "-l"]
