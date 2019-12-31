@@ -2,7 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-version: '2'
+version: '3.4'
 services:
   lando-api:
     build:
@@ -12,8 +12,32 @@ services:
     environment:
       PORT: 9000
       VERSION_PATH: /version.json
-
     volumes:
-      - ../lando-api/:/app
-      - ../lando-api/docker/dev-version.json:/version.json
-      - ../lando-api/migrations/:/migrations/
+      - lando-api-app-local:/app
+      - lando-api-version-local:/version.json
+      - lando-api-migrations-local:/migrations
+  lando-ui.test:
+    volumes:
+      - lando-api-app-local:/app
+      - lando-api-version-local:/version.json
+      - lando-api-migrations-local:/migrations
+
+volumes:
+  lando-api-app-local:
+    driver: local
+    driver_opts:
+      type: none
+      device: '$PWD/../lando-api/'
+      o: bind
+  lando-api-version-local:
+    driver: local
+    driver_opts:
+      type: none
+      device: '$PWD/../lando-api/docker/dev-version.json'
+      o: bind
+  lando-api-migrations-local:
+    driver: local
+    driver_opts:
+      type: none
+      device: '$PWD/../lando-api/migrations/'
+      o: bind
