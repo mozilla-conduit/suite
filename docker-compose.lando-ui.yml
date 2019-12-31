@@ -2,7 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-version: '2'
+version: '3.4'
 services:
   lando-ui:
     build:
@@ -12,5 +12,23 @@ services:
     environment:
       VERSION_PATH: /version.json
     volumes:
-      - ../lando-ui/landoui/:/app/landoui
-      - ../lando-ui/tests/:/app/tests
+      - lando-ui-app-local:/app/landoui
+      - lando-ui-tests-local:/app/tests
+  lando-ui.test:
+    volumes:
+      - lando-ui-app-local:/app/landoui
+      - lando-ui-tests-local:/app/tests
+
+volumes:
+  lando-ui-app-local:
+    driver: local
+    driver_opts:
+      type: none
+      device: '$PWD/../lando-ui/landoui/'
+      o: bind
+  lando-ui-tests-local:
+    driver: local
+    driver_opts:
+      type: none
+      device: '$PWD/../lando-ui/tests/'
+      o: bind
