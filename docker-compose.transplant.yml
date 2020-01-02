@@ -2,7 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-version: '3.4'
+version: '2'
 services:
   autoland.transplant-api:
     build:
@@ -10,7 +10,7 @@ services:
       dockerfile: ./Dockerfile
     image: suite_transplant
     volumes:
-      - autoland.transplant-local:/home/autoland/src
+      - ../autoland-transplant/autoland:/home/autoland/src
 
   autoland.transplant-daemon:
     build:
@@ -20,7 +20,7 @@ services:
     environment:
       SRC_PATH: /home/autoland/src
     volumes:
-      - autoland.transplant-local:/home/autoland/src
+      - ../autoland-transplant/autoland:/home/autoland/src
 
   autoland.transplant-init:
     build:
@@ -31,16 +31,4 @@ services:
     environment:
       SRC_PATH: /home/autoland/src
     volumes:
-      - autoland.transplant-local:/home/autoland/src
-
-  autoland.transplant-api.test:
-    volumes:
-      - autoland.transplant-local:/home/autoland/src
-
-volumes:
-  autoland.transplant-local:
-    driver: local
-    driver_opts:
-      type: none
-      device: '$PWD/../autoland-transplant/autoland/'
-      o: bind
+      - ../autoland-transplant/autoland:/home/autoland/src

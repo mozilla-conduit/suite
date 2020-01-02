@@ -46,7 +46,7 @@ substitute for self-contained tests in individual repositories.
   relevant projects.  Here is a sample file:
 
 ```
-version: '3.4'
+version: '2'
 services:
   lando-ui:
     environment:

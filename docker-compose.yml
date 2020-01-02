@@ -2,7 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-version: '3.4'
+version: '2'
 services:
   #########################
   # BMO Containers
@@ -129,7 +129,6 @@ services:
       DATABASE_URL: postgresql://postgres:password@lando-api.db/postgres
       ENV: localdev
       HOST_URL: http://lando-api.test
-      LANDO_UI_URL: http://lando-ui.test
       PINGBACK_ENABLED: y
       PINGBACK_HOST_URL: http://lando-api.test
       PHABRICATOR_URL: http://phabricator.test
@@ -173,8 +172,6 @@ services:
       BUGZILLA_URL: http://bmo.test
       BUGZILLA_AUTOMATION_USER: phab-bot@bmo.tld
       BUGZILLA_AUTOMATION_API_KEY: 8G4ly8JkxbypZgh5XrdiHWExVEjPq5S3HvMBll1K
-    volumes:
-      - phabricator-app:/app
     restart: on-failure
     depends_on:
       - phabdb
@@ -305,7 +302,8 @@ services:
     image: nginx:alpine
     volumes:
       - ./docker/phabricator/site.conf:/etc/nginx/conf.d/default.conf:ro
-      - phabricator-app:/app
+    volumes_from:
+      - phabricator
     restart: on-failure
     depends_on:
       - phabricator
@@ -316,6 +314,8 @@ services:
     container_name: lando-ui.test
     volumes:
       - ./docker/landoui/site.conf:/etc/nginx/conf.d/default.conf:ro
+    volumes_from:
+      - lando-ui
     restart: on-failure
     depends_on:
       - lando-ui
@@ -326,6 +326,8 @@ services:
     container_name: lando-api.test
     volumes:
       - ./docker/landoapi/site.conf:/etc/nginx/conf.d/default.conf:ro
+    volumes_from:
+      - lando-api
     restart: on-failure
     depends_on:
       - lando-api
@@ -338,6 +340,8 @@ services:
       - ./docker/transplant-api/site.conf:/etc/nginx/conf.d/default.conf:ro
     environment:
       - TRANSPLANT_PORT=8100
+    volumes_from:
+      - autoland.transplant-api
     restart: on-failure
     depends_on:
       - autoland.transplant-api
@@ -348,14 +352,14 @@ services:
     container_name: hg.test
     volumes:
       - ./docker/autoland-hg/site.conf:/etc/nginx/conf.d/default.conf:ro
-      - autoland-hg:/repos
+    volumes_from:
+      - autoland.hg
     restart: on-failure
     depends_on:
       - autoland.hg
       - tinyproxy
 
 volumes:
-  phabricator-app:
   phabricator-mysql-db:
   lando-postgres-db:
   bmo-mysql-db:
