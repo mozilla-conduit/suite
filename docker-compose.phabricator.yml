@@ -8,6 +8,7 @@ services:
     build:
       context: ../phabricator-extensions/
       dockerfile: ./Dockerfile
+      target: development
     image: suite_phabricator
     volumes:
       - phabricator-moz-extensions-local:/app/moz-extensions
