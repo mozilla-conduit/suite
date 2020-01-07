@@ -102,7 +102,7 @@ To set up the container,
  1. `$ ./clone_repositories.sh`. Repositories will be cloned from
     http://hg.test/
  1. The Mercurial repository is placed in the `./test-repo/`.
- 1. `source $VIRTUAL_ENV3/bin/activate` to get `moz-phab` on your `PATH`
+ 1. `source $VIRTUAL_ENV/bin/activate` to get `moz-phab` on your `PATH`
  1. Run `moz-phab install-certificate` to authenticate yourself in the local-dev
     environment.  Choose one of the [Preconfigured Users](#preconfigured-users)
     (preferably the `conduit` one)
