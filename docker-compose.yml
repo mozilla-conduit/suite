@@ -280,6 +280,8 @@ services:
     build:
       context: docker/local-dev
       dockerfile: ./Dockerfile
+    environment:
+      HTTP_ALLOWED: 1
     volumes:
       - .:/home/phab/repo:ro
     depends_on:
