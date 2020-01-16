@@ -1,0 +1,23 @@
+[ui]
+no_ansi = False
+
+[vcs]
+safe_mode = False
+
+[git]
+remote =
+
+[submit]
+auto_submit = True
+always_blocking = False
+warn_untracked = True
+
+[patch]
+apply_to = base
+create_bookmark = True
+always_full_stack = False
+
+[updater]
+self_last_check = 1579203515
+arc_last_check = 0
+self_auto_update = True
