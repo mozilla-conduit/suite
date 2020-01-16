@@ -96,20 +96,12 @@ $ docker-compose down
 The "local-dev" container includes command-line tools used to interact
 with Conduit services.
 
-To set up the container,
-
- 1. `$ docker-compose run local-dev`. A shell will open.
- 1. `$ ./clone_repositories.sh`. Repositories will be cloned from
-    http://hg.test/
- 1. The Mercurial repository is placed in the `./test-repo/`.
- 1. `source $VIRTUAL_ENV/bin/activate` to get `moz-phab` on your `PATH`
- 1. Run `moz-phab install-certificate` to authenticate yourself in the local-dev
-    environment.  Choose one of the [Preconfigured Users](#preconfigured-users)
-    (preferably the `conduit` one)
- 1. Use as a normal local development repository.
+To set up the container run `docker-compose run local-dev`.
+You will be placed inside of a repository cloned from http://hg.test. You can
+use it as a normal local development repository.
 
 **Note**: A `git-cinnabar` version of the same repository is located at
-`./test-repo-cinnabar/`. The forked version of Arcanist is also
+`~/test-repo-cinnabar/`. The forked version of Arcanist is also
 provided and aliased as the `cinnabarc`.
 
 ## Accessing the websites provided by the suite

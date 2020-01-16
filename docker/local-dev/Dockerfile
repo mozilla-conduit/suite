@@ -70,6 +70,8 @@ COPY arcrc .arcrc
 RUN chmod 600 .arcrc
 COPY hgrc .hgrc
 COPY gitconfig .gitconfig
+COPY moz-phab-config .moz-phab-config
+COPY initfile.sh .initfile.sh
 COPY clone_repositories.sh ./
 RUN chown -R phab:phab /home/phab \
  && ln -fs /home/phab/phabricator/cinnabarc/bin/arc /usr/local/bin/cinnabarc
@@ -92,4 +94,4 @@ RUN mkdir -p phabricator \
 RUN pip3 install MozPhab \
  && echo "export PATH=$VIRTUAL_ENV/bin:/home/phab/phabricator/arcanist/bin:/home/phab/git-cinnabar:/home/phab/review:/home/phab/.local/bin:\$PATH" >> .bashrc
 
-CMD ["/bin/bash", "-l"]
+CMD ["/bin/bash", "-c", "exec bash --init-file <(cat /etc/profile ~/.bashrc .initfile.sh)"]
