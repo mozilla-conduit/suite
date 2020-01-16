@@ -273,7 +273,7 @@ services:
   # LOCAL-DEV
   # Provide an ability to run all CLI developer needs:
   # * CVS push/pull to autoland.hg
-  # * arc diff to phabricator.test
+  # * moz-phab to phabricator.test
   ###########################
 
   local-dev:
@@ -283,7 +283,7 @@ services:
     environment:
       HTTP_ALLOWED: 1
     volumes:
-      - .:/home/phab/repo:ro
+      - local-dev:/home/phab
     depends_on:
       - tinyproxy
       - phabricator.test
@@ -360,6 +360,7 @@ volumes:
   phabricator-app:
   phabricator-mysql-db:
   lando-postgres-db:
+  local-dev:
   bmo-mysql-db:
   bmo-data-dir:
   autoland-hg:
