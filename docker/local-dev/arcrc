@@ -3,8 +3,6 @@
     "phabricator.uri": "http://phabricator.test"
   },
   "hosts": {
-    "http://phabricator.test/api/": {
-      "token": "cli-wnxaaftwm34jjfheiokqevsshlg7"
-    }
+    "http://phabricator.test/api/": {}
   }
 }
