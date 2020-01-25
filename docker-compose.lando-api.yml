@@ -11,15 +11,15 @@ services:
     image: suite_lando-api
     environment:
       PORT: 9000
-      VERSION_PATH: /version.json
+      VERSION_PATH: /config/version.json
     volumes:
       - lando-api-app-local:/app
-      - lando-api-version-local:/version.json
+      - lando-api-version-local:/config
       - lando-api-migrations-local:/migrations
   lando-ui.test:
     volumes:
       - lando-api-app-local:/app
-      - lando-api-version-local:/version.json
+      - lando-api-version-local:/config
       - lando-api-migrations-local:/migrations
 
 volumes:
@@ -33,7 +33,7 @@ volumes:
     driver: local
     driver_opts:
       type: none
-      device: '$PWD/../lando-api/docker/dev-version.json'
+      device: '$PWD/../lando-api/docker/dev-config/'
       o: bind
   lando-api-migrations-local:
     driver: local
