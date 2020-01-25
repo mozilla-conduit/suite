@@ -9,8 +9,6 @@ services:
       context: ../lando-ui/
       dockerfile: ./docker/Dockerfile-dev
     image: suite_lando-ui
-    environment:
-      VERSION_PATH: /version.json
     volumes:
       - lando-ui-app-local:/app/landoui
       - lando-ui-tests-local:/app/tests
