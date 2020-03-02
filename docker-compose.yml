@@ -138,7 +138,7 @@ services:
       PINGBACK_ENABLED: y
       PINGBACK_HOST_URL: http://lando-api.test
       PHABRICATOR_URL: http://phabricator.test
-      PHABRICATOR_UNPRIVILEGED_API_KEY: api-qdaethogwpld3wmn2cnhbh57wkux
+      PHABRICATOR_UNPRIVILEGED_API_KEY: api-lefsv24henzsbzpw337bhizawuyh
       TRANSPLANT_URL: http://transplant-api.test/
       TRANSPLANT_USERNAME: autoland
       TRANSPLANT_PASSWORD: autoland
@@ -158,6 +158,33 @@ services:
       - lando-postgres-db:/var/lib/postgresql/data
     ports:
       - "54322:5432"
+
+  lando-api.landing-worker:
+    build:
+      context: ../lando-api/
+      dockerfile: ./Dockerfile
+    image: suite_lando-api
+    command: ["landing-worker"]
+    environment:
+      - ENV=localdev
+      - DATABASE_URL=postgresql://postgres:password@lando-api.db/postgres
+      - SENTRY_DSN=
+      - CELERY_BROKER_URL=redis://redis.queue/0
+      - OIDC_IDENTIFIER=https://lando-api.test
+      - LANDO_UI_URL=https://lando.test
+      - REPO_CLONES_PATH=/repos
+      - REPOS_TO_LAND=first-repo
+    volumes:
+      - ../lando-api:/app
+      - ../lando-api/migrations:/migrations
+      # Prevent writing python cache to the host.
+      - caches_cache:/app/.cache/
+    depends_on:
+      - lando-api.db
+      - redis.queue
+
+  redis.queue:
+    image: redis:3.2-alpine
 
 
   ###############################
@@ -209,7 +236,6 @@ services:
     environment:
       ARCCONFIG: y
       PHABRICATOR_URI: http://phabricator.test
-      REPO_CALLSIGN: TESTREPO
     command: init
     volumes:
       - autoland-hg:/repos
@@ -374,3 +400,4 @@ volumes:
   autoland-hg:
   autoland-db:
   autoland-dev-repos:
+  caches_cache:

@@ -10,23 +10,14 @@ services:
       dockerfile: ./docker/Dockerfile-dev
     image: suite_lando-ui
     volumes:
-      - lando-ui-app-local:/app/landoui
-      - lando-ui-tests-local:/app/tests
+      - ../lando-ui/landoui:/app/landoui
+      - ../lando-ui/tests:/app/tests
+    environment:
+      - LOG_LEVEL=DEBUG
+      - WERKZEUG_DEBUG_PIN=132435
+    tty: true
+    stdin_open: true
   lando-ui.test:
     volumes:
-      - lando-ui-app-local:/app/landoui
-      - lando-ui-tests-local:/app/tests
-
-volumes:
-  lando-ui-app-local:
-    driver: local
-    driver_opts:
-      type: none
-      device: '$PWD/../lando-ui/landoui/'
-      o: bind
-  lando-ui-tests-local:
-    driver: local
-    driver_opts:
-      type: none
-      device: '$PWD/../lando-ui/tests/'
-      o: bind
+      - ../lando-ui/landoui:/app/landoui
+      - ../lando-ui/tests:/app/tests

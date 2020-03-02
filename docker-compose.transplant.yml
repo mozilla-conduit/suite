@@ -11,16 +11,19 @@ services:
     image: suite_transplant
     volumes:
       - autoland.transplant-local:/home/autoland/src
+    environment: &transplant-common
+      SRC_PATH: /home/autoland/src
+      HG_WEB_HOSTNAME: hg.test
 
   autoland.transplant-daemon:
     build:
       context: ../autoland-transplant/
       dockerfile: ./Dockerfile
     image: suite_transplant
-    environment:
-      SRC_PATH: /home/autoland/src
     volumes:
       - autoland.transplant-local:/home/autoland/src
+    environment:
+        <<: *transplant-common
 
   autoland.transplant-init:
     build:
@@ -28,14 +31,16 @@ services:
       dockerfile: ./Dockerfile
     image: suite_transplant
     command: init
-    environment:
-      SRC_PATH: /home/autoland/src
     volumes:
       - autoland.transplant-local:/home/autoland/src
+    environment:
+        <<: *transplant-common
 
   autoland.transplant-api.test:
     volumes:
       - autoland.transplant-local:/home/autoland/src
+    environment:
+        <<: *transplant-common
 
 volumes:
   autoland.transplant-local:

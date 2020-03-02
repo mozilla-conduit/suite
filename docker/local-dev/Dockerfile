@@ -73,6 +73,7 @@ COPY gitconfig .gitconfig
 COPY moz-phab-config .moz-phab-config
 COPY initfile.sh .initfile.sh
 COPY clone_repositories.sh ./
+COPY generate_revision.sh ./
 RUN chown -R phab:phab /home/phab \
  && ln -fs /home/phab/phabricator/cinnabarc/bin/arc /usr/local/bin/cinnabarc
 USER phab
