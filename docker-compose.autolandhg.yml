@@ -1,0 +1,37 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+version: '3.4'
+services:
+  autoland.hg-init:
+    build:
+      context: ../conduit-autoland-hg/
+      dockerfile: ./Dockerfile
+    environment:
+      ARCCONFIG: y
+      PHABRICATOR_URI: http://phabricator.test
+    command: init
+    volumes:
+      - autoland.hg:/repos
+
+  autoland.hg:
+    build:
+      context: ../conduit-autoland-hg/
+      dockerfile: ./Dockerfile
+    depends_on:
+      - autoland.hg-init
+    environment:
+      SSHD_PORT: "8022"
+      SSH_PUBLIC_KEY: "ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBHWpDYI3qzSxV8tbjH8C4z3ef6QU2yBKGTHTFf6OrPrqDIO++ixfr4LW3yGmW4Q3CRJcx8KZ6hnx2FPnDOCsrqw= app"
+    ports:
+      - "8000:8000"
+      - "8022:8022"
+    volumes:
+      - autoland.hg:/repos
+      - autoland.ssh:/home/app/.ssh
+    command: ["start", "--no-init"]
+
+volumes:
+  autoland.hg:
+  autoland.ssh:

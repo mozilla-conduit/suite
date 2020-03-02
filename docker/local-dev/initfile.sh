@@ -2,10 +2,9 @@
 # Don't use a .bashrc so that, if the entrypoint needs to be skipped, you can just override CMD to be "bash" (rather
 # than having to force bash to ignore the .bashrc)
 if [ -f ~/.volume-initialized ]; then
-  cd test-repo || exit
+  echo "Repos already initialized...\n"
 else
+  echo "Initializing repos...\n"
   ./clone_repositories.sh
-  cd test-repo || exit
-  moz-phab install-certificate
   touch ~/.volume-initialized
 fi
