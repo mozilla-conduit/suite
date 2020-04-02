@@ -188,6 +188,8 @@ services:
     environment:
       - MYSQL_ROOT_PASSWORD=password
     restart: on-failure
+    ports:
+      - "3306:3306"
 
   ###############################
   # Transplant services
