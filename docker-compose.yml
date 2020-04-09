@@ -84,9 +84,12 @@ services:
       - memcached
 
   bmodb:
-    image: mozillabteam/bmo-mysql:5.6
+    image: mysql:5.7
     volumes:
       - bmo-mysql-db:/var/lib/mysql
+      - ./docker/bmo/mysql:/etc/mysql/conf.d
+    tmpfs:
+      - /tmp
     logging:
       driver: "none"
     environment:
@@ -112,7 +115,7 @@ services:
       LANDO_API_URL: http://lando-api.test
       PORT: 9000
       SECRET_KEY: secret_key_change_me
-      SENTRY_DSN: 
+      SENTRY_DSN:
       SESSION_COOKIE_DOMAIN: lando-ui.test
       SESSION_COOKIE_NAME: lando-ui.test
       SESSION_COOKIE_SECURE: 0
@@ -138,7 +141,7 @@ services:
       TRANSPLANT_USERNAME: autoland
       TRANSPLANT_PASSWORD: autoland
       TRANSPLANT_API_KEY: autoland
-      SENTRY_DSN: 
+      SENTRY_DSN:
       UWSGI_HTTP: :9000
       UWSGI_SOCKET: :9001
     depends_on:
