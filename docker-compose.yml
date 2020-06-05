@@ -43,6 +43,8 @@ services:
       PHABRICATOR_BOT_API_KEY: 8G4ly8JkxbypZgh5XrdiHWExVEjPq5S3HvMBll1K
       PHABRICATOR_BOT_LOGIN: phab-bot@bmo.tld
       PHABRICATOR_BOT_PASSWORD: password123456789!
+      PHABRICATOR_OAUTH_ID: 6iaYNVorOeYQaQ5vkwyC
+      PHABRICATOR_OAUTH_SECRET: QNzdU5eRuhlHotvkh8KBgtR3yqxMG3czKfNks1qt
       PORT: 80
     depends_on:
       - bmodb
@@ -183,7 +185,7 @@ services:
       - phabdb
 
   phabdb:
-    image: mysql:5.5
+    image: mysql:5.7
     volumes:
       - phabricator-mysql-db:/var/lib/mysql
       - ./docker/phabricator/mysql:/etc/mysql/conf.d:ro
