@@ -45,8 +45,8 @@ RUN apt-get install -y \
 
 RUN pip install virtualenv \
  && pip3 install virtualenv \
- && python3 -m virtualenv --no-site-packages $VIRTUAL_ENV \
- && python -m virtualenv --no-site-packages $HG_VIRTUAL_ENV
+ && python3 -m virtualenv $VIRTUAL_ENV \
+ && python -m virtualenv $HG_VIRTUAL_ENV
 
 # Install Mercurial in virtualenv
 ENV OLDPATH=$PATH \
