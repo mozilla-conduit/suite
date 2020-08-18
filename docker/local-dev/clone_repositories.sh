@@ -16,5 +16,5 @@ then
   rm -rf test-repo-cinnabar
 fi
 
-hg clone http://hg.test/ test-repo
-git clone hg::http://hg.test/ test-repo-cinnabar
+hg clone http://hg.test/test-repo test-repo
+git clone hg::http://hg.test/test-repo test-repo-cinnabar

@@ -216,6 +216,7 @@ services:
 
   autoland.hg:
     image: mozilla/autolandhg:latest
+    command: start
     restart: always
     ports:
       - "8201:8000"
