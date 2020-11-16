@@ -157,11 +157,6 @@ $ git clone git@github.com:mozilla-services/phabricator-extensions.git
 $ git clone git@github.com:mozilla-conduit/review.git
 ```
 
-The `phabricator-extensions` build process requires existence of a
-`phabext.json` file. Add it with the command:
-
-`$ echo "{}" > phabricator-extensions/phabext.json`
-
 If you've installed all of the above projects, your directory structure
 would look as below:
 
