@@ -65,6 +65,15 @@ RUN addgroup --gid 1000 phab \
 
 WORKDIR /home/phab
 
+# Install Rust so Glean (required by MozPhab) can be installed
+USER phab
+RUN curl https://sh.rustup.rs -sSf > /tmp/rustup.sh
+RUN chmod 755 /tmp/rustup.sh
+RUN /tmp/rustup.sh -y
+RUN rm /tmp/rustup.sh
+ENV PATH="/home/phab/.cargo/bin:$PATH"
+USER root
+
 # copy configuration
 COPY arcrc .arcrc
 RUN chmod 600 .arcrc
