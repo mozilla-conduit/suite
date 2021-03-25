@@ -43,6 +43,10 @@ RUN apt-get install -y \
         python3-dev \
         vim
 
+# Upgrade pip to be compatible with new platform tag formats
+RUN pip install --upgrade pip
+RUN pip3 install --upgrade pip
+
 RUN pip install virtualenv \
  && pip3 install virtualenv \
  && python3 -m virtualenv $VIRTUAL_ENV \
