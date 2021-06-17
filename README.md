@@ -153,6 +153,7 @@ $ git clone git@github.com:mozilla-conduit/autoland-transplant.git
 $ git clone git@github.com:mozilla-bteam/bmo.git
 $ git clone git@github.com:mozilla-conduit/lando-api.git
 $ git clone git@github.com:mozilla-conduit/lando-ui.git
+$ git clone git@github.com:mozilla-conduit/phabricator-emails.git
 $ git clone git@github.com:mozilla-services/phabricator-extensions.git
 $ git clone git@github.com:mozilla-conduit/review.git
 ```
