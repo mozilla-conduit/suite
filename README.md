@@ -153,8 +153,8 @@ $ git clone git@github.com:mozilla-conduit/autoland-transplant.git
 $ git clone git@github.com:mozilla-bteam/bmo.git
 $ git clone git@github.com:mozilla-conduit/lando-api.git
 $ git clone git@github.com:mozilla-conduit/lando-ui.git
+$ git clone git@github.com:mozilla-conduit/phabricator.git
 $ git clone git@github.com:mozilla-conduit/phabricator-emails.git
-$ git clone git@github.com:mozilla-services/phabricator-extensions.git
 $ git clone git@github.com:mozilla-conduit/review.git
 ```
 
@@ -169,7 +169,8 @@ conduit
 ├── suite/
 ├── lando-api/
 ├── lando-ui/
-├── phabricator-extensions/
+├── phabricator/
+├── phabricator-emails/
 └── review/
 
 ```
@@ -177,7 +178,7 @@ conduit
 ### Usage
 
 You can use each app from its local repository. For example, to run
-the phabricator-extensions code from a local repository instead of the
+the phabricator code from a local repository instead of the
 `mozilla/phabext` image,
 
 ```
