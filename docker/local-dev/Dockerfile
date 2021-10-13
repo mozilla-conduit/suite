@@ -14,7 +14,7 @@ RUN apt-get install -y locales \
  && sed --in-place '/en_US.UTF-8/s/^#//' /etc/locale.gen \
  && locale-gen en_US.UTF-8
 
-ENV HG_RELEASE=4.6 \
+ENV HG_RELEASE=5.9.2 \
     VCT_VERSION=tip \
     LANG=en_US.UTF-8 \
     LC_ALL=en_US.UTF-8 \
@@ -35,27 +35,22 @@ RUN apt-get install -y \
         php-cli \
         php-curl \
         php-json \
-        python \
-        python-pip \
-        python-dev \
         python3 \
-        python3-pip \
         python3-dev \
+        python3-pip \
+        python3-venv \
         vim
 
 # Upgrade pip to be compatible with new platform tag formats
-RUN pip install --upgrade pip
-RUN pip3 install --upgrade pip
+RUN python3 -m pip install --upgrade pip
 
-RUN pip install virtualenv \
- && pip3 install virtualenv \
- && python3 -m virtualenv $VIRTUAL_ENV \
- && python -m virtualenv $HG_VIRTUAL_ENV
+RUN python3 -m venv $VIRTUAL_ENV \
+ && python3 -m venv $HG_VIRTUAL_ENV
 
 # Install Mercurial in virtualenv
 ENV OLDPATH=$PATH \
     PATH=$HG_VIRTUAL_ENV/bin:$PATH
-RUN pip install \
+RUN python3 -m pip install \
         mercurial==$HG_RELEASE \
         requests \
         simplejson \
@@ -86,6 +81,7 @@ USER phab
 ENV PATH="${PATH}:/home/phab/git-cinnabar"
 
 RUN git clone https://github.com/glandium/git-cinnabar.git --branch release --single-branch \
+ && git config --global cinnabar.experiments python3 \
  && git cinnabar download
 
 # Install vanilla and modified Arcanist
@@ -96,7 +92,7 @@ RUN mkdir -p phabricator \
  && git clone https://github.com/mozilla-conduit/arcanist.git cinnabarc
 
 # Install moz-phab
-RUN pip3 install MozPhab \
+RUN python3 -m pip install MozPhab \
  && echo "export PATH=$VIRTUAL_ENV/bin:/home/phab/phabricator/arcanist/bin:/home/phab/git-cinnabar:/home/phab/review:/home/phab/.local/bin:\$PATH" >> .bashrc
 
 CMD ["/bin/bash", "-c", "exec bash --init-file <(cat /etc/profile ~/.bashrc .initfile.sh)"]
