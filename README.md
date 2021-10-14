@@ -244,7 +244,7 @@ For performing administrative tasks on BMO, you will need to log out
 of BMO and then log in at http://bmo.test/login with the following
 credentials:
 
-`user:admin@mozilla.bugs`, `password:Te6Oovohch`
+`user:admin@mozilla.bugs`, `password:password01!`
 
 ## Updating the preloaded Phabricator database
 
