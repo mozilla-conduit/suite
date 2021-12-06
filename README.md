@@ -53,6 +53,7 @@ services:
       OIDC_DOMAIN: <your auth0 domain, e.g. account.auth0.com>
       OIDC_CLIENT_ID: <your auth0 client id for lando-ui>
       OIDC_CLIENT_SECRET: <your auth0 client secret for lando-ui>
+      LANDO_API_OIDC_DOMAIN: <your auth0 domain, e.g. example.us.auth0.com>
       LANDO_API_OIDC_IDENTIFIER: <your auth0 api identifiier for lando-api>
 
   lando-api:
@@ -61,10 +62,15 @@ services:
       AWS_ACCESS_KEY: <your aws access key>
       AWS_SECRET_KEY: <your aws secret key>
       # Optional: 'http://lando-api.test' by default
-      OIDC_IDENTIFIER: <your auth0 api identifiier for lando-api>
       OIDC_DOMAIN: <your auth0 domain>
+      OIDC_CLIENT_ID: <your auth0 client id for lando-ui>
+      OIDC_CLIENT_SECRET: <your auth0 client secret for lando-ui>
+      LANDO_API_OIDC_IDENTIFIER: http://lando-api.test
+      LANDO_API_OIDC_DOMAIN: <your auth0 domain, e.g. example.us.auth0.com>
+      OIDC_IDENTIFIER: <your auth0 api identifiier for lando-api>
       # Optional: 'inject_valid' by default
       LOCALDEV_MOCK_AUTH0_USER: <'default' | 'inject_valid' | 'inject_invalid'>
+      LOCALDEV_MOCK_TRANSPLANT_SUBMIT: <'succeed' | 'fail'>
 
   autoland.transplant-init:
     environment: &transplant_secret
