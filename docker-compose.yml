@@ -192,7 +192,7 @@ services:
   ###############################
 
   phabricator:
-    image: mozilla/phabext:latest
+    image: mozillaconduit/phabricator:latest
     entrypoint: /app/entrypoint.sh
     command: dev_start
     environment:
