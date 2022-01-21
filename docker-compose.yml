@@ -169,7 +169,7 @@ services:
       context: ../lando-api/
       dockerfile: ./Dockerfile
     image: suite_lando-api
-    command: ["landing-worker"]
+    command: ["start-landing-worker"]
     environment:
       - ENV=localdev
       - DATABASE_URL=postgresql://postgres:password@lando-api.db/postgres
@@ -185,6 +185,37 @@ services:
       # Prevent writing python cache to the host.
       - caches_cache:/app/.cache/
     depends_on:
+      - autoland.hg
+      - lando-api.db
+      - redis.queue
+
+  lando-api.revision-worker:
+    build:
+      context: ../lando-api/
+      dockerfile: ./Dockerfile
+    image: suite_lando-api
+    command: ["start-revision-worker"]
+    environment:
+      ENV: localdev
+      DATABASE_URL: postgresql://postgres:password@lando-api.db/postgres
+      PHABRICATOR_URL: http://phabricator.test/
+      PHABRICATOR_UNPRIVILEGED_API_KEY: api-lefsv24henzsbzpw337bhizawuyh
+      PHABRICATOR_PRIVILEGED_API_KEY: api-lefsv24henzsbzpw337bhizawuyh
+      SENTRY_DSN:
+      CELERY_BROKER_URL: redis://redis.queue/0
+      OIDC_IDENTIFIER: https://lando-api.test
+      LANDO_UI_URL: https://lando.test
+      REPO_CLONES_PATH: /repos
+      REPOS_TO_LAND: first-repo,second-repo,third-repo
+    user: root
+    volumes:
+      - ../lando-api:/app
+      - ../lando-api/migrations:/migrations
+      # Prevent writing python cache to the host.
+      - caches_cache:/app/.cache/
+      - /repos
+    depends_on:
+      - autoland.hg
       - lando-api.db
       - redis.queue
 
@@ -273,13 +304,6 @@ services:
       HTTP_ALLOWED: 1
     volumes:
       - local-dev:/home/phab
-    depends_on:
-      - tinyproxy
-      - phabricator.test
-      - bmo.test
-      - bmo.feed
-      - bmo.pushd
-      - autoland.hg.test
 
   ###########################
   # Proxy containers

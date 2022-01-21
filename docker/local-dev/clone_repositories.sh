@@ -39,4 +39,6 @@ cd third-repo
 echo -e "api-lefsv24henzsbzpw337bhizawuyh\n" | moz-phab install-certificate
 cd ..
 
+chmod a+rwx .
+
 git clone hg::http://hg.test/first-repo test-repo-cinnabar
