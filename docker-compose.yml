@@ -86,7 +86,7 @@ services:
       - memcached
 
   bmodb:
-    image: mysql:5.7
+    image: mysql:8
     volumes:
       - bmo-mysql-db:/var/lib/mysql
       - ./docker/bmo/mysql:/etc/mysql/conf.d
