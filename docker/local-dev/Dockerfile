@@ -2,26 +2,9 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-FROM debian:stable-slim
+FROM python:3.10-buster
 
-# Build/install dependencies
-
-RUN apt-get clean \
- && apt-get update \
- && apt-get install -y apt-utils
-
-RUN apt-get install -y locales \
- && sed --in-place '/en_US.UTF-8/s/^#//' /etc/locale.gen \
- && locale-gen en_US.UTF-8
-
-ENV HG_RELEASE=5.9.2 \
-    VCT_VERSION=tip \
-    LANG=en_US.UTF-8 \
-    LC_ALL=en_US.UTF-8 \
-    LANGUAGE=en_US:en \
-    VIRTUAL_ENV=/opt/mozphab \
-    HG_VIRTUAL_ENV=/opt/mercurial \
-    EDITOR=vi
+RUN apt-get update
 
 RUN apt-get install -y \
         bash \
@@ -29,70 +12,38 @@ RUN apt-get install -y \
         ca-certificates \
         curl \
         git \
-        httpie \
         iputils-ping \
-        php-common \
-        php-cli \
-        php-curl \
-        php-json \
-        python3 \
-        python3-dev \
-        python3-pip \
-        python3-venv \
         vim
 
-# Upgrade pip to be compatible with new platform tag formats
-RUN python3 -m pip install --upgrade pip
+RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
+ENV PATH="/root/.cargo/bin:${PATH}"
 
-RUN python3 -m venv $VIRTUAL_ENV \
- && python3 -m venv $HG_VIRTUAL_ENV
-
-# Install Mercurial in virtualenv
-ENV OLDPATH=$PATH \
-    PATH=$HG_VIRTUAL_ENV/bin:$PATH
-RUN python3 -m pip install \
-        mercurial==$HG_RELEASE \
-        requests \
-        simplejson \
-        hg-evolve \
- && ln $HG_VIRTUAL_ENV/bin/hg /usr/bin/hg
-ENV PATH=$OLDPATH
-
-# Add a non-privileged user
-RUN addgroup --gid 1000 phab \
- && adduser --uid 1000 --ingroup phab --shell /bin/bash phab
-
-WORKDIR /home/phab
 
 # copy configuration
 COPY arcrc .arcrc
-RUN chmod 600 .arcrc
 COPY hgrc .hgrc
 COPY gitconfig .gitconfig
 COPY moz-phab-config .moz-phab-config
-COPY initfile.sh .initfile.sh
+COPY initfile.sh ./
 COPY clone_repositories.sh ./
 COPY generate_revision.sh ./
-RUN chown -R phab:phab /home/phab \
- && ln -fs /home/phab/phabricator/cinnabarc/bin/arc /usr/local/bin/cinnabarc
-USER phab
 
-# Install git cinnabar
+RUN pip install --upgrade pip
+RUN pip install setuptools --upgrade
+RUN pip install wheel --upgrade
+RUN pip install mots --upgrade
+
+RUN pip install mercurial==6.1.1
+RUN pip install requests
+RUN pip install simplejson
+RUN pip install hg-evolve
+RUN pip install MozPhab
+
+# Install git-cinnabar
+RUN git clone https://github.com/glandium/git-cinnabar.git --branch release --single-branch /home/phab/git-cinnabar && cd /home/phab/git-cinnabar && make
+
+RUN echo "[ui]" > ~/.hgrc
+RUN echo "username = lando" >> ~/.hgrc
+
 ENV PATH="${PATH}:/home/phab/git-cinnabar"
-
-RUN git clone https://github.com/glandium/git-cinnabar.git --branch release --single-branch \
- && git config --global cinnabar.experiments python3 \
- && git cinnabar download
-
-# Install vanilla and modified Arcanist
-RUN mkdir -p phabricator \
- && cd phabricator \
- && git clone https://github.com/phacility/libphutil.git \
- && git clone https://github.com/phacility/arcanist.git \
- && git clone https://github.com/mozilla-conduit/arcanist.git cinnabarc
-
-# Install moz-phab
-RUN python3 -m pip install MozPhab \
- && echo "export PATH=$VIRTUAL_ENV/bin:/home/phab/phabricator/arcanist/bin:/home/phab/git-cinnabar:/home/phab/review:/home/phab/.local/bin:\$PATH" >> .bashrc
-
-CMD ["/bin/bash", "-c", "exec bash --init-file <(cat /etc/profile ~/.bashrc .initfile.sh)"]
+ENTRYPOINT /bin/bash /initfile.sh && /bin/bash
