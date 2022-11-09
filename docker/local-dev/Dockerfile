@@ -43,7 +43,7 @@ RUN pip install MozPhab
 RUN git clone https://github.com/glandium/git-cinnabar.git --branch release --single-branch /home/phab/git-cinnabar && cd /home/phab/git-cinnabar && make
 
 RUN echo "[ui]" > ~/.hgrc
-RUN echo "username = lando" >> ~/.hgrc
+RUN echo "username = Lando <lando@mozilla.com>" >> ~/.hgrc
 
 ENV PATH="${PATH}:/home/phab/git-cinnabar"
 ENTRYPOINT /bin/bash /initfile.sh && /bin/bash
