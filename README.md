@@ -93,7 +93,7 @@ If you are running Lando, you will need to first initialize the database:
 
 ```
 $ docker-compose up -d lando-api
-$ docker-compose exec lando-api lando-cli init
+$ docker-compose exec lando-api lando-cli db upgrade
 $ docker-compose down
 ```
 
