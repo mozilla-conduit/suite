@@ -91,10 +91,8 @@ services:
 
 If you are running Lando, you will need to first initialize the database:
 
-```
-$ docker-compose up -d lando-api
-$ docker-compose exec lando-api lando-cli init
-$ docker-compose down
+```shell
+docker-compose exec lando-api lando-cli db upgrade
 ```
 
 ## Using the local-dev service
@@ -153,21 +151,22 @@ To allow the override compose files to work properly, you need to have
 your repository directory structure set up correctly. Please clone the
 repositories you wish to use locally to the `conduit` directory.
 
-```
-$ git clone git@github.com:mozilla-conduit/arcanist.git
-$ git clone git@github.com:mozilla-conduit/autoland-transplant.git
-$ git clone git@github.com:mozilla-bteam/bmo.git
-$ git clone git@github.com:mozilla-conduit/lando-api.git
-$ git clone git@github.com:mozilla-conduit/lando-ui.git
-$ git clone git@github.com:mozilla-conduit/phabricator.git
-$ git clone git@github.com:mozilla-conduit/phabricator-emails.git
-$ git clone git@github.com:mozilla-conduit/review.git
+```shell
+git clone git@github.com:mozilla-conduit/arcanist.git
+git clone git@github.com:mozilla-conduit/autoland-transplant.git
+git clone git@github.com:mozilla-bteam/bmo.git
+git clone git@github.com:mozilla-conduit/lando-api.git
+git clone git@github.com:mozilla-conduit/lando-ui.git
+git clone git@github.com:mozilla-conduit/phabricator.git
+git clone git@github.com:mozilla-conduit/phabricator-emails.git
+git clone git@github.com:mozilla-conduit/review.git
 ```
 
 If you've installed all of the above projects, your directory structure
 would look as below:
 
-```
+```shell
+$ tree
 conduit
 ├── arcanist/
 ├── autoland-transplant/
@@ -187,23 +186,42 @@ You can use each app from its local repository. For example, to run
 the phabricator code from a local repository instead of the
 `mozilla/phabext` image,
 
-```
+```shell
 # Build the containers
-$ docker-compose -f docker-compose.yml -f docker-compose.phabricator.yml -f docker-compose.override.yml build
+$ docker-compose \
+  -f docker-compose.yml \
+  -f docker-compose.phabricator.yml \
+  -f docker-compose.override.yml \
+  build
 # Start the containers
-$ docker-compose -f docker-compose.yml -f docker-compose.phabricator.yml -f docker-compose.override.yml up -d
+$ docker-compose \
+  -f docker-compose.yml \
+  -f docker-compose.phabricator.yml \
+  -f docker-compose.override.yml \
+  up -d
 ```
 
 You can also use multiple apps from local repositories. For example,
 to work on both Phabricator and Bugzilla,
 
-```
-$ docker-compose -f docker-compose.yml -f docker-compose.phabricator.yml -f docker-compose.bmo.yml -f docker-compose.override.yml up --build -d
+```shell
+docker-compose \
+  -f docker-compose.yml \
+  -f docker-compose.phabricator.yml \
+  -f docker-compose.bmo.yml \
+  -f docker-compose.override.yml \
+  up --build -d
 ```
 
 And for example to work on lando-ui and lando-api,
-```
-$ docker-compose -f docker-compose.yml -f docker-compose.lando-api.yml -f docker-compose.lando-ui.yml -f docker-compose.override.yml up --build -d
+
+```shell
+docker-compose \
+  -f docker-compose.yml \
+  -f docker-compose.lando-api.yml \
+  -f docker-compose.lando-ui.yml \
+  -f docker-compose.override.yml \
+  up --build -d
 ```
 
 Note that normally you must have `-f docker-compose.yml` as the first
@@ -289,14 +307,14 @@ directories and clone the repositories using `hg` and `git-cinnabar`:
 
 Start the suite:
 
-```
-$ docker-compose up -d
-$ docker-compose exec lando-api lando-cli init
+```shell
+docker-compose up -d
+docker-compose exec lando-api lando-cli db upgrade
 ```
 
 Create a diff:
 
-```
+```shell
 $ docker-compose run local-dev
 # ./clone-repositories.sh
 # cd test-repo
