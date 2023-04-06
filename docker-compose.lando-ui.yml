@@ -10,8 +10,7 @@ services:
       dockerfile: ./docker/Dockerfile-dev
     image: suite_lando-ui
     volumes:
-      - ../lando-ui/landoui:/app/landoui
-      - ../lando-ui/tests:/app/tests
+      - ../lando-ui:/app
     environment:
       - LOG_LEVEL=DEBUG
       - WERKZEUG_DEBUG_PIN=132435
@@ -19,5 +18,4 @@ services:
     stdin_open: true
   lando-ui.test:
     volumes:
-      - ../lando-ui/landoui:/app/landoui
-      - ../lando-ui/tests:/app/tests
+      - ../lando-ui:/app
