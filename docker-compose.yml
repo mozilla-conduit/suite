@@ -24,7 +24,7 @@ services:
       BMO_memcached_servers: memcached:11211
       BMO_urlbase: http://bmo.test/
       BUGZILLA_ALLOW_INSECURE_HTTP: 1
-      BZ_ANSWERS_FILE: /app/conf/checksetup_answers.txt
+      BZ_ANSWERS_FILE: /app/conf/checksetup_answers_suite.txt
       CONDUIT_USER_API_KEY: zQ5TSBzq7tTZMtKYq9K1ZqJMjifKx3cPL7pIGk9Q
       CONDUIT_USER_LOGIN: conduit@mozilla.bugs
       CONDUIT_USER_PASSWORD: password123456789!
@@ -36,7 +36,7 @@ services:
       HTTPD_ServerLimit: 1
       HTTPD_StartServers: 1
       LOCALCONFIG_ENV: 1
-      LOG4PERL_CONFIG_FILE: log4perl-test.conf
+      LOG4PERL_CONFIG_FILE: log4perl-suite.conf
       LOGGING_PORT: 5880
       PHABRICATOR_API_KEY: api-qdaethogwpld3wmn2cnhbh57wkux
       PHABRICATOR_APP_ID: 66365490f364fbafba439619f0f31b7a4a0d73528c485520adf3b295f934acda
