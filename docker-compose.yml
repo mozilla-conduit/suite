@@ -155,7 +155,7 @@ services:
 
   lando-api.db:
     platform: linux/x86_64
-    image: postgres:10-alpine
+    image: postgres:14
     environment:
       POSTGRES_PASSWORD: password
       POSTGRES_USER: postgres
