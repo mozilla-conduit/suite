@@ -153,7 +153,6 @@ repositories you wish to use locally to the `conduit` directory.
 
 ```shell
 git clone git@github.com:mozilla-conduit/arcanist.git
-git clone git@github.com:mozilla-conduit/autoland-transplant.git
 git clone git@github.com:mozilla-bteam/bmo.git
 git clone git@github.com:mozilla-conduit/lando-api.git
 git clone git@github.com:mozilla-conduit/lando-ui.git
@@ -169,7 +168,6 @@ would look as below:
 $ tree
 conduit
 ├── arcanist/
-├── autoland-transplant/
 ├── bmo/
 ├── suite/
 ├── lando-api/
