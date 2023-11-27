@@ -29,12 +29,6 @@ substitute for self-contained tests in individual repositories.
 1. For Lando, an Auth0 developer account. See the
    [lando-ui README.md](https://github.com/mozilla-conduit/lando-ui/blob/master/README.md)
    for instructions on how to set that up.
-1. Also for Lando/Transplant, an [AWS S3](https://aws.amazon.com/s3/)
-   bucket, which requires
-
-  * The bucket name
-  * AWS Access Key
-  * AWS Secret Key
 
 ### Steps
 
@@ -58,9 +52,6 @@ services:
 
   lando-api:
     environment:
-      PATCH_BUCKET_NAME: <your aws patch bucket name>
-      AWS_ACCESS_KEY: <your aws access key>
-      AWS_SECRET_KEY: <your aws secret key>
       # Optional: 'http://lando-api.test' by default
       OIDC_DOMAIN: <your auth0 domain>
       OIDC_CLIENT_ID: <your auth0 client id for lando-ui>
@@ -74,9 +65,6 @@ services:
 
   autoland.transplant-init:
     environment: &transplant_secret
-      LANDO_BUCKET: <your aws patch bucket name>
-      LANDO_AWS_KEY: <your aws access key>
-      LANDO_AWS_SECRET: <your aws secret key>
 
   autoland.transplant-api:
     environment: *transplant_secret
