@@ -10,16 +10,3 @@ services:
       dockerfile: ./Dockerfile
       target: development
     image: suite_phabricator
-    volumes:
-      - phabricator-moz-extensions-local:/app/moz-extensions
-  phabricator.test:
-    volumes:
-      - phabricator-moz-extensions-local:/app/moz-extensions
-
-volumes:
-  phabricator-moz-extensions-local:
-    driver: local
-    driver_opts:
-      type: none
-      device: '$PWD/../phabricator/moz-extensions'
-      o: bind
