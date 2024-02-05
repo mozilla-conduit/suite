@@ -125,14 +125,15 @@ services:
       SESSION_COOKIE_DOMAIN: lando-ui.test
       SESSION_COOKIE_NAME: lando-ui.test
       SESSION_COOKIE_SECURE: 0
+      TREESTATUS_URL: http://treestatus.test
       USE_HTTPS: 0
       UWSGI_HTTP: :9000
       UWSGI_SOCKET: :9001
       VERSION_PATH: /version.json
 
-  lando-api:
+  lando-api: &api_template
     image: mozilla/landoapi:latest
-    environment:
+    environment: &api_environment
       OIDC_IDENTIFIER: http://lando-api.test
       LOCALDEV_MOCK_AUTH0_USER: inject_valid  # [default / inject_invalid]
       DATABASE_URL: postgresql://postgres:password@lando-api.db/postgres
@@ -152,6 +153,16 @@ services:
       UWSGI_SOCKET: :9001
     depends_on:
       - lando-api.db
+
+  treestatus:
+    <<: *api_template
+    environment:
+      <<: *api_environment
+      HOST_URL: http://treestatus.test
+      # Define the treestatus module as a clone of `lando-api` except for the
+      # `TREESTATUS_APP` environment variable, so the Treestatus API endpoints
+      # are loaded.
+      TREESTATUS_APP: 1
 
   lando-api.db:
     platform: linux/x86_64
@@ -315,7 +326,7 @@ services:
       - lando-ui
       - tinyproxy
 
-  lando-api.test:
+  lando-api.test: &api_proxy
     platform: linux/x86_64
     image: nginx:alpine
     container_name: lando-api.test
@@ -324,6 +335,15 @@ services:
     restart: on-failure
     depends_on:
       - lando-api
+      - tinyproxy
+
+  treestatus.test:
+    <<: *api_proxy
+    volumes:
+      - ./docker/landoapi/treestatus_site.conf:/etc/nginx/conf.d/default.conf:ro
+    container_name: treestatus.test
+    depends_on:
+      - treestatus
       - tinyproxy
 
   autoland.hg.test:
