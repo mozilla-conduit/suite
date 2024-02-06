@@ -4,7 +4,7 @@
 
 version: '3.4'
 services:
-  lando-api:
+  lando-api: &api_template
     build:
       context: ../lando-api/
       # Use ./Dockerfile-dev to run using flask's built-in dev server
@@ -18,6 +18,14 @@ services:
       - ../lando-api:/app
       - ../lando-api/docker/dev-version.json:/version.json
       - ../lando-api/migrations:/migrations
+
+  treestatus:
+    <<: *api_template
+    environment:
+      # Define the treestatus module as a clone of `lando-api` except for the
+      # `TREESTATUS_APP` environment variable, so the Treestatus API endpoints
+      # are loaded.
+      TREESTATUS_APP: 1
 
   lando-api.landing-worker:
     build:
