@@ -1,0 +1,45 @@
+version: '3.4'
+services:
+  lando:
+    build:
+      context: ../lando-prototype/.
+    image: suite_lando
+    stdin_open: true
+    tty: true
+    command: bash -c "
+      lando migrate &&
+      lando collectstatic --no-input &&
+      lando runserver 0.0.0.0:80"
+    env_file:
+      - ../lando-prototype/.env
+    volumes:
+      - ../lando-prototype:/code
+      - ../lando-prototype/staticfiles:/staticfiles
+      - ../lando-prorotype/media:/mediafiles
+    depends_on:
+      lando.db:
+        condition: service_healthy
+  lando.test:
+    build: ../lando-prototype/nginx
+    ports:
+      - 443:443
+    depends_on:
+      - lando
+    volumes:
+      - ../lando-prototype/staticfiles:/staticfiles
+      - ../lando-prototype/media:/mediafiles
+  lando.db:
+    image: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - 5432:5432
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres", "-d", "postgres"]
+      interval: 10s
+      timeout: 20s
+      retries: 5
+
+volumes:
+  media:
