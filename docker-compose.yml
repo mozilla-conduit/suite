@@ -162,7 +162,7 @@ services:
     volumes:
       - lando-postgres-db:/var/lib/postgresql/data
     ports:
-      - "54322:5432"
+      - "54321:54321"
 
   lando-api.landing-worker:
     build:
