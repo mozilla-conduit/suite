@@ -1,0 +1,62 @@
+version: '3.4'
+services:
+  lando:
+    user: "${UID}:${GID}"
+    build:
+      context: ../lando/.
+    image: suite_lando
+    stdin_open: true
+    tty: true
+    command: bash -c "
+      lando migrate &&
+      lando collectstatic --no-input &&
+      lando runserver 0.0.0.0:80"
+    env_file:
+      - ../lando/.env
+    volumes:
+      - ../lando:/code
+      - ../lando/staticfiles:/staticfiles
+      - ../lando-prorotype/media:/mediafiles
+    depends_on:
+      lando.db:
+        condition: service_healthy
+      lando.redis:
+        condition: service_healthy
+
+  lando.test:
+    build: ../lando/nginx
+    ports:
+      - 443:443
+    depends_on:
+      - lando
+    volumes:
+      - ../lando/staticfiles:/staticfiles
+      - ../lando/media:/mediafiles
+
+  lando.db:
+    image: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - 5432:5432
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres", "-d", "postgres"]
+      interval: 10s
+      timeout: 20s
+      retries: 5
+
+  lando.redis:
+    image: redis:7.2
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+
+  lando.celery:
+    image: suite_lando
+    command: lando start_celery_worker
+    depends_on:
+      lando.redis:
+        condition: service_healthy
+
+volumes:
+  media:
