@@ -1,6 +1,7 @@
 version: '3.4'
 services:
   lando:
+    user: "${UID}:${GID}"
     build:
       context: ../lando-prototype/.
     image: suite_lando
