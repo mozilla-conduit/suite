@@ -9,7 +9,7 @@ services:
     tty: true
     command: bash -c "
       lando migrate &&
-      lando collectstatic --no-input &&
+      lando collectstatic --clear --no-input &&
       lando runserver 0.0.0.0:80"
     env_file:
       - ../lando/.env
