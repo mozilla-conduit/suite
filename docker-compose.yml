@@ -115,12 +115,32 @@ services:
     image: mozilla/lando:latest  # TODO: this does not exist yet.
     env_file:
       - ../lando/.env
-    environment:
+    environment: &base-lando-vars
       DEFAULT_DB_HOST: lando.db
       DEBUG: 1
-      ENVIRONMENT: localdev
+      ENVIRONMENT: local
       PHABRICATOR_URL: http://phabricator.test
-      PHABRICATOR_UNPRIVILEGED_API_KEY: api-lefsv24henzsbzpw337bhizawuyh
+      PHABRICATOR_UNPRIVILEGED_API_KEY: api-6qlj3nawbzkbfl3tv6nwxfqt44qy
+    depends_on:
+      lando.db:
+        condition: service_healthy
+
+  lando.hg-landing-worker:
+    image: mozilla/lando:latest  # TODO: this does not exist yet.
+    command: lando start_landing_worker hg
+    env_file:
+      - ../lando/.env
+    environment:
+      <<: *base-lando-vars
+      DEFAULT_GRACE_SECONDS: 10
+      LANDING_WORKER_USERNAME: app
+      LANDING_WORKER_TARGET_SSH_PORT: 8022
+      SSH_PRIVATE_KEY: |
+        -----BEGIN EC PRIVATE KEY-----
+        MHcCAQEEIMiMNKEkf0vr4HrhUIrq0e9NjGNPArN7L1uy/HQZ1dA8oAoGCCqGSM49
+        AwEHoUQDQgAEdakNgjerNLFXy1uMfwLjPd5/pBTbIEoZMdMV/o6s+uoMg776LF+v
+        gtbfIaZbhDcJElzHwpnqGfHYU+cM4KyurA==
+        -----END EC PRIVATE KEY-----
     depends_on:
       lando.db:
         condition: service_healthy
@@ -136,9 +156,9 @@ services:
       - lando-postgres-db:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "postgres", "-d", "postgres"]
-      interval: 10s
-      timeout: 20s
-      retries: 5
+      interval: 1s
+      timeout: 1s
+      retries: 10
 
   lando.redis:
     image: redis:7.2

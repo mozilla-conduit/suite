@@ -24,6 +24,15 @@ services:
       lando.redis:
         condition: service_healthy
 
+  lando.hg-landing-worker:
+    image: suite_lando
+    command: lando start_landing_worker hg
+    env_file:
+      - ../lando/.env
+    depends_on:
+      lando.db:
+        condition: service_healthy
+
   lando.test:
     build: ../lando/nginx
     ports:
@@ -43,9 +52,9 @@ services:
       - 5432:5432
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "postgres", "-d", "postgres"]
-      interval: 10s
-      timeout: 20s
-      retries: 5
+      interval: 1s
+      timeout: 1s
+      retries: 10
 
   lando.redis:
     image: redis:7.2
