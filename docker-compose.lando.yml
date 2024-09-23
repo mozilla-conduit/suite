@@ -27,11 +27,14 @@ services:
   lando.hg-landing-worker:
     image: suite_lando
     command: lando start_landing_worker hg
+    user: "${UID}:${GID}"
     env_file:
       - ../lando/.env
     depends_on:
       lando.db:
         condition: service_healthy
+    volumes:
+      - /files/repos
 
   lando.test:
     build: ../lando/nginx
