@@ -14,6 +14,8 @@ services:
       lando runserver 0.0.0.0:80"
     env_file:
       - ../lando/.env
+    environment: &lando_env
+      DEFAULT_DB_HOST: lando.db
     volumes:
       - ../lando:/code
       - ../lando/staticfiles:/staticfiles
@@ -30,6 +32,8 @@ services:
     user: "${UID}:${GID}"
     env_file:
       - ../lando/.env
+    environment:
+      <<: *lando_env
     depends_on:
       lando.db:
         condition: service_healthy
