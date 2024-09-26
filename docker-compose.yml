@@ -46,10 +46,15 @@ services:
       PHABRICATOR_OAUTH_ID: 6iaYNVorOeYQaQ5vkwyC
       PHABRICATOR_OAUTH_SECRET: QNzdU5eRuhlHotvkh8KBgtR3yqxMG3czKfNks1qt
       PORT: 80
+    healthcheck:
+      test: ["CMD", "curl", "-sfk", "http://localhost", "-o/dev/null" ]
     depends_on:
-      - bmo.db
-      - memcached
-      - tinyproxy
+      bmo.db:
+        condition: service_healthy
+      memcached:
+        condition: service_started
+      tinyproxy:
+        condition: service_started
 
   bmo.feed:
     platform: linux/x86_64
@@ -102,6 +107,9 @@ services:
       MYSQL_USER: bugs
       MYSQL_PASSWORD: bugs
       MYSQL_ALLOW_EMPTY_PASSWORD: 1
+    healthcheck:
+      test: ["CMD", "mysqladmin",  "ping",  "-h", "localhost", "-ubugs", "-pbugs"]
+      timeout: 180s
 
   memcached:
     image: memcached:latest
@@ -229,7 +237,8 @@ services:
       - phabricator-nginx:/app/nginx
     restart: on-failure
     depends_on:
-      - phab.db
+      phab.db:
+        condition: service_healthy
 
   phab.db:
     platform: linux/x86_64
@@ -240,6 +249,11 @@ services:
       - ./docker/phabricator/demo.sql.gz:/docker-entrypoint-initdb.d/demo.sql.gz
     environment:
       - MYSQL_ROOT_PASSWORD=password
+    healthcheck:
+      test: ["CMD", "mysqladmin",  "ping",  "-h", "localhost", "-ppassword"]
+      interval: 10s
+      timeout: 120s
+      retries: 13
     restart: on-failure
     ports:
       - "3306:3306"
@@ -318,6 +332,8 @@ services:
       - ./docker/phabricator/site.conf:/etc/nginx/conf.d/default.conf:ro
       - phabricator-nginx:/app/nginx
     restart: on-failure
+    healthcheck:
+      test: ["CMD", "curl", "-sfk", "http://localhost", "-H", "Host: phabricator.test", "-o/dev/null"]
     depends_on:
       - phabricator
       - tinyproxy
