@@ -6,7 +6,7 @@ system, collectively known as "Conduit".  This includes
 
 * BMO, Mozilla's Bugzilla fork
 * Phabricator, including extensions and patches
-* Lando, both API and UI
+* Lando
 * Transplant, the service that lands commits
 * A Mercurial server
 * A container ("local-dev") with various command-line tools including MozPhab
@@ -27,7 +27,7 @@ substitute for self-contained tests in individual repositories.
 1. You need to have [docker](https://docs.docker.com/install/) and
    [docker-compose](https://docs.docker.com/compose/install/) installed.
 1. For Lando, an Auth0 developer account. See the
-   [lando-ui README.md](https://github.com/mozilla-conduit/lando-ui/blob/master/README.md)
+   [lando README.md](https://github.com/mozilla-conduit/lando/blob/master/README.md)
    for instructions on how to set that up.
 
 ### Steps
@@ -38,6 +38,8 @@ substitute for self-contained tests in individual repositories.
   `docker-compose.override.yml` file. At the moment, this is only
   required for Lando and Transplant. If in doubt, please refer to the
   relevant projects.  Here is a sample file:
+
+XXX This example is outdated
 
 ```
 version: '3.4'
@@ -80,7 +82,7 @@ services:
 The "local-dev" container includes command-line tools used to interact
 with Conduit services.
 
-To set up the container run `docker-compose run local-dev`.
+To set up the container run `docker-compose run --rm local-dev`.
 You will be placed inside of a repository cloned from http://hg.test. You can
 use it as a normal local development repository.
 
@@ -111,10 +113,11 @@ proxy, or run a preconfigured Firefox.
 
 ### Websites provided by the suite
 
- * Phabricator - http://phabricator.test
- * Lando - http://lando-ui.test
- * Lando API - http://lando-api.test/ui via Swagger UI.
  * Bugzilla - http://bmo.test
+ * Phabricator - http://phabricator.test
+ * Lando - http://lando.test
+ * (Legacy) Lando - http://lando-ui.test
+ * (Legacy) Lando API - http://lando-api.test/ui via Swagger UI.
  * Mercurial - http://hg.test
 
 ## Running apps from local clone
@@ -134,11 +137,10 @@ repositories you wish to use locally to the `conduit` directory.
 ```shell
 git clone git@github.com:mozilla-conduit/arcanist.git
 git clone git@github.com:mozilla-bteam/bmo.git
-git clone git@github.com:mozilla-conduit/lando-api.git
-git clone git@github.com:mozilla-conduit/lando-ui.git
+git clone git@github.com:mozilla-conduit/lando.git
 git clone git@github.com:mozilla-conduit/phabricator.git
 git clone git@github.com:mozilla-conduit/phabricator-emails.git
-git clone git@github.com:mozilla-conduit/review.git
+git clone git@github.com:mozilla-conduit/review.git # moz-phab
 ```
 
 If you've installed all of the above projects, your directory structure
@@ -150,8 +152,7 @@ conduit
 ├── arcanist/
 ├── bmo/
 ├── suite/
-├── lando-api/
-├── lando-ui/
+├── lando/
 ├── phabricator/
 ├── phabricator-emails/
 └── review/
@@ -191,13 +192,12 @@ docker-compose \
   up --build -d
 ```
 
-And for example to work on lando-ui and lando-api,
+And for example to work on lando,
 
 ```shell
 docker-compose \
   -f docker-compose.yml \
-  -f docker-compose.lando-api.yml \
-  -f docker-compose.lando-ui.yml \
+  -f docker-compose.lando.yml \
   -f docker-compose.override.yml \
   up --build -d
 ```
@@ -212,11 +212,10 @@ of the ARC wrapper "review" , load the `docker-compose.review.yml`.
 
 If you don't want to spin up all configured containers, you can
 specify the ones you'd like to work on. The command below runs
-`phabricator.test`, `phabricator`, `phab.db`, `lando-api.test`,
-`lando-api` and `lando-api.db` to allow the verification of the
+`phabricator.test`, `phabricator`, `phab.db`, `lando.test`,
 integration between Phabricator and Lando API:
 
-`docker-compose up phabricator.test lando-api.test`
+`docker-compose up phabricator.test lando.test`
 
 ## Preconfigured users:
 
@@ -287,14 +286,13 @@ Start the suite:
 
 ```shell
 docker-compose up -d
-docker-compose exec lando-api lando-cli db upgrade
 ```
 
 Create a diff:
 
 ```shell
-$ docker-compose run local-dev
-# ./clone-repositories.sh
+$ docker-compose run --rm local-dev
+# cd repos
 # cd test-repo
 # echo test >> README
 # hg commit -m "test info added"
@@ -302,9 +300,9 @@ $ docker-compose run local-dev
 # moz-phab submit -b 1
 ```
 
-Log in to http://lando-ui.test.
+Log in to http://lando.test.
 
-Navigate to http://lando-ui.test/revisions/D2.
+Navigate to http://lando.test/revisions/D2.
 
 Confirm the warning and click on the `Land` button.
 
