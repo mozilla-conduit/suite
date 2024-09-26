@@ -14,7 +14,7 @@ services:
     volumes:
       - bmo-data-dir:/app/data
     environment: &bmo_env
-      BMO_db_host: bmodb
+      BMO_db_host: bmo.db
       BMO_db_name: bugs
       BMO_db_pass: bugs
       BMO_db_user: bugs
@@ -47,7 +47,7 @@ services:
       PHABRICATOR_OAUTH_SECRET: QNzdU5eRuhlHotvkh8KBgtR3yqxMG3czKfNks1qt
       PORT: 80
     depends_on:
-      - bmodb
+      - bmo.db
       - memcached
       - tinyproxy
 
@@ -66,7 +66,7 @@ services:
     restart: on-failure
     depends_on:
       - phabricator.test
-      - bmodb
+      - bmo.db
       - memcached
 
   bmo.pushd:
@@ -84,10 +84,10 @@ services:
     restart: on-failure
     depends_on:
       - phabricator.test
-      - bmodb
+      - bmo.db
       - memcached
 
-  bmodb:
+  bmo.db:
     platform: linux/x86_64
     image: mysql:8
     volumes:
@@ -181,7 +181,7 @@ services:
     entrypoint: /app/entrypoint.sh
     command: dev_start
     environment:
-      MYSQL_HOST: phabdb
+      MYSQL_HOST: phab.db
       MYSQL_PORT: 3306
       MYSQL_USER: root
       MYSQL_PASS: password
@@ -194,9 +194,9 @@ services:
       - phabricator-nginx:/app/nginx
     restart: on-failure
     depends_on:
-      - phabdb
+      - phab.db
 
-  phabdb:
+  phab.db:
     platform: linux/x86_64
     image: mysql:5.7
     volumes:
