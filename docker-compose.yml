@@ -127,7 +127,7 @@ services:
       DEBUG: 1
       ENVIRONMENT: local
       PHABRICATOR_URL: http://phabricator.test
-      PHABRICATOR_UNPRIVILEGED_API_KEY: api-6qlj3nawbzkbfl3tv6nwxfqt44qy
+      PHABRICATOR_UNPRIVILEGED_API_KEY: api-lefsv24henzsbzpw337bhizawuyh
     depends_on:
       lando.db:
         condition: service_healthy
