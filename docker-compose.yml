@@ -282,6 +282,8 @@ services:
     image: mozilla/autolandhg:latest
     command: start
     restart: always
+    environment:
+      SSH_PUBLIC_KEY: "ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBHWpDYI3qzSxV8tbjH8C4z3ef6QU2yBKGTHTFf6OrPrqDIO++ixfr4LW3yGmW4Q3CRJcx8KZ6hnx2FPnDOCsrqw="
     ports:
       - "8201:8000"
     volumes:
