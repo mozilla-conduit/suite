@@ -128,6 +128,7 @@ services:
       ENVIRONMENT: local
       PHABRICATOR_URL: http://phabricator.test
       PHABRICATOR_UNPRIVILEGED_API_KEY: api-lefsv24henzsbzpw337bhizawuyh
+    restart: on-failure
     depends_on:
       lando.db:
         condition: service_healthy
@@ -148,6 +149,7 @@ services:
         AwEHoUQDQgAEdakNgjerNLFXy1uMfwLjPd5/pBTbIEoZMdMV/o6s+uoMg776LF+v
         gtbfIaZbhDcJElzHwpnqGfHYU+cM4KyurA==
         -----END EC PRIVATE KEY-----
+    restart: on-failure
     depends_on:
       lando.db:
         condition: service_healthy
