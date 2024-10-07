@@ -136,6 +136,7 @@ services:
         condition: service_healthy
 
   lando.hg-landing-worker:
+    user: "${UID}:${GID}"
     image: mozilla/lando:latest  # TODO: this does not exist yet.
     command: lando start_landing_worker hg
     env_file:
