@@ -75,14 +75,6 @@ services:
 
 * Run `docker-compose build`
 
-### First run of Lando
-
-If you are running Lando, you will need to first initialize the database:
-
-```shell
-docker-compose exec lando-api lando-cli db upgrade
-```
-
 ## Using the local-dev service
 
 The "local-dev" container includes command-line tools used to interact
