@@ -65,6 +65,8 @@ services:
       - start
       - '-d'
       - '-f'
+    healthcheck:
+      disable: true  # the image uses an HTTP check, which this command doesn't fullfil
     volumes:
       - bmo-data-dir:/app/data
     environment: *bmo_env
@@ -83,6 +85,8 @@ services:
       - start
       - '-d'
       - '-f'
+    healthcheck:
+      disable: true  # the image uses an HTTP check, which this command doesn't fullfil
     volumes:
       - bmo-data-dir:/app/data
     environment: *bmo_env
