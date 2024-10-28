@@ -1,7 +1,9 @@
-version: '3.4'
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 services:
   lando:
-    user: "${UID}:${GID}"
     build:
       context: ../lando/.
     image: suite_lando
@@ -9,32 +11,23 @@ services:
     tty: true
     command: bash -c "
       lando generate_version_file &&
-      lando migrate &&
       lando collectstatic --clear --no-input &&
+      lando migrate &&
+      lando setup_dev &&
       lando runserver 0.0.0.0:80"
-    env_file:
-      - ../lando/.env
+    user: "${UID}:${GID}"  # needed for file generation in the mounted volumes
     volumes:
       - ../lando:/code
       - ../lando/staticfiles:/staticfiles
       - ../lando-prorotype/media:/mediafiles
-    depends_on:
-      lando.db:
-        condition: service_healthy
-      lando.redis:
-        condition: service_healthy
 
   lando.hg-landing-worker:
     image: suite_lando
-    command: lando start_landing_worker hg
-    user: "${UID}:${GID}"
-    env_file:
-      - ../lando/.env
-    depends_on:
-      lando.db:
-        condition: service_healthy
+    user: "${UID}:${GID}"  # needed for file generation in the mounted volumes
     volumes:
-      - /files/repos
+      - ../lando:/code
+      - ../lando/staticfiles:/staticfiles
+      - ../lando-prorotype/media:/mediafiles
 
   lando.test:
     build: ../lando/nginx

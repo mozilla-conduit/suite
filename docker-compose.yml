@@ -2,7 +2,6 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-version: '3.4'
 services:
   #########################
   # BMO Containers
@@ -15,7 +14,7 @@ services:
     volumes:
       - bmo-data-dir:/app/data
     environment: &bmo_env
-      BMO_db_host: bmodb
+      BMO_db_host: bmo.db
       BMO_db_name: bugs
       BMO_db_pass: bugs
       BMO_db_user: bugs
@@ -47,10 +46,15 @@ services:
       PHABRICATOR_OAUTH_ID: 6iaYNVorOeYQaQ5vkwyC
       PHABRICATOR_OAUTH_SECRET: QNzdU5eRuhlHotvkh8KBgtR3yqxMG3czKfNks1qt
       PORT: 80
+    healthcheck:
+      test: ["CMD", "curl", "-sfk", "http://localhost", "-o/dev/null" ]
     depends_on:
-      - bmodb
-      - memcached
-      - tinyproxy
+      bmo.db:
+        condition: service_healthy
+      memcached:
+        condition: service_started
+      tinyproxy:
+        condition: service_started
 
   bmo.feed:
     platform: linux/x86_64
@@ -61,13 +65,15 @@ services:
       - start
       - '-d'
       - '-f'
+    healthcheck:
+      disable: true  # the image uses an HTTP check, which this command doesn't fullfil
     volumes:
       - bmo-data-dir:/app/data
     environment: *bmo_env
     restart: on-failure
     depends_on:
       - phabricator.test
-      - bmodb
+      - bmo.db
       - memcached
 
   bmo.pushd:
@@ -79,16 +85,18 @@ services:
       - start
       - '-d'
       - '-f'
+    healthcheck:
+      disable: true  # the image uses an HTTP check, which this command doesn't fullfil
     volumes:
       - bmo-data-dir:/app/data
     environment: *bmo_env
     restart: on-failure
     depends_on:
       - phabricator.test
-      - bmodb
+      - bmo.db
       - memcached
 
-  bmodb:
+  bmo.db:
     platform: linux/x86_64
     image: mysql:8
     volumes:
@@ -103,6 +111,9 @@ services:
       MYSQL_USER: bugs
       MYSQL_PASSWORD: bugs
       MYSQL_ALLOW_EMPTY_PASSWORD: 1
+    healthcheck:
+      test: ["CMD", "mysqladmin",  "ping",  "-h", "localhost", "-ubugs", "-pbugs"]
+      timeout: 180s
 
   memcached:
     image: memcached:latest
@@ -111,7 +122,6 @@ services:
   # Lando Containers
   #########################
   lando:
-    user: "${UID}:${GID}"
     image: mozilla/lando:latest  # TODO: this does not exist yet.
     env_file:
       - ../lando/.env
@@ -120,9 +130,24 @@ services:
       DEBUG: 1
       ENVIRONMENT: local
       PHABRICATOR_URL: http://phabricator.test
-      PHABRICATOR_UNPRIVILEGED_API_KEY: api-6qlj3nawbzkbfl3tv6nwxfqt44qy
+      PHABRICATOR_UNPRIVILEGED_API_KEY: api-lefsv24henzsbzpw337bhizawuyh
+    restart: on-failure
+    # TODO: bake this command into and ENTRYPOINT script
+    command: bash -c "
+      lando migrate &&
+      lando setup_dev &&
+      lando runserver 0.0.0.0:80"
+    healthcheck:
+      test: [ "CMD", "curl", "-sfko/dev/null", "http://localhost" ]
+      interval: 10s
+      timeout: 60s
+      retries: 6
     depends_on:
       lando.db:
+        condition: service_healthy
+      lando.redis:
+        condition: service_healthy
+      phabricator.test:
         condition: service_healthy
 
   lando.hg-landing-worker:
@@ -141,9 +166,14 @@ services:
         AwEHoUQDQgAEdakNgjerNLFXy1uMfwLjPd5/pBTbIEoZMdMV/o6s+uoMg776LF+v
         gtbfIaZbhDcJElzHwpnqGfHYU+cM4KyurA==
         -----END EC PRIVATE KEY-----
+    restart: on-failure
     depends_on:
+      lando:
+        condition: service_healthy
       lando.db:
         condition: service_healthy
+    volumes:
+      - /files/repos
 
   lando.db:
     image: postgres:16
@@ -182,7 +212,7 @@ services:
     entrypoint: /app/entrypoint.sh
     command: dev_start
     environment:
-      MYSQL_HOST: phabdb
+      MYSQL_HOST: phab.db
       MYSQL_PORT: 3306
       MYSQL_USER: root
       MYSQL_PASS: password
@@ -195,9 +225,10 @@ services:
       - phabricator-nginx:/app/nginx
     restart: on-failure
     depends_on:
-      - phabdb
+      phab.db:
+        condition: service_healthy
 
-  phabdb:
+  phab.db:
     platform: linux/x86_64
     image: mysql:5.7
     volumes:
@@ -206,6 +237,11 @@ services:
       - ./docker/phabricator/demo.sql.gz:/docker-entrypoint-initdb.d/demo.sql.gz
     environment:
       - MYSQL_ROOT_PASSWORD=password
+    healthcheck:
+      test: ["CMD", "mysqladmin",  "ping",  "-h", "localhost", "-ppassword"]
+      interval: 10s
+      timeout: 120s
+      retries: 13
     restart: on-failure
     ports:
       - "3306:3306"
@@ -231,6 +267,8 @@ services:
     image: mozilla/autolandhg:latest
     command: start
     restart: always
+    environment:
+      SSH_PUBLIC_KEY: "ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBHWpDYI3qzSxV8tbjH8C4z3ef6QU2yBKGTHTFf6OrPrqDIO++ixfr4LW3yGmW4Q3CRJcx8KZ6hnx2FPnDOCsrqw="
     ports:
       - "8201:8000"
     volumes:
@@ -280,6 +318,8 @@ services:
       - "./docker/phabricator/site.conf:/etc/nginx/conf.d/default.conf:ro"
       - phabricator-nginx:/app/nginx
     restart: on-failure
+    healthcheck:
+      test: ["CMD", "curl", "-sfk", "http://localhost", "-H", "Host: phabricator.test", "-o/dev/null"]
     depends_on:
       - phabricator
       - tinyproxy
