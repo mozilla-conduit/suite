@@ -4,7 +4,6 @@
 
 services:
   lando:
-    user: "${UID}:${GID}"
     build:
       context: ../lando/.
     image: suite_lando
@@ -16,29 +15,19 @@ services:
       lando migrate &&
       lando setup_dev &&
       lando runserver 0.0.0.0:80"
-    env_file:
-      - ../lando/.env
+    user: "${UID}:${GID}"  # needed for file generation in the mounted volumes
     volumes:
       - ../lando:/code
       - ../lando/staticfiles:/staticfiles
       - ../lando-prorotype/media:/mediafiles
-    depends_on:
-      lando.db:
-        condition: service_healthy
-      lando.redis:
-        condition: service_healthy
 
   lando.hg-landing-worker:
     image: suite_lando
-    command: lando start_landing_worker hg
-    user: "${UID}:${GID}"
-    env_file:
-      - ../lando/.env
-    depends_on:
-      lando.db:
-        condition: service_healthy
+    user: "${UID}:${GID}"  # needed for file generation in the mounted volumes
     volumes:
-      - /files/repos
+      - ../lando:/code
+      - ../lando/staticfiles:/staticfiles
+      - ../lando-prorotype/media:/mediafiles
 
   lando.test:
     build: ../lando/nginx

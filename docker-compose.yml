@@ -118,7 +118,6 @@ services:
   # Lando Containers
   #########################
   lando:
-    user: "${UID}:${GID}"
     image: mozilla/lando:latest  # TODO: this does not exist yet.
     env_file:
       - ../lando/.env
@@ -148,7 +147,6 @@ services:
         condition: service_healthy
 
   lando.hg-landing-worker:
-    user: "${UID}:${GID}"
     image: mozilla/lando:latest  # TODO: this does not exist yet.
     command: lando start_landing_worker hg
     env_file:
@@ -170,6 +168,8 @@ services:
         condition: service_healthy
       lando.db:
         condition: service_healthy
+    volumes:
+      - /files/repos
 
   lando.db:
     image: postgres:16
