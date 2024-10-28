@@ -134,8 +134,17 @@ services:
       lando migrate &&
       lando setup_dev &&
       lando runserver 0.0.0.0:80"
+    healthcheck:
+      test: [ "CMD", "curl", "-sfko/dev/null", "http://localhost" ]
+      interval: 10s
+      timeout: 60s
+      retries: 6
     depends_on:
       lando.db:
+        condition: service_healthy
+      lando.redis:
+        condition: service_healthy
+      phabricator.test:
         condition: service_healthy
 
   lando.hg-landing-worker:
@@ -157,6 +166,8 @@ services:
         -----END EC PRIVATE KEY-----
     restart: on-failure
     depends_on:
+      lando:
+        condition: service_healthy
       lando.db:
         condition: service_healthy
 
