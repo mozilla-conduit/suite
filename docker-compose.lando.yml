@@ -12,8 +12,9 @@ services:
     tty: true
     command: bash -c "
       lando generate_version_file &&
-      lando migrate &&
       lando collectstatic --clear --no-input &&
+      lando migrate &&
+      lando setup_dev &&
       lando runserver 0.0.0.0:80"
     env_file:
       - ../lando/.env

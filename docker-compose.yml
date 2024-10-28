@@ -129,9 +129,12 @@ services:
       PHABRICATOR_URL: http://phabricator.test
       PHABRICATOR_UNPRIVILEGED_API_KEY: api-lefsv24henzsbzpw337bhizawuyh
     restart: on-failure
+    # TODO: bake this command into and ENTRYPOINT script
+    command: bash -c "
+      lando migrate &&
+      lando setup_dev &&
+      lando runserver 0.0.0.0:80"
     depends_on:
-      lando-init:
-        condition: service_completed_successfully
       lando.db:
         condition: service_healthy
 
@@ -154,23 +157,7 @@ services:
         -----END EC PRIVATE KEY-----
     restart: on-failure
     depends_on:
-      lando-init:
-        condition: service_completed_successfully
       lando.db:
-        condition: service_healthy
-
-  lando-init:
-    user: "${UID}:${GID}"
-    image: mozilla/lando:latest  # TODO: this does not exist yet.
-    command: lando setup_dev
-    env_file:
-      - ../lando/.env
-    environment:
-      <<: *base-lando-vars
-    depends_on:
-      lando.db:
-        condition: service_healthy
-      phabricator.test:
         condition: service_healthy
 
   lando.db:
