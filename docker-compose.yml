@@ -138,7 +138,7 @@ services:
       lando setup_dev &&
       lando runserver 0.0.0.0:80"
     healthcheck:
-      test: [ "CMD", "curl", "-sfko/dev/null", "http://localhost" ]
+      test: [ "CMD", "curl", "-sfko/dev/null", "http://localhost/__heartbeat__" ]
       interval: 10s
       timeout: 60s
       retries: 6
