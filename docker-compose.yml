@@ -276,6 +276,32 @@ services:
     depends_on:
       - autoland.hg-init
 
+
+  ###########################
+  # Git repositories
+  ###########################
+
+  gogs-init: &gogs-config
+    image: gogs/gogs
+    volumes:
+      - ./docker/gogs/app.ini:/data/gogs/conf/app.ini:ro
+      - git-repos:/data
+      - ./docker/gogs/scripts:/scripts:ro
+      # Comment out if backup missing
+      - ./docker/gogs/gogs-backup.zip:/data/gogs-backup.zip
+    command: /scripts/conduit-init.sh
+
+  git.test:
+    <<: *gogs-config
+    container_name: git.test
+    command: null
+    healthcheck:
+      test: ["CMD", "curl", "-sSfko/dev/null", "http://localhost" ]
+    depends_on:
+      gogs-init:
+        condition: service_completed_successfully
+
+
   ###########################
   # LOCAL-DEV
   # Provide an ability to run all CLI developer needs:
@@ -366,4 +392,5 @@ volumes:
   bmo-mysql-db:
   bmo-data-dir:
   autoland-hg:
+  git-repos:
   caches_cache:

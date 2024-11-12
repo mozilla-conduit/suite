@@ -219,12 +219,6 @@ integration between Phabricator and Lando API:
 
 ## Preconfigured users:
 
-For performing administration tasks in Phabricator, first log out of
-Phabricator and then go to http://phabricator.test/auth/start/?admin and log 
-in with
-
-`user:admin`, `password:password123456789!`
-
 To log in as a normal test user, you will need to use BMO for
 auth delegation. Log out of Phabricator and then click on 'Log In or
 Register'. You will be redirected to BMO's login page.
@@ -246,6 +240,17 @@ of BMO and then log in at http://bmo.test/login with the following
 credentials:
 
 `user:admin@mozilla.bugs`, `password:password012!`
+
+For performing administration tasks in Phabricator, first log out of
+Phabricator and then go to http://phabricator.test/auth/start/?admin and log
+in with
+
+`user:admin`, `password:password123456789!`
+
+A local Git server is also available at http://git.test. The `conduit` user can
+log in with the credentials above. For administrative tasks, the account details are as follows:
+
+`user: git-admin`, `password:password123456789!`
 
 ## Updating the preloaded Phabricator database
 
@@ -270,6 +275,21 @@ To update the preloaded database with new settings:
  1. `$ mv demo.sql.gz docker/phabricator/demo.sql.gz`
  1. Submit a [PR](https://github.com/mozilla-conduit/suite/pulls) with
     the changes.
+
+## Updating the git repositories
+
+A backup of the repositories is stored in the `docker/gogs` directory. It is
+restored automatically by the one-shot gogs-init service when spinning up a
+fresh stack.
+
+If you need to update the repositories, you can simply work agains
+http://git.test (or in the local-dev container) and push the changes to the
+repositories. You can then update the backup by running:
+
+    docker compose exec git.test /scripts/gogs-backup.sh
+
+which will update the backup in `docker/gogs`. You can then commit the changes
+and submit a PR.
 
 ## Clone the test repository
 
