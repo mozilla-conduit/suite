@@ -6,8 +6,15 @@
 
 set -e
 
-cd repos/$1
-echo "hello world" > `cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1`
-hg addremove
-hg commit -m "automatically generated commit"
+if [ -n "${1}" ]; then
+  cd /repos/"${1}"
+fi
+echo "hello world" > "$(tr -dc 'a-zA-Z0-9' </dev/urandom | fold -w 32 | head -n 1)"
+if  git status --porcelain >/dev/null 2>&1; then
+  git add .
+  git commit -m "automatically generated commit"
+else
+  hg addremove
+  hg commit -m "automatically generated commit"
+fi
 moz-phab -s --no-bug

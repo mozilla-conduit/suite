@@ -44,6 +44,8 @@ COPY initfile.sh ./
 COPY clone_repositories.sh ./
 COPY generate_revision.sh ./
 
-RUN echo "[ui]\nusername = Lando <lando@mozilla.bugs" >> ~/.hgrc
+RUN echo "[ui]\nusername = Lando <lando@mozilla.bugs" >> ~/.hgrc \
+  && git config --global user.email "lando@mozila.bugs" \
+  && git config --global user.name "Lando"
 
 ENTRYPOINT /bin/bash /initfile.sh && /bin/bash
