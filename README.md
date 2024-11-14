@@ -282,7 +282,7 @@ A backup of the repositories is stored in the `docker/gogs` directory. It is
 restored automatically by the one-shot gogs-init service when spinning up a
 fresh stack.
 
-If you need to update the repositories, you can simply work agains
+If you need to update the repositories, you can simply work against
 http://git.test (or in the local-dev container) and push the changes to the
 repositories. You can then update the backup by running:
 
