@@ -21,7 +21,7 @@ services:
       - ../lando/staticfiles:/staticfiles
       - ../lando-prorotype/media:/mediafiles
 
-  lando.hg-landing-worker:
+  lando.hg-landing-worker: &landing_worker
     image: suite_lando
     user: "${UID}:${GID}"  # needed for file generation in the mounted volumes
     volumes:
@@ -38,6 +38,9 @@ services:
     volumes:
       - ../lando/staticfiles:/staticfiles
       - ../lando/media:/mediafiles
+
+  lando.git-landing-worker:
+    <<: *landing_worker
 
   lando.db:
     image: postgres
