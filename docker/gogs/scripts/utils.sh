@@ -40,6 +40,7 @@ gogs_restore()
   # Workaround [0]: restore DB, then manually extract repositories
   # [0] https://github.com/gogs/gogs/issues/7840
   gosu "${USER}" ./gogs restore --tempdir "${RESTORE_TMPDIR}" --from ${BACKUP_FILE} --database-only
+  gosu "${USER}" ./gogs admin rewrite-authorized-keys
 
   # shellcheck disable=SC2164
   cd "${RESTORE_TMPDIR}"
