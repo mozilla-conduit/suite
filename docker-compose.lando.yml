@@ -30,8 +30,6 @@ services:
 
   lando.test:
     build: ../lando/nginx
-    ports:
-      - 443:443
     depends_on:
       - lando
     volumes:
@@ -46,8 +44,6 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-    ports:
-      - 5432:5432
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "postgres", "-d", "postgres"]
       interval: 1s
