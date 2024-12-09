@@ -23,9 +23,6 @@ services:
     environment:
       SSHD_PORT: "8022"
       SSH_PUBLIC_KEY: "ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBHWpDYI3qzSxV8tbjH8C4z3ef6QU2yBKGTHTFf6OrPrqDIO++ixfr4LW3yGmW4Q3CRJcx8KZ6hnx2FPnDOCsrqw= app"
-    ports:
-      - "8000:8000"
-      - "8022:8022"
     volumes:
       - autoland.hg:/repos
       - autoland.ssh:/home/app/.ssh
