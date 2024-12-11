@@ -131,6 +131,7 @@ services:
       ENVIRONMENT: local
       PHABRICATOR_URL: http://phabricator.test
       PHABRICATOR_UNPRIVILEGED_API_KEY: api-lefsv24henzsbzpw337bhizawuyh
+      TREESTATUS_URL: http://treestatus.test
     restart: on-failure
     # TODO: bake this command into and ENTRYPOINT script
     command: bash -c "
@@ -166,6 +167,7 @@ services:
         AwEHoUQDQgAEdakNgjerNLFXy1uMfwLjPd5/pBTbIEoZMdMV/o6s+uoMg776LF+v
         gtbfIaZbhDcJElzHwpnqGfHYU+cM4KyurA==
         -----END EC PRIVATE KEY-----
+      TREESTATUS_URL: http://treestatus.test
     restart: on-failure
     depends_on:
       lando:
