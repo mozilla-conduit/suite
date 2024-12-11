@@ -134,7 +134,6 @@ services:
     restart: on-failure
     # TODO: bake this command into and ENTRYPOINT script
     command: bash -c "
-      lando migrate &&
       lando setup_dev &&
       lando runserver 0.0.0.0:80"
     healthcheck:

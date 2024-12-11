@@ -12,7 +12,6 @@ services:
     command: bash -c "
       lando generate_version_file &&
       lando collectstatic --clear --no-input &&
-      lando migrate &&
       lando setup_dev &&
       lando runserver 0.0.0.0:80"
     user: "${UID}:${GID}"  # needed for file generation in the mounted volumes
