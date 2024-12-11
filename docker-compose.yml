@@ -250,9 +250,13 @@ services:
   # Transplant services
   ###############################
 
-  autoland.treestatus:
+  treestatus.test:
     image: mozilla/autolandtreestatus:latest
     restart: always
+    environment:
+      PORT: 80
+    expose:
+    - 80
 
   autoland.hg-init:
     image: mozilla/autolandhg:latest
