@@ -131,10 +131,10 @@ services:
       ENVIRONMENT: local
       PHABRICATOR_URL: http://phabricator.test
       PHABRICATOR_UNPRIVILEGED_API_KEY: api-lefsv24henzsbzpw337bhizawuyh
+      TREESTATUS_URL: http://treestatus.test
     restart: on-failure
     # TODO: bake this command into and ENTRYPOINT script
     command: bash -c "
-      lando migrate &&
       lando setup_dev &&
       lando runserver 0.0.0.0:80"
     healthcheck:
@@ -150,7 +150,7 @@ services:
       phabricator.test:
         condition: service_healthy
 
-  lando.hg-landing-worker:
+  lando.hg-landing-worker: &landing_worker
     image: mozilla/lando:latest  # TODO: this does not exist yet.
     command: lando start_landing_worker hg
     env_file:
@@ -166,6 +166,7 @@ services:
         AwEHoUQDQgAEdakNgjerNLFXy1uMfwLjPd5/pBTbIEoZMdMV/o6s+uoMg776LF+v
         gtbfIaZbhDcJElzHwpnqGfHYU+cM4KyurA==
         -----END EC PRIVATE KEY-----
+      TREESTATUS_URL: http://treestatus.test
     restart: on-failure
     depends_on:
       lando:
@@ -175,13 +176,15 @@ services:
     volumes:
       - /files/repos
 
+  lando.git-landing-worker:
+    <<: *landing_worker
+    command: lando start_landing_worker git
+
   lando.db:
     image: postgres:16
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-    ports:
-      - 5432:5432
     volumes:
       - lando-postgres-db:/var/lib/postgresql/data
     healthcheck:
@@ -243,16 +246,18 @@ services:
       timeout: 120s
       retries: 13
     restart: on-failure
-    ports:
-      - "3306:3306"
 
   ###############################
   # Transplant services
   ###############################
 
-  autoland.treestatus:
+  treestatus.test:
     image: mozilla/autolandtreestatus:latest
     restart: always
+    environment:
+      PORT: 80
+    expose:
+    - 80
 
   autoland.hg-init:
     image: mozilla/autolandhg:latest
@@ -269,12 +274,36 @@ services:
     restart: always
     environment:
       SSH_PUBLIC_KEY: "ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBHWpDYI3qzSxV8tbjH8C4z3ef6QU2yBKGTHTFf6OrPrqDIO++ixfr4LW3yGmW4Q3CRJcx8KZ6hnx2FPnDOCsrqw="
-    ports:
-      - "8201:8000"
     volumes:
       - autoland-hg:/repos
     depends_on:
       - autoland.hg-init
+
+
+  ###########################
+  # Git repositories
+  ###########################
+
+  gogs-init: &gogs-config
+    image: gogs/gogs
+    volumes:
+      - ./docker/gogs/app.ini:/data/gogs/conf/app.ini:ro
+      - git-repos:/data
+      - ./docker/gogs/scripts:/scripts:ro
+      # Comment out if backup missing
+      - ./docker/gogs/gogs-backup.zip:/data/gogs-backup.zip
+    command: /scripts/conduit-init.sh
+
+  git.test:
+    <<: *gogs-config
+    container_name: git.test
+    command: null
+    healthcheck:
+      test: ["CMD", "curl", "-sSfko/dev/null", "http://localhost" ]
+    depends_on:
+      gogs-init:
+        condition: service_completed_successfully
+
 
   ###########################
   # LOCAL-DEV
@@ -366,4 +395,5 @@ volumes:
   bmo-mysql-db:
   bmo-data-dir:
   autoland-hg:
+  git-repos:
   caches_cache:
