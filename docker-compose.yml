@@ -278,26 +278,28 @@ services:
   # Git repositories
   ###########################
 
-  gogs-init: &gogs-config
-    image: gogs/gogs
+  cgit-init: &cgit-config
+    image: mozilla/cgit-docker
+    build:
+      context: ../cgit-docker
     volumes:
-      - ./docker/gogs/app.ini:/data/gogs/conf/app.ini:ro
-      - git-repos:/data
-      - ./docker/gogs/scripts:/scripts:ro
-      # Comment out if backup missing
-      - ./docker/gogs/gogs-backup.zip:/data/gogs-backup.zip
+      - ./docker/cgit/scripts:/scripts:ro
+      - git-repos:/opt/git
     command: /scripts/conduit-init.sh
 
   git.test:
-    <<: *gogs-config
+    <<: *cgit-config
     container_name: git.test
-    command: null
-    healthcheck:
-      test: ["CMD", "curl", "-sSfko/dev/null", "http://localhost" ]
+    command: ""
+    environment:
+      GIT_USER: lando
+      # 'password'
+      # generate with `htpasswd -n user | cut -d: -f2`
+      # escape `$`s by doubling them
+      GIT_PASSWORD: "$$apr1$$SnBWPBBG$$SucMwESCPMq5TmzS6mUeB1"
     depends_on:
-      gogs-init:
+      cgit-init:
         condition: service_completed_successfully
-
 
   ###########################
   # LOCAL-DEV

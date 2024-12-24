@@ -24,7 +24,7 @@ hg clone http://hg.test/test-repo
 
 git clone hg::http://hg.test/first-repo test-repo-cinnabar
 
-git clone http://git.test/lando/test-repo-git
+git clone http://git.test/test-repo test-repo-git
 
 for REPO in /repos/*; do
   pushd "${REPO}"
