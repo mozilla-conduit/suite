@@ -47,7 +47,7 @@ services:
       PHABRICATOR_OAUTH_SECRET: QNzdU5eRuhlHotvkh8KBgtR3yqxMG3czKfNks1qt
       PORT: 80
     healthcheck:
-      test: ["CMD", "curl", "-sfk", "http://localhost", "-o/dev/null" ]
+      test: ["CMD", "curl", "-sfk", "http://localhost", "-o/dev/null"]
     depends_on:
       bmo.db:
         condition: service_healthy
@@ -63,10 +63,10 @@ services:
       - perl
       - extensions/PhabBugz/bin/phabbugz_feed.pl
       - start
-      - '-d'
-      - '-f'
+      - "-d"
+      - "-f"
     healthcheck:
-      disable: true  # the image uses an HTTP check, which this command doesn't fullfil
+      disable: true # the image uses an HTTP check, which this command doesn't fullfil
     volumes:
       - bmo-data-dir:/app/data
     environment: *bmo_env
@@ -83,10 +83,10 @@ services:
       - perl
       - extensions/Push/bin/bugzilla-pushd.pl
       - start
-      - '-d'
-      - '-f'
+      - "-d"
+      - "-f"
     healthcheck:
-      disable: true  # the image uses an HTTP check, which this command doesn't fullfil
+      disable: true # the image uses an HTTP check, which this command doesn't fullfil
     volumes:
       - bmo-data-dir:/app/data
     environment: *bmo_env
@@ -112,7 +112,7 @@ services:
       MYSQL_PASSWORD: bugs
       MYSQL_ALLOW_EMPTY_PASSWORD: 1
     healthcheck:
-      test: ["CMD", "mysqladmin",  "ping",  "-h", "localhost", "-ubugs", "-pbugs"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-ubugs", "-pbugs"]
       timeout: 180s
 
   memcached:
@@ -122,7 +122,7 @@ services:
   # Lando Containers
   #########################
   lando:
-    image: mozilla/lando:latest  # TODO: this does not exist yet.
+    image: mozilla/lando:latest # TODO: this does not exist yet.
     env_file:
       - ../lando/.env
     environment: &base-lando-vars
@@ -134,11 +134,10 @@ services:
     restart: on-failure
     # TODO: bake this command into and ENTRYPOINT script
     command: bash -c "
-      lando migrate &&
       lando setup_dev &&
       lando runserver 0.0.0.0:80"
     healthcheck:
-      test: [ "CMD", "curl", "-sfko/dev/null", "http://localhost/__heartbeat__" ]
+      test: ["CMD", "curl", "-sfko/dev/null", "http://localhost/__heartbeat__"]
       interval: 10s
       timeout: 60s
       retries: 6
@@ -150,8 +149,8 @@ services:
       phabricator.test:
         condition: service_healthy
 
-  lando.hg-landing-worker:
-    image: mozilla/lando:latest  # TODO: this does not exist yet.
+  lando.hg-landing-worker: &landing_worker
+    image: mozilla/lando:latest # TODO: this does not exist yet.
     command: lando start_landing_worker hg
     env_file:
       - ../lando/.env
@@ -175,13 +174,15 @@ services:
     volumes:
       - /files/repos
 
+  lando.git-landing-worker:
+    <<: *landing_worker
+    command: lando start_landing_worker git
+
   lando.db:
     image: postgres:16
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-    ports:
-      - 5432:5432
     volumes:
       - lando-postgres-db:/var/lib/postgresql/data
     healthcheck:
@@ -196,7 +197,7 @@ services:
       test: ["CMD", "redis-cli", "ping"]
 
   lando.celery:
-    image: mozilla/lando:latest  # TODO: this does not exist yet.
+    image: mozilla/lando:latest # TODO: this does not exist yet.
     command: lando start_celery_worker
     depends_on:
       lando.redis:
@@ -238,13 +239,11 @@ services:
     environment:
       - MYSQL_ROOT_PASSWORD=password
     healthcheck:
-      test: ["CMD", "mysqladmin",  "ping",  "-h", "localhost", "-ppassword"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-ppassword"]
       interval: 10s
       timeout: 120s
       retries: 13
     restart: on-failure
-    ports:
-      - "3306:3306"
 
   ###############################
   # Transplant services
@@ -269,12 +268,37 @@ services:
     restart: always
     environment:
       SSH_PUBLIC_KEY: "ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBHWpDYI3qzSxV8tbjH8C4z3ef6QU2yBKGTHTFf6OrPrqDIO++ixfr4LW3yGmW4Q3CRJcx8KZ6hnx2FPnDOCsrqw="
-    ports:
-      - "8201:8000"
     volumes:
       - autoland-hg:/repos
     depends_on:
       - autoland.hg-init
+
+  ###########################
+  # Git repositories
+  ###########################
+
+  cgit-init: &cgit-config
+    image: mozilla/cgit-docker
+    build:
+      context: ../cgit-docker
+    volumes:
+      - ./docker/cgit/scripts:/scripts:ro
+      - git-repos:/opt/git
+    command: /scripts/conduit-init.sh
+
+  git.test:
+    <<: *cgit-config
+    container_name: git.test
+    command: ""
+    environment:
+      GIT_USER: lando
+      # 'password'
+      # generate with `htpasswd -n user | cut -d: -f2`
+      # escape `$`s by doubling them
+      GIT_PASSWORD: "$$apr1$$SnBWPBBG$$SucMwESCPMq5TmzS6mUeB1"
+    depends_on:
+      cgit-init:
+        condition: service_completed_successfully
 
   ###########################
   # LOCAL-DEV
@@ -319,7 +343,16 @@ services:
       - phabricator-nginx:/app/nginx
     restart: on-failure
     healthcheck:
-      test: ["CMD", "curl", "-sfk", "http://localhost", "-H", "Host: phabricator.test", "-o/dev/null"]
+      test:
+        [
+          "CMD",
+          "curl",
+          "-sfk",
+          "http://localhost",
+          "-H",
+          "Host: phabricator.test",
+          "-o/dev/null",
+        ]
     depends_on:
       - phabricator
       - tinyproxy
@@ -366,4 +399,6 @@ volumes:
   bmo-mysql-db:
   bmo-data-dir:
   autoland-hg:
+  git-repos:
+  git-repos2:
   caches_cache:
