@@ -324,6 +324,21 @@ services:
       - autoland.hg.test
 
   ###########################
+  # Pulse
+  ###########################
+
+  pulse.test:
+    image: rabbitmq:3-management-alpine
+    volumes:
+      - ./docker/rabbitmq/90-definitions-import.conf:/etc/rabbitmq/conf.d/90-definitions-import.conf
+      - ./docker/rabbitmq/definitions.json:/etc/rabbitmq/definitions.json
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 10s
+      timeout: 5s
+      retries: 1
+
+  ###########################
   # Proxy containers
   ###########################
 

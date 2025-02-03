@@ -1,0 +1,58 @@
+{
+  "bindings": [
+    {
+      "arguments": {},
+      "destination": "queue/suite/git-hg-sync",
+      "destination_type": "queue",
+      "routing_key": "git-hg-sync",
+      "source": "exchange/suite/git-hg-sync",
+      "vhost": "/"
+    }
+  ],
+  "exchanges": [
+    {
+      "arguments": {},
+      "auto_delete": false,
+      "durable": true,
+      "internal": false,
+      "name": "exchange/suite/git-hg-sync",
+      "type": "direct",
+      "vhost": "/"
+    }
+  ],
+  "permissions": [
+    {
+      "configure": ".*",
+      "read": ".*",
+      "user": "guest",
+      "vhost": "/",
+      "write": ".*"
+    }
+  ],
+  "queues": [
+    {
+      "arguments": {},
+      "auto_delete": false,
+      "durable": true,
+      "name": "queue/suite/git-hg-sync",
+      "vhost": "/"
+    }
+  ],
+  "users": [
+    {
+      "hashing_algorithm": "rabbit_password_hashing_sha256",
+      "limits": {},
+      "name": "guest",
+      "password_hash": "ywxQjVk0n/qwUfbLIf7L2tJIXrNLfM1bd1GoMeJSzZiRMWSd",
+      "tags": ["administrator"]
+    }
+  ],
+  "vhosts": [
+    {
+      "description": "Default virtual host",
+      "metadata": { "description": "Default virtual host", "tags": [] },
+      "name": "/",
+      "tags": []
+    }
+  ]
+}

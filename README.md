@@ -250,7 +250,13 @@ in with
 A local Git server is also available at http://git.test. The `conduit` user can
 log in with the credentials above. For administrative tasks, the account details are as follows:
 
-`user: git-admin`, `password:password123456789!`
+`user:git-admin`, `password:password123456789!`
+
+A local RabbitMQ server is running at pulse.test:5672. The administrative
+interface can be found at http://pulse.test:15672. The credentials are
+this service are
+
+`user:guest`, `password:guest`
 
 ## Updating the preloaded Phabricator database
 
