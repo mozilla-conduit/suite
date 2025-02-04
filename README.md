@@ -90,6 +90,27 @@ use it as a normal local development repository.
 `~/test-repo-cinnabar/`. The forked version of Arcanist is also
 provided and aliased as the `cinnabarc`.
 
+## Using the git_hg_sync service
+
+While a Pulse exchange is created by default, nothing listens to it. It
+is possible to start a `git_hg_sync` container to test the SCM sync
+logic. To do so there should first be a local clone of
+https://github.com/mozilla-conduit/git-hg-sync at `../git-hg-sync`. The
+Compose stack can then be started with the additional
+`docker-compose.git_hg_sync.yml` override.
+
+For example
+
+```
+docker-compose -f docker-compose.yml [...] -f docker-compose.git_hg_sync.yml up -d
+```
+
+The logs of the system can be perused with
+
+```
+docker-compose -f docker-compose.yml [...] -f docker-compose.git_hg_sync.yml logs -f git_hg_sync
+```
+
 ## Accessing the websites provided by the suite
 
 ### Firefox configuration

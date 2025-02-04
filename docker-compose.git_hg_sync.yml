@@ -1,0 +1,33 @@
+services:
+  git_hg_sync:
+    build:
+      context: ../git-hg-sync
+    image: git_hg_sync
+    command: --config /app/config-suite.toml --log-raw-level debug
+    volumes:
+      - ../git-hg-sync:/app
+      - ./docker/git-hg-sync/config-suite.toml:/app/config-suite.toml
+      - git_hg_sync_clones:/clones
+    environment: &pulse_env
+      PULSE_HOST: pulse.test
+      PULSE_PORT: 5672
+      PULSE_QUEUE: queue/suite/git-hg-sync
+      PULSE_EXCHANGE: exchange/suite/git-hg-sync
+      PULSE_ROUTING_KEY: git-hg-sync
+      PULSE_SSL: "" # False
+      # Same as the lando.hg-landing_worker
+      SSH_PRIVATE_KEY: |
+        -----BEGIN EC PRIVATE KEY-----
+        MHcCAQEEIMiMNKEkf0vr4HrhUIrq0e9NjGNPArN7L1uy/HQZ1dA8oAoGCCqGSM49
+        AwEHoUQDQgAEdakNgjerNLFXy1uMfwLjPd5/pBTbIEoZMdMV/o6s+uoMg776LF+v
+        gtbfIaZbhDcJElzHwpnqGfHYU+cM4KyurA==
+        -----END EC PRIVATE KEY-----
+    depends_on:
+      pulse.test:
+        condition: service_healthy
+  lando.git-landing-worker:
+    environment:
+      <<: *pulse_env
+
+volumes:
+  git_hg_sync_clones:
