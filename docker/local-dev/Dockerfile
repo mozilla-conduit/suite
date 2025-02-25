@@ -16,6 +16,15 @@ RUN apt-get update \
         vim \
         && rm -rf /var/lib/apt/lists/*
 
+# Install the Rust toolchain. Some packages do not have pre-built wheels (e.g.
+# rs-parsepatch) and require this in order to compile.
+RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
+
+# Include ~/.cargo/bin in PATH.
+# See: rust-lang.org/tools/install (Configuring the PATH environment variable).
+ENV PATH="/root/.cargo/bin:${PATH}"
+
+
 RUN pip install --upgrade pip \
  setuptools \
  wheel \
@@ -27,9 +36,7 @@ RUN pip install --upgrade pip \
  MozPhab
 
 # Install git-cinnabar
-ENV PATH="/root/.cargo/bin:${PATH}"
-RUN curl https://sh.rustup.rs -sSf | sh -s -- -y  \
-  && git clone --branch release --single-branch \
+RUN git clone --branch release --single-branch \
   https://github.com/glandium/git-cinnabar.git /home/phab/git-cinnabar \
   && cd /home/phab/git-cinnabar \
   && make
