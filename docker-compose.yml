@@ -278,7 +278,8 @@ services:
   ###########################
 
   cgit-init: &cgit-config
-    image: mozilla/cgit-docker
+    #
+    #image: mozilla/cgit-docker
     build:
       context: ../cgit-docker
     volumes:
@@ -296,6 +297,8 @@ services:
       # generate with `htpasswd -n user | cut -d: -f2`
       # escape `$`s by doubling them
       GIT_PASSWORD: "$$apr1$$SnBWPBBG$$SucMwESCPMq5TmzS6mUeB1"
+    healthcheck:
+      test: ["CMD", "curl", "-sfk", "http://localhost", "-o/dev/null"]
     depends_on:
       cgit-init:
         condition: service_completed_successfully
@@ -415,5 +418,4 @@ volumes:
   bmo-data-dir:
   autoland-hg:
   git-repos:
-  git-repos2:
   caches_cache:
