@@ -394,6 +394,8 @@ services:
       - "./docker/autoland-hg/site.conf:/etc/nginx/conf.d/default.conf:ro"
       - autoland-hg:/repos
     restart: on-failure
+    healthcheck:
+      test: ["CMD", "curl", "-sfk", "http://localhost", "-o/dev/null"]
     depends_on:
       - autoland.hg
       - tinyproxy
