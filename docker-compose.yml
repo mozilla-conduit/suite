@@ -285,6 +285,7 @@ services:
     volumes:
       - ./docker/cgit/scripts:/scripts:ro
       - git-repos:/opt/git
+      - cgit-cache:/opt/cgit/cache
     command: /scripts/conduit-init.sh
 
   git.test:
@@ -420,4 +421,5 @@ volumes:
   bmo-data-dir:
   autoland-hg:
   git-repos:
+  cgit-cache:
   caches_cache:
