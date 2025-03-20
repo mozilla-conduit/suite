@@ -5,6 +5,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 GREEN='\033[0;32m'
+BLUE='\033[0;34m'
 NC='\033[0m'
 
 set -e
@@ -26,9 +27,12 @@ git clone hg::http://hg.test/first-repo test-repo-cinnabar
 
 git clone http://git.test/test-repo test-repo-git
 
+git clone http://git.test/unified-cinnabar \
+  || echo -e "${BLUE}no unified-cinnabar repo present; this is expected if the git_hg_sync logic is not running${NC}" >&2
+
 for REPO in /repos/*; do
   pushd "${REPO}"
-  echo -e "api-lefsv24henzsbzpw337bhizawuyh\n" | moz-phab install-certificate
+  echo "api-lefsv24henzsbzpw337bhizawuyh" | moz-phab install-certificate
   popd
 done
 
