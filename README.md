@@ -269,8 +269,7 @@ To update the preloaded database with new settings:
 1.  Change the desired setting.
 1.  Run `docker compose run phabricator dump > demo.sql` to dump the
     database.
-1.  Edit `demo.sql` and delete the extra shell output at the beginning and at
-    the end of the file.
+1.  Edit `demo.sql` and delete the extra shell output at the beginning of the file.
 1.  `$ gzip demo.sql`
 1.  `$ mv demo.sql.gz docker/phabricator/demo.sql.gz`
 1.  Submit a [PR](https://github.com/mozilla-conduit/suite/pulls) with
