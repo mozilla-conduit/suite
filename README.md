@@ -111,6 +111,22 @@ The logs of the system can be perused with
 docker-compose -f docker-compose.yml [...] -f docker-compose.git_hg_sync.yml logs -f git_hg_sync
 ```
 
+This optional stack will also create a `unified-cinnabar` git repository in
+`git.test`. It contains multiple branches, each one cloned from the Mercurial
+repositories using git-cinnabar. The branches are configured by default in Phabricator
+and Lando (via the `create_environment_repos` command).
+
+When the repository exists, the `local-dev` container will clone it in
+`/repos/unified-cinnabar`. All branches will be available. Crucially, the
+`.arcconfig` on each branch will need to be updated to point to the git
+repository.  To do so, the callsign of the repo needs to be updated by adding
+`GIT` at the end. Otherwise, revisions will be submitted against the original Hg
+repo.
+
+When the git_hg_sync service is running, any revision landed to the
+`unified-cinnabar` repository, on any of the default branches, will be synced to
+the associated Mercurial repository.
+
 ## Accessing the websites provided by the suite
 
 ### Firefox configuration
