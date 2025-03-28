@@ -278,7 +278,7 @@ services:
   ###########################
 
   cgit-init: &cgit-config
-    #
+    # XXX: Bug 1938985
     #image: mozilla/cgit-docker
     build:
       context: ../cgit-docker
