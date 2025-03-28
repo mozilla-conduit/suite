@@ -19,15 +19,7 @@ services:
     image: mozilla/git_hg_sync
     build:
       context: ../git-hg-sync
-<<<<<<< HEAD
-    image: git_hg_sync
     command: --config /app/config-suite.toml --log-raw-level debug
-||||||| parent of f9c19c4 (git-hg-sync: init cinnabar clones)
-    image: git_hg_sync
-    command: --config /app/config-suite.toml
-=======
-    command: --config /app/config-suite.toml
->>>>>>> f9c19c4 (git-hg-sync: init cinnabar clones)
     volumes:
       - ../git-hg-sync:/app
       - ./docker/git-hg-sync/config-suite.toml:/app/config-suite.toml
