@@ -90,6 +90,43 @@ use it as a normal local development repository.
 `~/test-repo-cinnabar/`. The forked version of Arcanist is also
 provided and aliased as the `cinnabarc`.
 
+## Using the git_hg_sync service
+
+While a Pulse exchange is created by default, nothing listens to it. It
+is possible to start a `git_hg_sync` container to test the SCM sync
+logic. To do so there should first be a local clone of
+https://github.com/mozilla-conduit/git-hg-sync at `../git-hg-sync`. The
+Compose stack can then be started with the additional
+`docker-compose.git_hg_sync.yml` override.
+
+For example
+
+```
+docker-compose -f docker-compose.yml [...] -f docker-compose.git_hg_sync.yml up -d
+```
+
+The logs of the system can be perused with
+
+```
+docker-compose -f docker-compose.yml [...] -f docker-compose.git_hg_sync.yml logs -f git_hg_sync
+```
+
+This optional stack will also create a `unified-cinnabar` git repository in
+`git.test`. It contains multiple branches, each one cloned from the Mercurial
+repositories using git-cinnabar. The branches are configured by default in Phabricator
+and Lando (via the `create_environment_repos` command).
+
+When the repository exists, the `local-dev` container will clone it in
+`/repos/unified-cinnabar`. All branches will be available. Crucially, the
+`.arcconfig` on each branch will need to be updated to point to the git
+repository.  To do so, the callsign of the repo needs to be updated by adding
+`GIT` at the end. Otherwise, revisions will be submitted against the original Hg
+repo.
+
+When the git_hg_sync service is running, any revision landed to the
+`unified-cinnabar` repository, on any of the default branches, will be synced to
+the associated Mercurial repository.
+
 ## Accessing the websites provided by the suite
 
 ### Firefox configuration
@@ -250,7 +287,13 @@ in with
 A local Git server is also available at http://git.test. The `conduit` user can
 log in with the credentials above. For administrative tasks, the account details are as follows:
 
-`user: git-admin`, `password:password123456789!`
+`user:git-admin`, `password:password123456789!`
+
+A local RabbitMQ server is running at pulse.test:5672. The administrative
+interface can be found at http://pulse.test:15672. The credentials are
+this service are
+
+`user:guest`, `password:guest`
 
 ## Updating the preloaded Phabricator database
 

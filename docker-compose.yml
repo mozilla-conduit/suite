@@ -278,12 +278,14 @@ services:
   ###########################
 
   cgit-init: &cgit-config
-    image: mozilla/cgit-docker
+    # XXX: Bug 1938985
+    #image: mozilla/cgit-docker
     build:
       context: ../cgit-docker
     volumes:
       - ./docker/cgit/scripts:/scripts:ro
       - git-repos:/opt/git
+      - cgit-cache:/opt/cgit/cache
     command: /scripts/conduit-init.sh
 
   git.test:
@@ -296,6 +298,8 @@ services:
       # generate with `htpasswd -n user | cut -d: -f2`
       # escape `$`s by doubling them
       GIT_PASSWORD: "$$apr1$$SnBWPBBG$$SucMwESCPMq5TmzS6mUeB1"
+    healthcheck:
+      test: ["CMD", "curl", "-sfk", "http://localhost", "-o/dev/null"]
     depends_on:
       cgit-init:
         condition: service_completed_successfully
@@ -322,6 +326,21 @@ services:
       - bmo.feed
       - bmo.pushd
       - autoland.hg.test
+
+  ###########################
+  # Pulse
+  ###########################
+
+  pulse.test:
+    image: rabbitmq:3-management-alpine
+    volumes:
+      - ./docker/rabbitmq/90-definitions-import.conf:/etc/rabbitmq/conf.d/90-definitions-import.conf
+      - ./docker/rabbitmq/definitions.json:/etc/rabbitmq/definitions.json
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 10s
+      timeout: 5s
+      retries: 1
 
   ###########################
   # Proxy containers
@@ -376,6 +395,8 @@ services:
       - "./docker/autoland-hg/site.conf:/etc/nginx/conf.d/default.conf:ro"
       - autoland-hg:/repos
     restart: on-failure
+    healthcheck:
+      test: ["CMD", "curl", "-sfk", "http://localhost", "-o/dev/null"]
     depends_on:
       - autoland.hg
       - tinyproxy
@@ -400,5 +421,5 @@ volumes:
   bmo-data-dir:
   autoland-hg:
   git-repos:
-  git-repos2:
+  cgit-cache:
   caches_cache:
