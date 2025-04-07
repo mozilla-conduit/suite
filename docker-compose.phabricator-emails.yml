@@ -1,0 +1,45 @@
+services:
+  phabricator-emails-prepare: &defconf
+    build:
+      context: ../phabricator-emails
+    image: mozilla/phabricator-emails
+    volumes:
+      # XXX Due to the current way the container is built, mounting the current source code is not sufficient
+      # - ../phabricator-emails/:/app/:z
+      - ./docker/phabricator-emails/settings.suite.ini:/app/.local/lib/python3.9/site-packages/settings.ini:z
+    command: prepare
+    depends_on:
+      phabricator.test:
+        condition: service_healthy
+      phabricator-emails.db:
+        condition: service_healthy
+
+  phabricator-emails-migrate:
+    <<: *defconf
+    command: migrate
+    depends_on:
+      phabricator-emails-prepare:
+        condition: service_completed_successfully
+
+  phabricator-emails:
+    <<: *defconf
+    command: service
+    depends_on:
+      phabricator-emails-migrate:
+        condition: service_completed_successfully
+
+  phabricator-emails.db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - phabricator-emails-postgres-db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres", "-d", "postgres"]
+      interval: 1s
+      timeout: 1s
+      retries: 10
+
+volumes:
+  phabricator-emails-postgres-db:
