@@ -47,7 +47,7 @@ services:
       PHABRICATOR_OAUTH_SECRET: QNzdU5eRuhlHotvkh8KBgtR3yqxMG3czKfNks1qt
       PORT: 80
     healthcheck:
-      test: ["CMD", "curl", "-sfk", "http://localhost", "-o/dev/null" ]
+      test: ["CMD", "curl", "-sfk", "http://localhost", "-o/dev/null"]
     depends_on:
       bmo.db:
         condition: service_healthy
@@ -63,8 +63,10 @@ services:
       - perl
       - extensions/PhabBugz/bin/phabbugz_feed.pl
       - start
-      - '-d'
-      - '-f'
+      - "-d"
+      - "-f"
+    healthcheck:
+      disable: true # the image uses an HTTP check, which this command doesn't fullfil
     volumes:
       - bmo-data-dir:/app/data
     environment: *bmo_env
@@ -81,8 +83,10 @@ services:
       - perl
       - extensions/Push/bin/bugzilla-pushd.pl
       - start
-      - '-d'
-      - '-f'
+      - "-d"
+      - "-f"
+    healthcheck:
+      disable: true # the image uses an HTTP check, which this command doesn't fullfil
     volumes:
       - bmo-data-dir:/app/data
     environment: *bmo_env
@@ -97,7 +101,7 @@ services:
     image: mysql:8
     volumes:
       - bmo-mysql-db:/var/lib/mysql
-      - ./docker/bmo/mysql:/etc/mysql/conf.d
+      - "./docker/bmo/mysql:/etc/mysql/conf.d"
     tmpfs:
       - /tmp
     logging:
@@ -108,7 +112,7 @@ services:
       MYSQL_PASSWORD: bugs
       MYSQL_ALLOW_EMPTY_PASSWORD: 1
     healthcheck:
-      test: ["CMD", "mysqladmin",  "ping",  "-h", "localhost", "-ubugs", "-pbugs"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-ubugs", "-pbugs"]
       timeout: 180s
 
   memcached:
@@ -117,100 +121,87 @@ services:
   #########################
   # Lando Containers
   #########################
-
-  lando-ui:
-    platform: linux/x86_64
-    image: mozilla/landoui:latest
-    environment:
+  lando:
+    image: mozilla/lando:latest # TODO: this does not exist yet.
+    env_file:
+      - ../lando/.env
+    environment: &base-lando-vars
+      DEFAULT_DB_HOST: lando.db
       DEBUG: 1
-      ENV: localdev
-      HOST: 0.0.0.0
-      LANDO_API_OIDC_IDENTIFIER: http://lando-api.test
-      LANDO_API_URL: http://lando-api.test
-      PORT: 9000
-      SECRET_KEY: secret_key_change_me
-      SENTRY_DSN:
-      SESSION_COOKIE_DOMAIN: lando-ui.test
-      SESSION_COOKIE_NAME: lando-ui.test
-      SESSION_COOKIE_SECURE: 0
-      TREESTATUS_URL: http://treestatus.test
-      USE_HTTPS: 0
-      UWSGI_HTTP: :9000
-      UWSGI_SOCKET: :9001
-      VERSION_PATH: /version.json
-
-  lando-api: &api_template
-    platform: linux/x86_64
-    image: mozilla/landoapi:latest
-    environment: &api_environment
-      OIDC_IDENTIFIER: http://lando-api.test
-      LOCALDEV_MOCK_AUTH0_USER: inject_valid  # [default / inject_invalid]
-      DATABASE_URL: postgresql://postgres:password@lando-api.db/postgres
-      ENV: localdev
-      HOST_URL: http://lando-api.test
-      LANDO_UI_URL: http://lando-ui.test
-      PINGBACK_ENABLED: y
-      PINGBACK_HOST_URL: http://lando-api.test
+      ENVIRONMENT: local
       PHABRICATOR_URL: http://phabricator.test
       PHABRICATOR_UNPRIVILEGED_API_KEY: api-lefsv24henzsbzpw337bhizawuyh
-      TRANSPLANT_URL: http://transplant-api.test/
-      TRANSPLANT_USERNAME: autoland
-      TRANSPLANT_PASSWORD: autoland
-      TRANSPLANT_API_KEY: autoland
-      SENTRY_DSN:
-      UWSGI_HTTP: :9000
-      UWSGI_SOCKET: :9001
+    restart: on-failure
+    # TODO: bake this command into and ENTRYPOINT script
+    command: bash -c "
+      lando setup_dev &&
+      lando runserver 0.0.0.0:80"
+    healthcheck:
+      test: ["CMD", "curl", "-sfko/dev/null", "http://localhost/__heartbeat__"]
+      interval: 10s
+      timeout: 60s
+      retries: 6
     depends_on:
-      - lando-api.db
+      lando.db:
+        condition: service_healthy
+      lando.redis:
+        condition: service_healthy
+      phabricator.test:
+        condition: service_healthy
 
-  treestatus:
-    <<: *api_template
+  lando.hg-landing-worker: &landing_worker
+    image: mozilla/lando:latest # TODO: this does not exist yet.
+    command: lando start_landing_worker hg
+    env_file:
+      - ../lando/.env
     environment:
-      <<: *api_environment
-      HOST_URL: http://treestatus.test
-      # Define the treestatus module as a clone of `lando-api` except for the
-      # `TREESTATUS_APP` environment variable, so the Treestatus API endpoints
-      # are loaded.
-      TREESTATUS_APP: 1
+      <<: *base-lando-vars
+      DEFAULT_GRACE_SECONDS: 10
+      LANDING_WORKER_USERNAME: app
+      LANDING_WORKER_TARGET_SSH_PORT: 8022
+      SSH_PRIVATE_KEY: |
+        -----BEGIN EC PRIVATE KEY-----
+        MHcCAQEEIMiMNKEkf0vr4HrhUIrq0e9NjGNPArN7L1uy/HQZ1dA8oAoGCCqGSM49
+        AwEHoUQDQgAEdakNgjerNLFXy1uMfwLjPd5/pBTbIEoZMdMV/o6s+uoMg776LF+v
+        gtbfIaZbhDcJElzHwpnqGfHYU+cM4KyurA==
+        -----END EC PRIVATE KEY-----
+    restart: on-failure
+    depends_on:
+      lando:
+        condition: service_healthy
+      lando.db:
+        condition: service_healthy
+    volumes:
+      - /files/repos
 
-  lando-api.db:
-    platform: linux/x86_64
-    image: postgres:14
+  lando.git-landing-worker:
+    <<: *landing_worker
+    command: lando start_landing_worker git
+
+  lando.db:
+    image: postgres:16
     environment:
-      POSTGRES_PASSWORD: password
       POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
     volumes:
       - lando-postgres-db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres", "-d", "postgres"]
+      interval: 1s
+      timeout: 1s
+      retries: 10
 
-  lando-api.landing-worker:
-    platform: linux/x86_64
-    build:
-      context: ../lando-api/
-      dockerfile: ./Dockerfile
-    image: suite_lando-api
-    command: ["landing-worker"]
-    environment:
-      - ENV=localdev
-      - DATABASE_URL=postgresql://postgres:password@lando-api.db/postgres
-      - SENTRY_DSN=
-      - CELERY_BROKER_URL=redis://redis.queue/0
-      - OIDC_IDENTIFIER=https://lando-api.test
-      - LANDO_UI_URL=https://lando.test
-      - REPO_CLONES_PATH=/repos
-      - REPOS_TO_LAND=first-repo
-    volumes:
-      - ../lando-api:/app
-      - ../lando-api/migrations:/migrations
-      # Prevent writing python cache to the host.
-      - caches_cache:/app/.cache/
+  lando.redis:
+    image: redis:7.2
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+
+  lando.celery:
+    image: mozilla/lando:latest # TODO: this does not exist yet.
+    command: lando start_celery_worker
     depends_on:
-      - lando-api.db
-      - redis.queue
-
-  redis.queue:
-    platform: linux/x86_64
-    image: redis:3.2-alpine
-
+      lando.redis:
+        condition: service_healthy
 
   ###############################
   # Phabricator Containers
@@ -243,12 +234,12 @@ services:
     image: mysql:5.7
     volumes:
       - phabricator-mysql-db:/var/lib/mysql
-      - ./docker/phabricator/mysql:/etc/mysql/conf.d:ro
+      - "./docker/phabricator/mysql:/etc/mysql/conf.d:ro"
       - ./docker/phabricator/demo.sql.gz:/docker-entrypoint-initdb.d/demo.sql.gz
     environment:
       - MYSQL_ROOT_PASSWORD=password
     healthcheck:
-      test: ["CMD", "mysqladmin",  "ping",  "-h", "localhost", "-ppassword"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-ppassword"]
       interval: 10s
       timeout: 120s
       retries: 13
@@ -259,12 +250,10 @@ services:
   ###############################
 
   autoland.treestatus:
-    platform: linux/x86_64
     image: mozilla/autolandtreestatus:latest
     restart: always
 
   autoland.hg-init:
-    platform: linux/x86_64
     image: mozilla/autolandhg:latest
     environment:
       ARCCONFIG: y
@@ -274,7 +263,6 @@ services:
       - autoland-hg:/repos
 
   autoland.hg:
-    platform: linux/x86_64
     image: mozilla/autolandhg:latest
     command: start
     restart: always
@@ -286,6 +274,37 @@ services:
       - autoland.hg-init
 
   ###########################
+  # Git repositories
+  ###########################
+
+  cgit-init: &cgit-config
+    # XXX: Bug 1938985
+    #image: mozilla/cgit-docker
+    build:
+      context: ../cgit-docker
+    volumes:
+      - ./docker/cgit/scripts:/scripts:ro
+      - git-repos:/opt/git
+      - cgit-cache:/opt/cgit/cache
+    command: /scripts/conduit-init.sh
+
+  git.test:
+    <<: *cgit-config
+    container_name: git.test
+    command: ""
+    environment:
+      GIT_USER: lando
+      # 'password'
+      # generate with `htpasswd -n user | cut -d: -f2`
+      # escape `$`s by doubling them
+      GIT_PASSWORD: "$$apr1$$SnBWPBBG$$SucMwESCPMq5TmzS6mUeB1"
+    healthcheck:
+      test: ["CMD", "curl", "-sfk", "http://localhost", "-o/dev/null"]
+    depends_on:
+      cgit-init:
+        condition: service_completed_successfully
+
+  ###########################
   # LOCAL-DEV
   # Provide an ability to run all CLI developer needs:
   # * CVS push/pull to autoland.hg
@@ -293,7 +312,6 @@ services:
   ###########################
 
   local-dev:
-    platform: linux/x86_64
     build:
       context: docker/local-dev
       dockerfile: ./Dockerfile
@@ -308,6 +326,21 @@ services:
       - bmo.feed
       - bmo.pushd
       - autoland.hg.test
+
+  ###########################
+  # Pulse
+  ###########################
+
+  pulse.test:
+    image: rabbitmq:3-management-alpine
+    volumes:
+      - ./docker/rabbitmq/90-definitions-import.conf:/etc/rabbitmq/conf.d/90-definitions-import.conf
+      - ./docker/rabbitmq/definitions.json:/etc/rabbitmq/definitions.json
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 10s
+      timeout: 5s
+      retries: 1
 
   ###########################
   # Proxy containers
@@ -325,45 +358,33 @@ services:
     platform: linux/x86_64
     image: nginx:alpine
     volumes:
-      - ./docker/phabricator/site.conf:/etc/nginx/conf.d/default.conf:ro
+      - "./docker/phabricator/site.conf:/etc/nginx/conf.d/default.conf:ro"
       - phabricator-nginx:/app/nginx
     restart: on-failure
     healthcheck:
-      test: ["CMD", "curl", "-sfk", "http://localhost", "-H", "Host: phabricator.test", "-o/dev/null"]
+      test:
+        [
+          "CMD",
+          "curl",
+          "-sfk",
+          "http://localhost",
+          "-H",
+          "Host: phabricator.test",
+          "-o/dev/null",
+        ]
     depends_on:
       - phabricator
       - tinyproxy
 
-  lando-ui.test:
+  lando.test:
     platform: linux/x86_64
     image: nginx:alpine
-    container_name: lando-ui.test
+    container_name: lando.test
     volumes:
-      - ./docker/landoui/site.conf:/etc/nginx/conf.d/default.conf:ro
+      - "./docker/lando/site.conf:/etc/nginx/conf.d/default.conf:ro"
     restart: on-failure
     depends_on:
-      - lando-ui
-      - tinyproxy
-
-  lando-api.test: &api_proxy
-    platform: linux/x86_64
-    image: nginx:alpine
-    container_name: lando-api.test
-    volumes:
-      - ./docker/landoapi/site.conf:/etc/nginx/conf.d/default.conf:ro
-    restart: on-failure
-    depends_on:
-      - lando-api
-      - tinyproxy
-
-  treestatus.test:
-    platform: linux/x86_64
-    <<: *api_proxy
-    volumes:
-      - ./docker/landoapi/treestatus_site.conf:/etc/nginx/conf.d/default.conf:ro
-    container_name: treestatus.test
-    depends_on:
-      - treestatus
+      - lando
       - tinyproxy
 
   autoland.hg.test:
@@ -371,9 +392,11 @@ services:
     image: nginx:alpine
     container_name: hg.test
     volumes:
-      - ./docker/autoland-hg/site.conf:/etc/nginx/conf.d/default.conf:ro
+      - "./docker/autoland-hg/site.conf:/etc/nginx/conf.d/default.conf:ro"
       - autoland-hg:/repos
     restart: on-failure
+    healthcheck:
+      test: ["CMD", "curl", "-sfk", "http://localhost", "-o/dev/null"]
     depends_on:
       - autoland.hg
       - tinyproxy
@@ -397,4 +420,6 @@ volumes:
   bmo-mysql-db:
   bmo-data-dir:
   autoland-hg:
+  git-repos:
+  cgit-cache:
   caches_cache:
