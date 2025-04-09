@@ -250,7 +250,7 @@ of the ARC wrapper "review" , load the `docker compose.review.yml`.
 If you don't want to spin up all configured containers, you can
 specify the ones you'd like to work on. The command below runs
 `phabricator.test`, `phabricator`, `phab.db`, `lando.test`,
-integration between Phabricator and Lando API:
+integration between Phabricator and Lando:
 
 `docker compose up phabricator.test lando.test`
 
