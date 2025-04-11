@@ -16,7 +16,7 @@
       "durable": true,
       "internal": false,
       "name": "exchange/suite/git-hg-sync",
-      "type": "direct",
+      "type": "topic",
       "vhost": "/"
     }
   ],
