@@ -17,4 +17,4 @@ else
   hg addremove
   hg commit -m "automatically generated commit"
 fi
-moz-phab -s --no-bug
+moz-phab -s --no-bug --no-wip --yes
