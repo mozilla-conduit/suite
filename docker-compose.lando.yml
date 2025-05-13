@@ -14,15 +14,7 @@ services:
       lando collectstatic --clear --no-input &&
       lando setup_dev &&
       lando runserver 0.0.0.0:80"
-    user: "${UID}:${GID}"  # needed for file generation in the mounted volumes
-    volumes:
-      - ../lando:/code
-      - ../lando/staticfiles:/staticfiles
-      - ../lando-prorotype/media:/mediafiles
-
-  lando.hg-landing-worker: &landing_worker
-    image: suite_lando
-    user: "${UID}:${GID}"  # needed for file generation in the mounted volumes
+    user: "${UID}:${GID}" # needed for file generation in the mounted volumes
     volumes:
       - ../lando:/code
       - ../lando/staticfiles:/staticfiles
@@ -36,8 +28,24 @@ services:
       - ../lando/staticfiles:/staticfiles
       - ../lando/media:/mediafiles
 
+  lando.hg-landing-worker: &worker
+    image: suite_lando
+    user: "${UID}:${GID}" # needed for file generation in the mounted volumes
+    volumes:
+      - ../lando:/code
+      - ../lando/staticfiles:/staticfiles
+      - ../lando-prorotype/media:/mediafiles
+
+  lando.hg-automation-worker:
+    <<: *worker
+    command: lando start_automation_worker hg-automation-worker
+
   lando.git-landing-worker:
-    <<: *landing_worker
+    <<: *worker
+
+  lando.git-automation-worker:
+    <<: *worker
+    command: lando start_automation_worker git-automation-worker
 
   lando.db:
     image: postgres
