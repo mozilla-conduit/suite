@@ -7,27 +7,8 @@ services:
     build:
       context: ../conduit-autoland-hg/
       dockerfile: ./Dockerfile
-    environment:
-      ARCCONFIG: y
-      PHABRICATOR_URI: http://phabricator.test
-    command: init
-    volumes:
-      - autoland.hg:/repos
 
   autoland.hg:
     build:
       context: ../conduit-autoland-hg/
       dockerfile: ./Dockerfile
-    depends_on:
-      - autoland.hg-init
-    environment:
-      SSHD_PORT: "8022"
-      SSH_PUBLIC_KEY: "ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBHWpDYI3qzSxV8tbjH8C4z3ef6QU2yBKGTHTFf6OrPrqDIO++ixfr4LW3yGmW4Q3CRJcx8KZ6hnx2FPnDOCsrqw= app"
-    volumes:
-      - autoland.hg:/repos
-      - autoland.ssh:/home/app/.ssh
-    command: ["start", "--no-init"]
-
-volumes:
-  autoland.hg:
-  autoland.ssh:

@@ -21,7 +21,7 @@ services:
       context: ../git-hg-sync
     command: --config /app/config-suite.toml --log-raw-level debug
     volumes:
-      - ../git-hg-sync:/app
+      - ../git-hg-sync:/app:z
       - ./docker/git-hg-sync/config-suite.toml:/app/config-suite.toml
       - git_hg_sync_clones:/clones
     environment: &pulse_env
