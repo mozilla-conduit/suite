@@ -4,5 +4,6 @@
 
 services:
   local-dev:
-    volumes: 
+    platform: linux/x86_64
+    volumes:
       - ../arcanist:/home/phab/phabricator/cinnabarc

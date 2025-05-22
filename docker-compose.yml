@@ -129,12 +129,22 @@ services:
     image: suite_lando
     stdin_open: true
     tty: true
+    environment:
+      DEFAULT_DB_HOST: lando.db
+      ENVIRONMENT: local
+      PHABRICATOR_URL: http://phabricator.test
+      PHABRICATOR_UNPRIVILEGED_API_KEY: api-qdaethogwpld3wmn2cnhbh57wkux
+      TREESTATUS_URL: https://treestatus.mozilla-releng.net
+    env_file: ../lando/.env
     command: bash -c "
+      echo "version=0" > src/lando/version.py &&
       lando generate_version_file &&
       lando collectstatic --clear --no-input &&
       lando setup_dev &&
       lando runserver 0.0.0.0:80"
     user: "${UID:-}:${GID:-}" # needed for file generation in the mounted volumes
+    depends_on:
+      - lando.db
     volumes:
       - ../lando:/code
       - ../lando/staticfiles:/staticfiles
@@ -351,16 +361,7 @@ services:
       - phabricator-nginx:/app/nginx
     restart: on-failure
     healthcheck:
-      test:
-        [
-          "CMD",
-          "curl",
-          "-sfk",
-          "http://localhost",
-          "-H",
-          "Host: phabricator.test",
-          "-o/dev/null",
-        ]
+      test: ["CMD", "curl", "-sfk", "http://localhost", "-H", "Host: phabricator.test", "-o/dev/null"]
     depends_on:
       - phabricator
       - tinyproxy
@@ -370,20 +371,10 @@ services:
     build: ../lando/nginx
     depends_on:
       - lando
+      - tinyproxy
     volumes:
       - ../lando/staticfiles:/staticfiles
       - ../lando/media:/mediafiles
-
-#  lando.test:
-#    platform: linux/x86_64
-#    image: nginx:alpine
-#    container_name: lando.test
-#    volumes:
-#      - "./docker/lando/site.conf:/etc/nginx/conf.d/default.conf:ro"
-#    restart: on-failure
-#    depends_on:
-#      - lando
-#      - tinyproxy
 
   autoland.hg.test:
     platform: linux/x86_64

@@ -4,18 +4,21 @@
 
 services:
   bmo.test:
+    platform: linux/x86_64
     build:
       context: ../bmo/
       dockerfile: ./Dockerfile
     image: suite_bmo
 
   bmo.feed:
+    platform: linux/x86_64
     build:
       context: ../bmo/
       dockerfile: ./Dockerfile
     image: suite_bmo
 
   bmo.pushd:
+    platform: linux/x86_64
     build:
       context: ../bmo/
       dockerfile: ./Dockerfile

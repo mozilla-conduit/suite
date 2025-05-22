@@ -4,6 +4,7 @@
 
 services:
   phabricator:
+    platform: linux/x86_64
     build:
       context: ../phabricator/
       dockerfile: ./Dockerfile
@@ -12,6 +13,7 @@ services:
     volumes:
       - phabricator-moz-extensions-local:/app/moz-extensions
   phabricator.test:
+    platform: linux/x86_64
     volumes:
       - phabricator-moz-extensions-local:/app/moz-extensions
 

@@ -30,59 +30,15 @@ substitute for self-contained tests in individual repositories.
    [lando README.md](https://github.com/mozilla-conduit/lando/blob/master/README.md)
    for instructions on how to set that up.
 
-### Steps
-
-- Pull the repository into a separate (e.g. `conduit`) directory.
-- Go to the `conduit/suite` directory
-- Depending on what services you plan to run, you may need to create a
-  `docker compose.override.yml` file. At the moment, this is only
-  required for Lando and Transplant. If in doubt, please refer to the
-  relevant projects. Here is a sample file:
-
-XXX This example is outdated
-
-```
-services:
-  lando-ui:
-    environment:
-      OIDC_DOMAIN: <your auth0 domain, e.g. account.auth0.com>
-      OIDC_CLIENT_ID: <your auth0 client id for lando-ui>
-      OIDC_CLIENT_SECRET: <your auth0 client secret for lando-ui>
-      LANDO_API_OIDC_DOMAIN: <your auth0 domain, e.g. example.us.auth0.com>
-      LANDO_API_OIDC_IDENTIFIER: <your auth0 api identifiier for lando-api>
-
-  lando-api:
-    environment:
-      # Optional: 'http://lando-api.test' by default
-      OIDC_DOMAIN: <your auth0 domain>
-      OIDC_CLIENT_ID: <your auth0 client id for lando-ui>
-      OIDC_CLIENT_SECRET: <your auth0 client secret for lando-ui>
-      LANDO_API_OIDC_IDENTIFIER: http://lando-api.test
-      LANDO_API_OIDC_DOMAIN: <your auth0 domain, e.g. example.us.auth0.com>
-      OIDC_IDENTIFIER: <your auth0 api identifiier for lando-api>
-      # Optional: 'inject_valid' by default
-      LOCALDEV_MOCK_AUTH0_USER: <'default' | 'inject_valid' | 'inject_invalid'>
-      LOCALDEV_MOCK_TRANSPLANT_SUBMIT: <'succeed' | 'fail'>
-
-  autoland.transplant-init:
-    environment: &transplant_secret
-
-  autoland.transplant-api:
-    environment: *transplant_secret
-
-  autoland.transplant-daemon:
-    environment: *transplant_secret
-```
-
-- Run `docker compose build`
-
-### Preparing the environment
+### Cloning the Repositories
 
 To allow the override compose files to work properly, you need to have
-your repository directory structure set up correctly. Please clone the
-repositories you wish to use locally to the `conduit` directory.
+your repository directory structure set up correctly with clones of the
+various services that make up the suite.
 
 ```shell
+cd conduit
+git clone git@github.com:mozilla-conduit/suite.git
 git clone git@github.com:mozilla-conduit/arcanist.git
 git clone git@github.com:mozilla-bteam/bmo.git
 git clone git@github.com:mozilla-conduit/lando.git
@@ -106,7 +62,17 @@ conduit
 ├── phabricator/
 ├── phabricator-emails/
 └── review/
+```
 
+### Prepare the Environment
+
+To log into Lando you need to configure `lando/.env` with the `OIDC` settings, as per your Auth0 personal
+instance:
+
+```
+OIDC_DOMAIN=...
+OIDC_RP_CLIENT_ID=...
+OIDC_RP_CLIENT_SECRET=...
 ```
 
 ## Usage
@@ -120,14 +86,12 @@ the phabricator code from a local repository instead of the
 $ docker compose \
   -f docker-compose.yml \
   -f docker-compose.phabricator.yml \
-  -f docker-compose.override.yml \
   build
 # Start the containers
 $ docker compose \
   -f docker-compose.yml \
   -f docker-compose.phabricator.yml \
-  -f docker-compose.override.yml \
-  up --detach
+  up
 ```
 
 You can also use multiple apps from local repositories. For example,
@@ -138,27 +102,11 @@ docker compose \
   -f docker-compose.yml \
   -f docker-compose.phabricator.yml \
   -f docker-compose.bmo.yml \
-  -f docker-compose.override.yml \
-  up --build --detach
-```
-
-And for example to work on lando,
-
-```shell
-docker compose \
-  -f docker-compose.yml \
-  -f docker-compose.lando.yml \
-  -f docker-compose.override.yml \
-  up --build --detach
+  up --build
 ```
 
 Note that normally you must have `-f docker-compose.yml` as the first
-option and `-f docker-compose.override.yml` as the last one.
-
-To work on a local version of the Arcanist fork, load the
-`docker-compose.cinnabarc.yml` configuration. This will modify the
-`arc` command in the `local-dev` service. Similarly, to load a local version
-of the ARC wrapper "review" , load the `docker-compose.review.yml`.
+option.
 
 If you don't want to spin up all configured containers, you can
 specify the ones you'd like to work on. The command below runs
@@ -166,6 +114,34 @@ specify the ones you'd like to work on. The command below runs
 integration between Phabricator and Lando:
 
 `docker compose up phabricator.test lando.test`
+
+## Accessing the websites provided by the suite
+
+### Firefox configuration
+
+You can either configure an existing Firefox instance to use our
+proxy, or run a preconfigured Firefox.
+
+**To configure your current browser**:
+
+1. Open `Options -> Network Proxy -> Settings`
+1. Choose the `Manual Proxy Configuration` radio button
+1. Set `HTTP Proxy` to `localhost` and `Port` to `1080`.
+
+**To run Firefox with an empty profile**:
+
+1. Please set the environment variable `FIREFOX_CMD` to `/path/to/firefox` if
+   your system does not recognize the `firefox` command.
+1. In a new terminal, run `firefox-proxy`, or
+   `firefox-proxy $(docker-machine ip)` if you are using `docker-machine`.
+1. A new browser with an empty profile will open.
+
+### Websites provided by the suite
+
+- Bugzilla - http://bmo.test
+- Phabricator - http://phabricator.test
+- Lando - http://lando.test
+- Mercurial - http://hg.test
 
 ### Preconfigured users:
 
@@ -207,34 +183,6 @@ interface can be found at http://pulse.test:15672. The credentials are
 this service are
 
 `user:guest`, `password:guest`
-
-## Accessing the websites provided by the suite
-
-### Firefox configuration
-
-You can either configure an existing Firefox instance to use our
-proxy, or run a preconfigured Firefox.
-
-**To configure your current browser**:
-
-1. Open `Options -> Network Proxy -> Settings`
-1. Choose the `Manual Proxy Configuration` radio button
-1. Set `HTTP Proxy` to `localhost` and `Port` to `1080`.
-
-**To run Firefox with an empty profile**:
-
-1. Please set the environment variable `FIREFOX_CMD` to `/path/to/firefox` if
-   your system does not recognize the `firefox` command.
-1. In a new terminal, run `firefox-proxy`, or
-   `firefox-proxy $(docker-machine ip)` if you are using `docker-machine`.
-1. A new browser with an empty profile will open.
-
-### Websites provided by the suite
-
-- Bugzilla - http://bmo.test
-- Phabricator - http://phabricator.test
-- Lando - http://lando.test
-- Mercurial - http://hg.test
 
 ## Running apps from local clone
 
