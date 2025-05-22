@@ -134,7 +134,7 @@ services:
       lando collectstatic --clear --no-input &&
       lando setup_dev &&
       lando runserver 0.0.0.0:80"
-    user: "${UID}:${GID}" # needed for file generation in the mounted volumes
+    user: "${UID:-}:${GID:-}" # needed for file generation in the mounted volumes
     volumes:
       - ../lando:/code
       - ../lando/staticfiles:/staticfiles
@@ -143,7 +143,7 @@ services:
   lando.hg-landing-worker: &worker
     platform: linux/x86_64
     image: suite_lando
-    user: "${UID}:${GID}" # needed for file generation in the mounted volumes
+    user: "${UID:-}:${GID:-}" # needed for file generation in the mounted volumes
     volumes:
       - ../lando:/code
       - ../lando/staticfiles:/staticfiles
