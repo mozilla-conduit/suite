@@ -42,7 +42,6 @@ substitute for self-contained tests in individual repositories.
 XXX This example is outdated
 
 ```
-version: '3.4'
 services:
   lando-ui:
     environment:
@@ -77,94 +76,6 @@ services:
 
 - Run `docker compose build`
 
-## Using the local-dev service
-
-The "local-dev" container includes command-line tools used to interact
-with Conduit services.
-
-To set up the container run `docker compose run --rm local-dev`.
-You will be placed inside of a repository cloned from http://hg.test. You can
-use it as a normal local development repository.
-
-**Note**: A `git-cinnabar` version of the same repository is located at
-`~/test-repo-cinnabar/`. The forked version of Arcanist is also
-provided and aliased as the `cinnabarc`.
-
-## Using the git_hg_sync service
-
-While a Pulse exchange is created by default, nothing listens to it. It
-is possible to start a `git_hg_sync` container to test the SCM sync
-logic. To do so there should first be a local clone of
-https://github.com/mozilla-conduit/git-hg-sync at `../git-hg-sync`. The
-Compose stack can then be started with the additional
-`docker-compose.git_hg_sync.yml` override.
-
-For example
-
-```
-docker-compose -f docker-compose.yml [...] -f docker-compose.git_hg_sync.yml up -d
-```
-
-The logs of the system can be perused with
-
-```
-docker-compose -f docker-compose.yml [...] -f docker-compose.git_hg_sync.yml logs -f git_hg_sync
-```
-
-This optional stack will also create a `unified-cinnabar` git repository in
-`git.test`. It contains multiple branches, each one cloned from the Mercurial
-repositories using git-cinnabar. The branches are configured by default in Phabricator
-and Lando (via the `create_environment_repos` command).
-
-When the repository exists, the `local-dev` container will clone it in
-`/repos/unified-cinnabar`. All branches will be available. Crucially, the
-`.arcconfig` on each branch will need to be updated to point to the git
-repository.  To do so, the callsign of the repo needs to be updated by adding
-`GIT` at the end. Otherwise, revisions will be submitted against the original Hg
-repo.
-
-When the git_hg_sync service is running, any revision landed to the
-`unified-cinnabar` repository, on any of the default branches, will be synced to
-the associated Mercurial repository.
-
-## Accessing the websites provided by the suite
-
-### Firefox configuration
-
-You can either configure an existing Firefox instance to use our
-proxy, or run a preconfigured Firefox.
-
-**To configure your current browser**:
-
-1. Open `Options -> Network Proxy -> Settings`
-1. Choose the `Manual Proxy Configuration` radio button
-1. Set `HTTP Proxy` to `localhost` and `Port` to `1080`.
-
-**To run Firefox with an empty profile**:
-
-1. Please set the environment variable `FIREFOX_CMD` to `/path/to/firefox` if
-   your system does not recognize the `firefox` command.
-1. In a new terminal, run `firefox-proxy`, or
-   `firefox-proxy $(docker-machine ip)` if you are using `docker-machine`.
-1. A new browser with an empty profile will open.
-
-### Websites provided by the suite
-
-- Bugzilla - http://bmo.test
-- Phabricator - http://phabricator.test
-- Lando - http://lando.test
-- (Legacy) Lando - http://lando-ui.test
-- (Legacy) Lando API - http://lando-api.test/ui via Swagger UI.
-- Mercurial - http://hg.test
-
-## Running apps from local clone
-
-Each Conduit application also has its own corresponding Docker Compose
-configuration file.
-
-This is useful for doing development work as, it allows you to specify which
-application should run from a local clone instead of from a hosted image.
-
 ### Preparing the environment
 
 To allow the override compose files to work properly, you need to have
@@ -178,6 +89,7 @@ git clone git@github.com:mozilla-conduit/lando.git
 git clone git@github.com:mozilla-conduit/phabricator.git
 git clone git@github.com:mozilla-conduit/phabricator-emails.git
 git clone git@github.com:mozilla-conduit/review.git # moz-phab
+git clone git@github.com:mozilla-conduit/cgit-docker.git
 ```
 
 If you've installed all of the above projects, your directory structure
@@ -188,6 +100,7 @@ $ tree
 conduit
 ├── arcanist/
 ├── bmo/
+├── cgit-docker/
 ├── suite/
 ├── lando/
 ├── phabricator/
@@ -196,7 +109,7 @@ conduit
 
 ```
 
-### Usage
+## Usage
 
 You can use each app from its local repository. For example, to run
 the phabricator code from a local repository instead of the
@@ -205,16 +118,16 @@ the phabricator code from a local repository instead of the
 ```shell
 # Build the containers
 $ docker compose \
-  -f docker compose.yml \
-  -f docker compose.phabricator.yml \
-  -f docker compose.override.yml \
+  -f docker-compose.yml \
+  -f docker-compose.phabricator.yml \
+  -f docker-compose.override.yml \
   build
 # Start the containers
 $ docker compose \
-  -f docker compose.yml \
-  -f docker compose.phabricator.yml \
-  -f docker compose.override.yml \
-  up -d
+  -f docker-compose.yml \
+  -f docker-compose.phabricator.yml \
+  -f docker-compose.override.yml \
+  up --detach
 ```
 
 You can also use multiple apps from local repositories. For example,
@@ -222,30 +135,30 @@ to work on both Phabricator and Bugzilla,
 
 ```shell
 docker compose \
-  -f docker compose.yml \
-  -f docker compose.phabricator.yml \
-  -f docker compose.bmo.yml \
-  -f docker compose.override.yml \
-  up --build -d
+  -f docker-compose.yml \
+  -f docker-compose.phabricator.yml \
+  -f docker-compose.bmo.yml \
+  -f docker-compose.override.yml \
+  up --build --detach
 ```
 
 And for example to work on lando,
 
 ```shell
 docker compose \
-  -f docker compose.yml \
-  -f docker compose.lando.yml \
-  -f docker compose.override.yml \
-  up --build -d
+  -f docker-compose.yml \
+  -f docker-compose.lando.yml \
+  -f docker-compose.override.yml \
+  up --build --detach
 ```
 
-Note that normally you must have `-f docker compose.yml` as the first
-option and `-f docker compose.override.yml` as the last one.
+Note that normally you must have `-f docker-compose.yml` as the first
+option and `-f docker-compose.override.yml` as the last one.
 
 To work on a local version of the Arcanist fork, load the
-`docker compose.cinnabarc.yml` configuration. This will modify the
+`docker-compose.cinnabarc.yml` configuration. This will modify the
 `arc` command in the `local-dev` service. Similarly, to load a local version
-of the ARC wrapper "review" , load the `docker compose.review.yml`.
+of the ARC wrapper "review" , load the `docker-compose.review.yml`.
 
 If you don't want to spin up all configured containers, you can
 specify the ones you'd like to work on. The command below runs
@@ -254,7 +167,7 @@ integration between Phabricator and Lando:
 
 `docker compose up phabricator.test lando.test`
 
-## Preconfigured users:
+### Preconfigured users:
 
 To log in as a normal test user, you will need to use BMO for
 auth delegation. Log out of Phabricator and then click on 'Log In or
@@ -294,6 +207,92 @@ interface can be found at http://pulse.test:15672. The credentials are
 this service are
 
 `user:guest`, `password:guest`
+
+## Accessing the websites provided by the suite
+
+### Firefox configuration
+
+You can either configure an existing Firefox instance to use our
+proxy, or run a preconfigured Firefox.
+
+**To configure your current browser**:
+
+1. Open `Options -> Network Proxy -> Settings`
+1. Choose the `Manual Proxy Configuration` radio button
+1. Set `HTTP Proxy` to `localhost` and `Port` to `1080`.
+
+**To run Firefox with an empty profile**:
+
+1. Please set the environment variable `FIREFOX_CMD` to `/path/to/firefox` if
+   your system does not recognize the `firefox` command.
+1. In a new terminal, run `firefox-proxy`, or
+   `firefox-proxy $(docker-machine ip)` if you are using `docker-machine`.
+1. A new browser with an empty profile will open.
+
+### Websites provided by the suite
+
+- Bugzilla - http://bmo.test
+- Phabricator - http://phabricator.test
+- Lando - http://lando.test
+- Mercurial - http://hg.test
+
+## Running apps from local clone
+
+Each Conduit application also has its own corresponding Docker Compose
+configuration file.
+
+This is useful for doing development work as, it allows you to specify which
+application should run from a local clone instead of from a hosted image.
+
+## Using the local-dev service
+
+The "local-dev" container includes command-line tools used to interact
+with Conduit services.
+
+To set up the container run `docker compose run --rm local-dev`.
+You will be placed inside of a repository cloned from http://hg.test. You can
+use it as a normal local development repository.
+
+**Note**: A `git-cinnabar` version of the same repository is located at
+`~/test-repo-cinnabar/`. The forked version of Arcanist is also
+provided and aliased as the `cinnabarc`.
+
+## Using the git_hg_sync service
+
+While a Pulse exchange is created by default, nothing listens to it. It
+is possible to start a `git_hg_sync` container to test the SCM sync
+logic. To do so there should first be a local clone of
+https://github.com/mozilla-conduit/git-hg-sync at `../git-hg-sync`. The
+Compose stack can then be started with the additional
+`docker-compose.git_hg_sync.yml` override.
+
+For example
+
+```
+docker compose -f docker-compose.yml [...] -f docker-compose.git_hg_sync.yml up -d
+```
+
+The logs of the system can be perused with
+
+```
+docker compose -f docker-compose.yml [...] -f docker-compose.git_hg_sync.yml logs -f git_hg_sync
+```
+
+This optional stack will also create a `unified-cinnabar` git repository in
+`git.test`. It contains multiple branches, each one cloned from the Mercurial
+repositories using git-cinnabar. The branches are configured by default in Phabricator
+and Lando (via the `create_environment_repos` command).
+
+When the repository exists, the `local-dev` container will clone it in
+`/repos/unified-cinnabar`. All branches will be available. Crucially, the
+`.arcconfig` on each branch will need to be updated to point to the git
+repository.  To do so, the callsign of the repo needs to be updated by adding
+`GIT` at the end. Otherwise, revisions will be submitted against the original Hg
+repo.
+
+When the git_hg_sync service is running, any revision landed to the
+`unified-cinnabar` repository, on any of the default branches, will be synced to
+the associated Mercurial repository.
 
 ## Updating the preloaded Phabricator database
 
@@ -362,12 +361,9 @@ $ docker compose run --rm local-dev
 # moz-phab submit -b 1
 ```
 
-Log in to http://lando.test.
+- Log in to http://lando.test.
+- Navigate to http://lando.test/revisions/D2.
+- Confirm the warning and click on the `Land` button.
+- Reload the page. Observe the landing confirmation.
+- Check if the commit is present in the http://hg.test/.
 
-Navigate to http://lando.test/revisions/D2.
-
-Confirm the warning and click on the `Land` button.
-
-Reload the page. Observe the landing confirmation.
-
-Check if the commit is present in the http://hg.test/.

@@ -116,12 +116,14 @@ services:
       timeout: 180s
 
   memcached:
+    platform: linux/x86_64
     image: memcached:latest
 
   #########################
   # Lando Containers
   #########################
   lando:
+    platform: linux/x86_64
     image: mozilla/lando:latest # TODO: this does not exist yet.
     env_file:
       - ../lando/.env
@@ -150,6 +152,7 @@ services:
         condition: service_healthy
 
   lando.hg-landing-worker: &worker
+    platform: linux/x86_64
     image: mozilla/lando:latest # TODO: this does not exist yet.
     command: lando start_landing_worker hg
     env_file:
@@ -187,6 +190,7 @@ services:
     command: lando start_automation_worker git-automation-worker
 
   lando.db:
+    platform: linux/x86_64
     image: postgres:16
     environment:
       POSTGRES_USER: postgres
@@ -200,11 +204,13 @@ services:
       retries: 10
 
   lando.redis:
+    platform: linux/x86_64
     image: redis:7.2
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
 
   lando.celery:
+    platform: linux/x86_64
     image: mozilla/lando:latest # TODO: this does not exist yet.
     command: lando start_celery_worker
     depends_on:
@@ -258,10 +264,12 @@ services:
   ###############################
 
   autoland.treestatus:
+    platform: linux/x86_64
     image: mozilla/autolandtreestatus:latest
     restart: always
 
   autoland.hg-init:
+    platform: linux/x86_64
     image: mozilla/autolandhg:latest
     environment:
       ARCCONFIG: y
@@ -271,6 +279,7 @@ services:
       - autoland-hg:/repos
 
   autoland.hg:
+    platform: linux/x86_64
     image: mozilla/autolandhg:latest
     command: start
     restart: always
@@ -286,6 +295,7 @@ services:
   ###########################
 
   cgit-init: &cgit-config
+    platform: linux/x86_64
     # XXX: Bug 1938985
     #image: mozilla/cgit-docker
     build:
@@ -320,6 +330,7 @@ services:
   ###########################
 
   local-dev:
+    platform: linux/x86_64
     build:
       context: docker/local-dev
       dockerfile: ./Dockerfile
@@ -340,6 +351,7 @@ services:
   ###########################
 
   pulse.test:
+    platform: linux/x86_64
     image: rabbitmq:3-management-alpine
     volumes:
       - ./docker/rabbitmq/90-definitions-import.conf:/etc/rabbitmq/conf.d/90-definitions-import.conf
