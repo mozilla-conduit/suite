@@ -124,58 +124,30 @@ services:
   #########################
   lando:
     platform: linux/x86_64
-    image: mozilla/lando:latest # TODO: this does not exist yet.
-    env_file:
-      - ../lando/.env
-    environment: &base-lando-vars
-      DEFAULT_DB_HOST: lando.db
-      DEBUG: 1
-      ENVIRONMENT: local
-      PHABRICATOR_URL: http://phabricator.test
-      PHABRICATOR_UNPRIVILEGED_API_KEY: api-lefsv24henzsbzpw337bhizawuyh
-    restart: on-failure
-    # TODO: bake this command into and ENTRYPOINT script
+    build:
+      context: ../lando/.
+    image: suite_lando
+    stdin_open: true
+    tty: true
     command: bash -c "
+      lando generate_version_file &&
+      lando collectstatic --clear --no-input &&
       lando setup_dev &&
       lando runserver 0.0.0.0:80"
-    healthcheck:
-      test: ["CMD", "curl", "-sfko/dev/null", "http://localhost/__heartbeat__"]
-      interval: 10s
-      timeout: 60s
-      retries: 6
-    depends_on:
-      lando.db:
-        condition: service_healthy
-      lando.redis:
-        condition: service_healthy
-      phabricator.test:
-        condition: service_healthy
+    user: "${UID}:${GID}" # needed for file generation in the mounted volumes
+    volumes:
+      - ../lando:/code
+      - ../lando/staticfiles:/staticfiles
+      - ../lando-prorotype/media:/mediafiles
 
   lando.hg-landing-worker: &worker
     platform: linux/x86_64
-    image: mozilla/lando:latest # TODO: this does not exist yet.
-    command: lando start_landing_worker hg
-    env_file:
-      - ../lando/.env
-    environment:
-      <<: *base-lando-vars
-      DEFAULT_GRACE_SECONDS: 10
-      LANDING_WORKER_USERNAME: app
-      LANDING_WORKER_TARGET_SSH_PORT: 8022
-      SSH_PRIVATE_KEY: |
-        -----BEGIN EC PRIVATE KEY-----
-        MHcCAQEEIMiMNKEkf0vr4HrhUIrq0e9NjGNPArN7L1uy/HQZ1dA8oAoGCCqGSM49
-        AwEHoUQDQgAEdakNgjerNLFXy1uMfwLjPd5/pBTbIEoZMdMV/o6s+uoMg776LF+v
-        gtbfIaZbhDcJElzHwpnqGfHYU+cM4KyurA==
-        -----END EC PRIVATE KEY-----
-    restart: on-failure
-    depends_on:
-      lando:
-        condition: service_healthy
-      lando.db:
-        condition: service_healthy
+    image: suite_lando
+    user: "${UID}:${GID}" # needed for file generation in the mounted volumes
     volumes:
-      - /files/repos
+      - ../lando:/code
+      - ../lando/staticfiles:/staticfiles
+      - ../lando-prorotype/media:/mediafiles
 
   lando.hg-automation-worker:
     <<: *worker
@@ -183,7 +155,6 @@ services:
 
   lando.git-landing-worker:
     <<: *worker
-    command: lando start_landing_worker git
 
   lando.git-automation-worker:
     <<: *worker
@@ -191,12 +162,10 @@ services:
 
   lando.db:
     platform: linux/x86_64
-    image: postgres:16
+    image: postgres
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-    volumes:
-      - lando-postgres-db:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "postgres", "-d", "postgres"]
       interval: 1s
@@ -211,7 +180,7 @@ services:
 
   lando.celery:
     platform: linux/x86_64
-    image: mozilla/lando:latest # TODO: this does not exist yet.
+    image: suite_lando
     command: lando start_celery_worker
     depends_on:
       lando.redis:
@@ -398,14 +367,23 @@ services:
 
   lando.test:
     platform: linux/x86_64
-    image: nginx:alpine
-    container_name: lando.test
-    volumes:
-      - "./docker/lando/site.conf:/etc/nginx/conf.d/default.conf:ro"
-    restart: on-failure
+    build: ../lando/nginx
     depends_on:
       - lando
-      - tinyproxy
+    volumes:
+      - ../lando/staticfiles:/staticfiles
+      - ../lando/media:/mediafiles
+
+#  lando.test:
+#    platform: linux/x86_64
+#    image: nginx:alpine
+#    container_name: lando.test
+#    volumes:
+#      - "./docker/lando/site.conf:/etc/nginx/conf.d/default.conf:ro"
+#    restart: on-failure
+#    depends_on:
+#      - lando
+#      - tinyproxy
 
   autoland.hg.test:
     platform: linux/x86_64
@@ -443,3 +421,4 @@ volumes:
   git-repos:
   cgit-cache:
   caches_cache:
+  media:
