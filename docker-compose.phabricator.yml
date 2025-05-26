@@ -11,13 +11,21 @@ services:
       target: development
     image: suite_phabricator
     volumes:
+      - phabricator-src-local:/app/phabricator/src
       - phabricator-moz-extensions-local:/app/moz-extensions
   phabricator.test:
     platform: linux/x86_64
     volumes:
-      - phabricator-moz-extensions-local:/app/moz-extensions
+      - phabricator-src-local:/app/moz-extensions
+      - phabricator-moz-extensions-local:/app/phabricator/src
 
 volumes:
+  phabricator-src-local:
+    driver: local
+    driver_opts:
+      type: none
+      device: '$PWD/../phabricator/src'
+      o: bind
   phabricator-moz-extensions-local:
     driver: local
     driver_opts:
