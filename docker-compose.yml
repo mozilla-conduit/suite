@@ -8,7 +8,7 @@ services:
   #########################
 
   bmo.test:
-    platform: linux/x86_64
+    platform: linux/amd64
     image: mozillabteam/bmo:latest
     command: demo
     volumes:
@@ -57,7 +57,7 @@ services:
         condition: service_started
 
   bmo.feed:
-    platform: linux/x86_64
+    platform: linux/amd64
     image: mozillabteam/bmo:latest
     command:
       - perl
@@ -77,7 +77,7 @@ services:
       - memcached
 
   bmo.pushd:
-    platform: linux/x86_64
+    platform: linux/amd64
     image: mozillabteam/bmo:latest
     command:
       - perl
@@ -97,7 +97,7 @@ services:
       - memcached
 
   bmo.db:
-    platform: linux/x86_64
+    platform: linux/amd64
     image: mysql:8
     volumes:
       - bmo-mysql-db:/var/lib/mysql
@@ -116,14 +116,14 @@ services:
       timeout: 180s
 
   memcached:
-    platform: linux/x86_64
+    platform: linux/amd64
     image: memcached:latest
 
   #########################
   # Lando Containers
   #########################
   lando:
-    platform: linux/x86_64
+    platform: linux/amd64
     build:
       context: ../lando/.
     image: suite_lando
@@ -151,7 +151,7 @@ services:
       - ../lando-prorotype/media:/mediafiles
 
   lando.hg-landing-worker: &worker
-    platform: linux/x86_64
+    platform: linux/amd64
     image: suite_lando
     user: "${UID:-}:${GID:-}" # needed for file generation in the mounted volumes
     volumes:
@@ -171,7 +171,7 @@ services:
     command: lando start_automation_worker git-automation-worker
 
   lando.db:
-    platform: linux/x86_64
+    platform: linux/amd64
     image: postgres
     environment:
       POSTGRES_USER: postgres
@@ -183,13 +183,13 @@ services:
       retries: 10
 
   lando.redis:
-    platform: linux/x86_64
+    platform: linux/amd64
     image: redis:7.2
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
 
   lando.celery:
-    platform: linux/x86_64
+    platform: linux/amd64
     image: suite_lando
     command: lando start_celery_worker
     depends_on:
@@ -201,7 +201,7 @@ services:
   ###############################
 
   phabricator:
-    platform: linux/x86_64
+    platform: linux/amd64
     image: mozillaconduit/phabricator:latest
     entrypoint: /app/entrypoint.sh
     command: dev_start
@@ -223,7 +223,7 @@ services:
         condition: service_healthy
 
   phab.db:
-    platform: linux/x86_64
+    platform: linux/amd64
     image: mysql:5.7
     volumes:
       - phabricator-mysql-db:/var/lib/mysql
@@ -243,12 +243,12 @@ services:
   ###############################
 
   autoland.treestatus:
-    platform: linux/x86_64
+    platform: linux/amd64
     image: mozilla/autolandtreestatus:latest
     restart: always
 
   autoland.hg-init:
-    platform: linux/x86_64
+    platform: linux/amd64
     image: mozilla/autolandhg:latest
     environment:
       ARCCONFIG: y
@@ -258,7 +258,7 @@ services:
       - autoland-hg:/repos
 
   autoland.hg:
-    platform: linux/x86_64
+    platform: linux/amd64
     image: mozilla/autolandhg:latest
     command: start
     restart: always
@@ -274,7 +274,7 @@ services:
   ###########################
 
   cgit-init: &cgit-config
-    platform: linux/x86_64
+    platform: linux/amd64
     # XXX: Bug 1938985
     #image: mozilla/cgit-docker
     build:
@@ -309,7 +309,7 @@ services:
   ###########################
 
   local-dev:
-    platform: linux/x86_64
+    platform: linux/amd64
     build:
       context: docker/local-dev
       dockerfile: ./Dockerfile
@@ -330,7 +330,7 @@ services:
   ###########################
 
   pulse.test:
-    platform: linux/x86_64
+    platform: linux/amd64
     image: rabbitmq:3-management-alpine
     volumes:
       - ./docker/rabbitmq/90-definitions-import.conf:/etc/rabbitmq/conf.d/90-definitions-import.conf
@@ -346,7 +346,7 @@ services:
   ###########################
 
   tinyproxy:
-    platform: linux/x86_64
+    platform: linux/amd64
     build:
       context: docker/tinyproxy
       dockerfile: ./Dockerfile
@@ -354,7 +354,7 @@ services:
       - "1080:1080"
 
   phabricator.test:
-    platform: linux/x86_64
+    platform: linux/amd64
     image: nginx:alpine
     volumes:
       - "./docker/phabricator/site.conf:/etc/nginx/conf.d/default.conf:ro"
@@ -367,7 +367,7 @@ services:
       - tinyproxy
 
   lando.test:
-    platform: linux/x86_64
+    platform: linux/amd64
     build: ../lando/nginx
     depends_on:
       - lando
@@ -377,7 +377,7 @@ services:
       - ../lando/media:/mediafiles
 
   autoland.hg.test:
-    platform: linux/x86_64
+    platform: linux/amd64
     image: nginx:alpine
     container_name: hg.test
     volumes:
@@ -391,7 +391,7 @@ services:
       - tinyproxy
 
   product-details.test:
-    platform: linux/x86_64
+    platform: linux/amd64
     image: nginx:alpine
     container_name: product-details.test
     volumes:
