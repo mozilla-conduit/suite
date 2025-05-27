@@ -7,61 +7,53 @@ system, collectively known as "Conduit". This includes
 - BMO, Mozilla's Bugzilla fork
 - Phabricator, including extensions and patches
 - Lando
-- Transplant, the service that lands commits
+- Phabricator Emails service
+- Git-Hg-Sync service
 - A Mercurial server
-- A container ("local-dev") with various command-line tools including MozPhab
-
-The suite allows only some services to be started up, if the whole
-system is not needed. It also provides the option of using both local
-clones and hosted images, so you need only have the code checked out
-for the service(s) you need to modify.
-
-This suite can be used to demo Conduit services and to aid in
-development. This repository, however, should not be viewed as a
-substitute for self-contained tests in individual repositories.
+- A Git Server
+- A container ("local-dev") with various command-line tools including moz-phab
 
 ## Installation
 
 ### Prerequisites
 
-1. You need to have [docker](https://docs.docker.com/install/) and
-   [docker compose](https://docs.docker.com/compose/install/) installed.
-1. For Lando, an Auth0 developer account. See the
-   [lando README.md](https://github.com/mozilla-conduit/lando/blob/master/README.md)
+1. You need to have [docker](https://docs.docker.com/install/) installed.
+2. For Lando, an Auth0 developer account. See the
+   [lando README.md](https://github.com/mozilla-conduit/lando/blob/main/README.md)
    for instructions on how to set that up.
 
 ### Cloning the Repositories
 
-To allow the override compose files to work properly, you need to have
-your repository directory structure set up correctly with clones of the
-various services that make up the suite.
+Your directory structure must be set up correctly with clones of the various
+services that make up the suite.
 
 ```shell
-cd conduit
+mkdir conduit && cd conduit
 git clone git@github.com:mozilla-conduit/suite.git
-git clone git@github.com:mozilla-conduit/arcanist.git
 git clone git@github.com:mozilla-bteam/bmo.git
-git clone git@github.com:mozilla-conduit/lando.git
-git clone git@github.com:mozilla-conduit/phabricator.git
-git clone git@github.com:mozilla-conduit/phabricator-emails.git
-git clone git@github.com:mozilla-conduit/review.git # moz-phab
+git clone git@github.com:mozilla-conduit/arcanist.git
 git clone git@github.com:mozilla-conduit/cgit-docker.git
+git clone git@github.com:mozilla-conduit/lando.git
+git clone git@github.com:mozilla-conduit/phabricator-emails.git
+git clone git@github.com:mozilla-conduit/phabricator.git
+git clone git@github.com:mozilla-conduit/review.git # moz-phab
+git clone https://github.com/mozilla-conduit/git-hg-sync
 ```
 
 If you've installed all of the above projects, your directory structure
 would look as below:
 
 ```shell
-$ tree
 conduit
 ├── arcanist/
 ├── bmo/
 ├── cgit-docker/
-├── suite/
+├── git-hg-sync/
 ├── lando/
-├── phabricator/
 ├── phabricator-emails/
-└── review/
+├── phabricator/
+├── review/
+└── suite/
 ```
 
 ### Prepare the Environment
@@ -77,43 +69,21 @@ OIDC_RP_CLIENT_SECRET=...
 
 ## Usage
 
-You can use each app from its local repository. For example, to run
-the phabricator code from a local repository instead of the
-`mozilla/phabext` image,
+By default, all images are built locally from your clones, and are
+started by docker-compose:
 
 ```shell
-# Build the containers
-$ docker compose \
-  -f docker-compose.yml \
-  -f docker-compose.phabricator.yml \
-  build
-# Start the containers
-$ docker compose \
-  -f docker-compose.yml \
-  -f docker-compose.phabricator.yml \
-  up
+docker compose up --build
 ```
-
-You can also use multiple apps from local repositories. For example,
-to work on both Phabricator and Bugzilla,
-
-```shell
-docker compose \
-  -f docker-compose.yml \
-  -f docker-compose.phabricator.yml \
-  -f docker-compose.bmo.yml \
-  up --build
-```
-
-Note that normally you must have `-f docker-compose.yml` as the first
-option.
 
 If you don't want to spin up all configured containers, you can
 specify the ones you'd like to work on. The command below runs
-`phabricator.test`, `phabricator`, `phab.db`, `lando.test`,
-integration between Phabricator and Lando:
+`phabricator.test`, which spins up only Phabricator, Lando, and
+their dependencies.
 
-`docker compose up phabricator.test lando.test`
+```shell
+docker compose up phabricator.test lando.test
+```
 
 ## Accessing the websites provided by the suite
 
@@ -125,16 +95,16 @@ proxy, or run a preconfigured Firefox.
 **To configure your current browser**:
 
 1. Open `Options -> Network Proxy -> Settings`
-1. Choose the `Manual Proxy Configuration` radio button
-1. Set `HTTP Proxy` to `localhost` and `Port` to `1080`.
+2. Choose the `Manual Proxy Configuration` radio button
+3. Set `HTTP Proxy` to `localhost` and `Port` to `1080`.
 
 **To run Firefox with an empty profile**:
 
 1. Please set the environment variable `FIREFOX_CMD` to `/path/to/firefox` if
    your system does not recognize the `firefox` command.
-1. In a new terminal, run `firefox-proxy`, or
+2. In a new terminal, run `firefox-proxy`, or
    `firefox-proxy $(docker-machine ip)` if you are using `docker-machine`.
-1. A new browser with an empty profile will open.
+3. A new browser with an empty profile will open.
 
 ### Websites provided by the suite
 
@@ -142,6 +112,7 @@ proxy, or run a preconfigured Firefox.
 - Phabricator - http://phabricator.test
 - Lando - http://lando.test
 - Mercurial - http://hg.test
+- Git - http://git.test
 
 ### Preconfigured users:
 
@@ -184,14 +155,6 @@ this service are
 
 `user:guest`, `password:guest`
 
-## Running apps from local clone
-
-Each Conduit application also has its own corresponding Docker Compose
-configuration file.
-
-This is useful for doing development work as, it allows you to specify which
-application should run from a local clone instead of from a hosted image.
-
 ## Using the local-dev service
 
 The "local-dev" container includes command-line tools used to interact
@@ -202,31 +165,15 @@ You will be placed inside of a repository cloned from http://hg.test. You can
 use it as a normal local development repository.
 
 **Note**: A `git-cinnabar` version of the same repository is located at
-`~/test-repo-cinnabar/`. The forked version of Arcanist is also
-provided and aliased as the `cinnabarc`.
+`~/test-repo-cinnabar/`.
 
 ## Using the git_hg_sync service
 
 While a Pulse exchange is created by default, nothing listens to it. It
 is possible to start a `git_hg_sync` container to test the SCM sync
-logic. To do so there should first be a local clone of
-https://github.com/mozilla-conduit/git-hg-sync at `../git-hg-sync`. The
-Compose stack can then be started with the additional
-`docker-compose.git_hg_sync.yml` override.
+logic.
 
-For example
-
-```
-docker compose -f docker-compose.yml [...] -f docker-compose.git_hg_sync.yml up -d
-```
-
-The logs of the system can be perused with
-
-```
-docker compose -f docker-compose.yml [...] -f docker-compose.git_hg_sync.yml logs -f git_hg_sync
-```
-
-This optional stack will also create a `unified-cinnabar` git repository in
+git_hg_sync will create a `unified-cinnabar` git repository in
 `git.test`. It contains multiple branches, each one cloned from the Mercurial
 repositories using git-cinnabar. The branches are configured by default in Phabricator
 and Lando (via the `create_environment_repos` command).
@@ -253,41 +200,28 @@ To update the preloaded database with new settings:
 1.  **Important:** Run `docker compose down` and
     `docker volume rm suite_phabricator-mysql-db` to ensure you have a
     fresh DB!
-1.  Start the application with `docker compose up` and log in with the
+2.  Start the application with `docker compose up` and log in with the
     appropriate user ("admin" to update global settings, "phab-bot" for
     things like API keys).
-1.  Change the desired setting.
-1.  Run `docker compose run phabricator dump > demo.sql` to dump the
+3.  Change the desired setting.
+4.  Run `docker compose run phabricator dump > demo.sql` to dump the
     database.
-1.  Edit `demo.sql` and delete the extra shell output at the beginning of the file.
-1.  `$ gzip demo.sql`
-1.  `$ mv demo.sql.gz docker/phabricator/demo.sql.gz`
-1.  Submit a [PR](https://github.com/mozilla-conduit/suite/pulls) with
+5.  Edit `demo.sql` and delete the extra shell output at the beginning of the file.
+6.  `$ gzip demo.sql`
+7.  `$ mv demo.sql.gz docker/phabricator/demo.sql.gz`
+8.  Submit a [PR](https://github.com/mozilla-conduit/suite/pulls) with
     the changes.
-
-## Updating the git repositories
-
-A backup of the repositories is stored in the `docker/gogs` directory. It is
-restored automatically by the one-shot gogs-init service when spinning up a
-fresh stack.
-
-If you need to update the repositories, you can simply work against
-http://git.test (or in the local-dev container) and push the changes to the
-repositories. You can then update the backup by running:
-
-    docker compose exec git.test /scripts/gogs-backup.sh
-
-which will update the backup in `docker/gogs`. You can then commit the changes
-and submit a PR.
 
 ## Clone the test repository
 
 The `local-dev` service uses repositories cloned from http://hg.test/.
 You will need to re-clone them every time Mercurial server images are
-created. There is a bash script which will remove the existing
+created. There is a bash script that will remove the existing
 directories and clone the repositories using `hg` and `git-cinnabar`:
 
-`# ./clone_repositories.sh`
+```shell
+./clone_repositories.sh
+```
 
 ## Successful landing step by step
 
@@ -300,13 +234,14 @@ docker compose up -d
 Create a diff:
 
 ```shell
-$ docker compose run --rm local-dev
-# cd repos
-# cd test-repo
-# echo test >> README
-# hg commit -m "test info added"
-# moz-phab install-certificate
-# moz-phab submit -b 1
+docker compose run --rm local-dev
+
+cd repos
+cd test-repo
+echo test >> README
+hg commit -m "test info added"
+moz-phab install-certificate
+moz-phab submit -b 1
 ```
 
 - Log in to http://lando.test.

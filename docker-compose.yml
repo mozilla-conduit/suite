@@ -3,13 +3,16 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 services:
+
   #########################
-  # BMO Containers
+  # BMO
   #########################
 
   bmo.test:
     platform: linux/amd64
-    image: mozillabteam/bmo:latest
+    build:
+      context: ../bmo/
+      dockerfile: ./Dockerfile
     command: demo
     volumes:
       - bmo-data-dir:/app/data
@@ -58,15 +61,10 @@ services:
 
   bmo.feed:
     platform: linux/amd64
-    image: mozillabteam/bmo:latest
-    command:
-      - perl
-      - extensions/PhabBugz/bin/phabbugz_feed.pl
-      - start
-      - "-d"
-      - "-f"
-    healthcheck:
-      disable: true # the image uses an HTTP check, which this command doesn't fullfil
+    build:
+      context: ../bmo/
+      dockerfile: ./Dockerfile
+    command: perl extensions/PhabBugz/bin/phabbugz_feed.pl start -d -f
     volumes:
       - bmo-data-dir:/app/data
     environment: *bmo_env
@@ -78,15 +76,10 @@ services:
 
   bmo.pushd:
     platform: linux/amd64
-    image: mozillabteam/bmo:latest
-    command:
-      - perl
-      - extensions/Push/bin/bugzilla-pushd.pl
-      - start
-      - "-d"
-      - "-f"
-    healthcheck:
-      disable: true # the image uses an HTTP check, which this command doesn't fullfil
+    build:
+      context: ../bmo/
+      dockerfile: ./Dockerfile
+    command: perl extensions/Push/bin/bugzilla-pushd.pl start -d -f
     volumes:
       - bmo-data-dir:/app/data
     environment: *bmo_env
@@ -119,9 +112,59 @@ services:
     platform: linux/amd64
     image: memcached:latest
 
+  ###########################
+  # Git-Hg-Sync
+  ###########################
+
+  git_hg_sync-cinnabar_init:
+    platform: linux/amd64
+    user: 101:101 # match the owner in the Cgit container
+    build:
+      context: ../git-hg-sync
+    volumes:
+      - ./docker/git-hg-sync/scripts:/scripts:ro
+      - git-repos:/opt/git
+      - cgit-cache:/opt/cgit/cache # we need access to this so we can clear the cache
+    entrypoint: ["/scripts/cinnabar-init.sh"]
+    depends_on:
+      autoland.hg.test:
+        condition: service_healthy
+      git.test:
+        condition: service_healthy
+
+  git_hg_sync:
+    platform: linux/amd64
+    build:
+      context: ../git-hg-sync
+    command: --config /app/config-suite.toml --log-raw-level debug
+    volumes:
+      - ../git-hg-sync:/app:z
+      - ./docker/git-hg-sync/config-suite.toml:/app/config-suite.toml
+      - git_hg_sync_clones:/clones
+    environment: &pulse_env
+      PULSE_HOST: pulse.test
+      PULSE_PORT: 5672
+      PULSE_QUEUE: queue/suite/git-hg-sync
+      PULSE_EXCHANGE: exchange/suite/git-hg-sync
+      PULSE_ROUTING_KEY: git-hg-sync
+      PULSE_SSL: "" # False
+      # Same as the lando.hg-landing_worker
+      SSH_PRIVATE_KEY: |
+        -----BEGIN EC PRIVATE KEY-----
+        MHcCAQEEIMiMNKEkf0vr4HrhUIrq0e9NjGNPArN7L1uy/HQZ1dA8oAoGCCqGSM49
+        AwEHoUQDQgAEdakNgjerNLFXy1uMfwLjPd5/pBTbIEoZMdMV/o6s+uoMg776LF+v
+        gtbfIaZbhDcJElzHwpnqGfHYU+cM4KyurA==
+        -----END EC PRIVATE KEY-----
+    depends_on:
+      git_hg_sync-cinnabar_init:
+        condition: service_completed_successfully
+      pulse.test:
+        condition: service_healthy
+
   #########################
-  # Lando Containers
+  # Lando
   #########################
+
   lando:
     platform: linux/amd64
     build:
@@ -144,7 +187,11 @@ services:
       lando runserver 0.0.0.0:80"
     user: "${UID:-}:${GID:-}" # needed for file generation in the mounted volumes
     depends_on:
-      - lando.db
+      lando.db:
+        condition: service_healthy
+      git_hg_sync-cinnabar_init:
+        condition: service_completed_successfully
+
     volumes:
       - ../lando:/code
       - ../lando/staticfiles:/staticfiles
@@ -165,6 +212,8 @@ services:
 
   lando.git-landing-worker:
     <<: *worker
+    environment:
+      <<: *pulse_env
 
   lando.git-automation-worker:
     <<: *worker
@@ -197,12 +246,15 @@ services:
         condition: service_healthy
 
   ###############################
-  # Phabricator Containers
+  # Phabricator
   ###############################
 
   phabricator:
     platform: linux/amd64
-    image: mozillaconduit/phabricator:latest
+    build:
+      context: ../phabricator/
+      dockerfile: ./Dockerfile
+      target: development
     entrypoint: /app/entrypoint.sh
     command: dev_start
     environment:
@@ -217,6 +269,8 @@ services:
       BUGZILLA_AUTOMATION_API_KEY: 8G4ly8JkxbypZgh5XrdiHWExVEjPq5S3HvMBll1K
     volumes:
       - phabricator-nginx:/app/nginx
+      - ../phabricator/src:/app/phabricator/src
+      - ../phabricator/moz-extensions:/app/moz-extensions
     restart: on-failure
     depends_on:
       phab.db:
@@ -227,7 +281,7 @@ services:
     image: mysql:5.7
     volumes:
       - phabricator-mysql-db:/var/lib/mysql
-      - "./docker/phabricator/mysql:/etc/mysql/conf.d:ro"
+      - ./docker/phabricator/mysql:/etc/mysql/conf.d:ro
       - ./docker/phabricator/demo.sql.gz:/docker-entrypoint-initdb.d/demo.sql.gz
     environment:
       - MYSQL_ROOT_PASSWORD=password
@@ -239,7 +293,7 @@ services:
     restart: on-failure
 
   ###############################
-  # Transplant services
+  # Mercurial repositories
   ###############################
 
   autoland.treestatus:
@@ -269,14 +323,58 @@ services:
     depends_on:
       - autoland.hg-init
 
+  ###############################
+  # Phabricator-Emails
+  ###############################
+
+  phabricator-emails-prepare: &defconf
+    platform: linux/amd64
+    build:
+      context: ../phabricator-emails
+    volumes:
+      # Due to the current way the container is built, mounting the current source code is not sufficient
+      # - ../phabricator-emails/:/app/:z
+      - ./docker/phabricator-emails/settings.suite.ini:/app/.local/lib/python3.9/site-packages/settings.ini:z
+    command: prepare
+    depends_on:
+      phabricator.test:
+        condition: service_healthy
+      phabricator-emails.db:
+        condition: service_healthy
+
+  phabricator-emails-migrate:
+    <<: *defconf
+    command: migrate
+    depends_on:
+      phabricator-emails-prepare:
+        condition: service_completed_successfully
+
+  phabricator-emails:
+    <<: *defconf
+    command: service
+    depends_on:
+      phabricator-emails-migrate:
+        condition: service_completed_successfully
+
+  phabricator-emails.db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - phabricator-emails-postgres-db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres", "-d", "postgres"]
+      interval: 1s
+      timeout: 1s
+      retries: 10
+
   ###########################
   # Git repositories
   ###########################
 
   cgit-init: &cgit-config
     platform: linux/amd64
-    # XXX: Bug 1938985
-    #image: mozilla/cgit-docker
     build:
       context: ../cgit-docker
     volumes:
@@ -315,8 +413,10 @@ services:
       dockerfile: ./Dockerfile
     environment:
       HTTP_ALLOWED: 1
+    command: bash -c "cd review && pip3 install -e . && cd ~ && bash"
     volumes:
       - local-dev:/home/phab
+      - ../review:/home/phab/review
     depends_on:
       - tinyproxy
       - phabricator.test
@@ -331,7 +431,7 @@ services:
 
   pulse.test:
     platform: linux/amd64
-    image: rabbitmq:3-management-alpine
+    image: rabbitmq:4-management-alpine
     volumes:
       - ./docker/rabbitmq/90-definitions-import.conf:/etc/rabbitmq/conf.d/90-definitions-import.conf
       - ./docker/rabbitmq/definitions.json:/etc/rabbitmq/definitions.json
@@ -342,7 +442,7 @@ services:
       retries: 1
 
   ###########################
-  # Proxy containers
+  # Proxies
   ###########################
 
   tinyproxy:
@@ -401,15 +501,21 @@ services:
     depends_on:
       - tinyproxy
 
+###########################
+# Volumes
+###########################
+
 volumes:
-  phabricator-nginx:
-  phabricator-mysql-db:
+  autoland-hg:
+  bmo-data-dir:
+  bmo-mysql-db:
+  caches_cache:
+  cgit-cache:
+  git-repos:
+  git_hg_sync_clones:
   lando-postgres-db:
   local-dev:
-  bmo-mysql-db:
-  bmo-data-dir:
-  autoland-hg:
-  git-repos:
-  cgit-cache:
-  caches_cache:
   media:
+  phabricator-emails-postgres-db:
+  phabricator-mysql-db:
+  phabricator-nginx:
