@@ -3,7 +3,6 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 services:
-
   #########################
   # BMO
   #########################
@@ -172,7 +171,10 @@ services:
     image: suite_lando
     stdin_open: true
     tty: true
-    environment:
+    environment: &lando-env
+      <<: *pulse_env
+      DJANGO_LOG_LEVEL: debug
+      LOG_LEVEL: INFO
       DEFAULT_DB_HOST: lando.db
       ENVIRONMENT: local
       PHABRICATOR_URL: http://phabricator.test
@@ -191,20 +193,47 @@ services:
         condition: service_healthy
       git_hg_sync-cinnabar_init:
         condition: service_completed_successfully
+      lando.redis:
+        condition: service_healthy
+      phabricator.test:
+        condition: service_healthy
 
     volumes:
       - ../lando:/code
       - ../lando/staticfiles:/staticfiles
       - ../lando-prorotype/media:/mediafiles
+    healthcheck:
+      test: ["CMD", "curl", "-sfko/dev/null", "http://localhost/__heartbeat__"]
+      interval: 10s
+      timeout: 60s
+      retries: 6
 
   lando.hg-landing-worker: &worker
     platform: linux/amd64
     image: suite_lando
     user: "${UID:-}:${GID:-}" # needed for file generation in the mounted volumes
+    environment:
+      <<: *lando-env
+      DEFAULT_GRACE_SECONDS: 10
+      LANDING_WORKER_USERNAME: app
+      LANDING_WORKER_TARGET_SSH_PORT: 8022
+      SSH_PRIVATE_KEY: |
+        -----BEGIN EC PRIVATE KEY-----
+        MHcCAQEEIMiMNKEkf0vr4HrhUIrq0e9NjGNPArN7L1uy/HQZ1dA8oAoGCCqGSM49
+        AwEHoUQDQgAEdakNgjerNLFXy1uMfwLjPd5/pBTbIEoZMdMV/o6s+uoMg776LF+v
+        gtbfIaZbhDcJElzHwpnqGfHYU+cM4KyurA==
+        -----END EC PRIVATE KEY-----
+    command: lando start_landing_worker hg
     volumes:
       - ../lando:/code
       - ../lando/staticfiles:/staticfiles
       - ../lando-prorotype/media:/mediafiles
+    restart: on-failure
+    depends_on:
+      lando:
+        condition: service_healthy
+      lando.db:
+        condition: service_healthy
 
   lando.hg-automation-worker:
     <<: *worker
@@ -212,8 +241,7 @@ services:
 
   lando.git-landing-worker:
     <<: *worker
-    environment:
-      <<: *pulse_env
+    command: lando start_landing_worker git
 
   lando.git-automation-worker:
     <<: *worker
@@ -225,6 +253,8 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
+    volumes:
+      - lando-postgres-db:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "postgres", "-d", "postgres"]
       interval: 1s
@@ -461,7 +491,16 @@ services:
       - phabricator-nginx:/app/nginx
     restart: on-failure
     healthcheck:
-      test: ["CMD", "curl", "-sfk", "http://localhost", "-H", "Host: phabricator.test", "-o/dev/null"]
+      test:
+        [
+          "CMD",
+          "curl",
+          "-sfk",
+          "http://localhost",
+          "-H",
+          "Host: phabricator.test",
+          "-o/dev/null",
+        ]
     depends_on:
       - phabricator
       - tinyproxy
