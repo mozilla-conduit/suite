@@ -235,10 +235,6 @@ services:
       lando.db:
         condition: service_healthy
 
-  lando.hg-automation-worker:
-    <<: *worker
-    command: lando start_automation_worker hg-automation-worker
-
   lando.git-landing-worker:
     <<: *worker
     command: lando start_landing_worker git
