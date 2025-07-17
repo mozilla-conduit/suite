@@ -331,6 +331,9 @@ services:
   autoland.hg-init:
     platform: linux/amd64
     image: mozilla/autolandhg:latest
+    build:
+      context: ../conduit-autoland-hg
+      dockerfile: ./Dockerfile
     environment:
       ARCCONFIG: y
       PHABRICATOR_URI: http://phabricator.test
@@ -341,6 +344,9 @@ services:
   autoland.hg:
     platform: linux/amd64
     image: mozilla/autolandhg:latest
+    build:
+      context: ../conduit-autoland-hg
+      dockerfile: ./Dockerfile
     command: start
     restart: always
     environment:
