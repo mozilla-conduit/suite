@@ -135,9 +135,10 @@ services:
     platform: linux/amd64
     build:
       context: ../git-hg-sync
-    command: --config /app/config-suite.toml --log-raw-level debug
+    command: --config /app/config-suite.toml
     volumes:
       - ../git-hg-sync:/app:z
+      - ./ssh:/app/.ssh:z
       - ./docker/git-hg-sync/config-suite.toml:/app/config-suite.toml
       - git_hg_sync_clones:/clones
     environment: &pulse_env
