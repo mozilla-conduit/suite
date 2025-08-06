@@ -1,0 +1,38 @@
+[pulse]
+# Those need to be present, but will get overriden by the environment
+userid = "guest"
+host = "pulse"
+port = 5672
+exchange = "exchange/suite/git-hg-sync"
+routing_key = "git-hg-sync"
+queue = "queue/suite/git-hg-sync"
+password = "guest"
+heartbeat = 30
+ssl = false
+
+[sentry]
+sentry_url = ""
+
+[clones]
+directory = "/clones"
+
+[[tracked_repositories]]
+name = "unified-cinnabar"
+url = "http://git.test/unified-cinnabar"
+
+[[branch_mappings]]
+source_url = "http://git.test/unified-cinnabar"
+branch_pattern = "^([^-]+)-repo$"
+# Not currently setup in suite
+# destination_url = "http://hg.test/\\1-repo/"
+# Double slash is required!
+destination_url = "ssh://autoland.hg:8022//repos/\\1-repo"
+destination_branch = "default"
+
+[[tag_mappings]]
+source_url = "http://git.test/unified-cinnabar"
+tag_pattern = ".+"
+# Not currently setup in suite
+# destination_url = "http://hg.test/test-repo/"
+destination_url = "ssh://autoland.hg:8022//repos/test-repo"
+tags_destination_branch = "tags"
