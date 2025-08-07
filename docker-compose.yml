@@ -448,6 +448,7 @@ services:
       dockerfile: ./Dockerfile
     environment:
       HTTP_ALLOWED: 1
+      LANDO_TRY_CONFIG: lando-suite
     command: bash -c "cd review && pip3 install -e . && cd ~ && bash"
     volumes:
       - local-dev:/home/phab
