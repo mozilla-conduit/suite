@@ -229,8 +229,6 @@ services:
     command: lando start_landing_worker hg
     volumes:
       - ../lando:/code
-      - ../lando/staticfiles:/code/staticfiles
-      - ../lando-prorotype/media:/mediafiles
     restart: on-failure
     depends_on:
       lando:
