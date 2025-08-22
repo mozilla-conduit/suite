@@ -135,9 +135,10 @@ services:
     platform: linux/amd64
     build:
       context: ../git-hg-sync
-    command: --config /app/config-suite.toml --log-raw-level debug
+    command: --config /app/config-suite.toml
     volumes:
       - ../git-hg-sync:/app:z
+      - ./ssh:/app/.ssh:z
       - ./docker/git-hg-sync/config-suite.toml:/app/config-suite.toml
       - git_hg_sync_clones:/clones
     environment: &pulse_env
@@ -154,6 +155,7 @@ services:
         AwEHoUQDQgAEdakNgjerNLFXy1uMfwLjPd5/pBTbIEoZMdMV/o6s+uoMg776LF+v
         gtbfIaZbhDcJElzHwpnqGfHYU+cM4KyurA==
         -----END EC PRIVATE KEY-----
+      PYTHONTRACEMALLOC: 1
     depends_on:
       git_hg_sync-cinnabar_init:
         condition: service_completed_successfully
@@ -180,6 +182,7 @@ services:
       PHABRICATOR_URL: http://phabricator.test
       PHABRICATOR_UNPRIVILEGED_API_KEY: api-qdaethogwpld3wmn2cnhbh57wkux
       TREESTATUS_URL: https://treestatus.mozilla-releng.net
+      # DATA_UPLOAD_MAX_MEMORY_SIZE: 10
     env_file: ../lando/.env
     command: bash -c "
       echo "version=0" > src/lando/version.py &&
@@ -200,7 +203,7 @@ services:
 
     volumes:
       - ../lando:/code
-      - ../lando/staticfiles:/staticfiles
+      - ../lando/staticfiles:/code/staticfiles
       - ../lando-prorotype/media:/mediafiles
     healthcheck:
       test: ["CMD", "curl", "-sfko/dev/null", "http://localhost/__heartbeat__"]
@@ -226,8 +229,6 @@ services:
     command: lando start_landing_worker hg
     volumes:
       - ../lando:/code
-      - ../lando/staticfiles:/staticfiles
-      - ../lando-prorotype/media:/mediafiles
     restart: on-failure
     depends_on:
       lando:
@@ -330,6 +331,9 @@ services:
   autoland.hg-init:
     platform: linux/amd64
     image: mozilla/autolandhg:latest
+    build:
+      context: ../conduit-autoland-hg
+      dockerfile: ./Dockerfile
     environment:
       ARCCONFIG: y
       PHABRICATOR_URI: http://phabricator.test
@@ -340,6 +344,9 @@ services:
   autoland.hg:
     platform: linux/amd64
     image: mozilla/autolandhg:latest
+    build:
+      context: ../conduit-autoland-hg
+      dockerfile: ./Dockerfile
     command: start
     restart: always
     environment:
@@ -439,6 +446,7 @@ services:
       dockerfile: ./Dockerfile
     environment:
       HTTP_ALLOWED: 1
+      LANDO_TRY_CONFIG: lando-suite
     command: bash -c "cd review && pip3 install -e . && cd ~ && bash"
     volumes:
       - local-dev:/home/phab
@@ -508,7 +516,7 @@ services:
       - lando
       - tinyproxy
     volumes:
-      - ../lando/staticfiles:/staticfiles
+      - ../lando/staticfiles:/code/staticfiles
       - ../lando/media:/mediafiles
 
   autoland.hg.test:
