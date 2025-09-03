@@ -96,6 +96,23 @@ added to the `docker-compose.override.yml` file. This file is listed in the
 
 The `./suite` script transparently apply the overrides if the file is present.
 
+### Optional services
+
+Some services are disabled by default. This is generally because they are heavy
+to start and/or run, and not always necessary in a basic environment.
+
+Those services can be started as [docker compose profiles](https://docs.docker.com/compose/how-tos/profiles/),
+
+```shell
+$ ./suite --profile <PROFILE> up [...]
+```
+
+The `--profile` option can be repeated on a single command as many times for
+different profiles.
+
+The following optional profiles currently exist:
+ - `try`: clones mozilla-unified twice, in hg.test and in the try worker.
+
 ## Accessing the websites provided by the suite
 
 ### Firefox configuration
