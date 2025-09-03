@@ -255,6 +255,11 @@ services:
 
   lando.try-automation-worker:
     <<: *worker
+    profiles:
+     - try
+    volumes:
+      - ../lando:/code
+      - lando-try-worker:/files/repos
     command: lando start_automation_worker hg-automation-worker
 
   lando.git-automation-worker:
@@ -358,6 +363,21 @@ services:
     volumes:
       - autoland-hg:/repos
 
+  autoland.hg-init-try:
+    platform: linux/amd64
+    image: mozilla/autolandhg:latest
+    build:
+      context: ../conduit-autoland-hg
+      dockerfile: ./Dockerfile
+    profiles:
+     # It takes a while to clone m-u, when it's not always needed.
+     # This service only starts when `--profile try` is passed.
+     - try
+    entrypoint: hg
+    command: clone https://hg.mozilla.org/mozilla-unified /repos/firefox-try
+    volumes:
+      - autoland-hg:/repos
+
   autoland.hg:
     platform: linux/amd64
     image: mozilla/autolandhg:latest
@@ -371,7 +391,14 @@ services:
     volumes:
       - autoland-hg:/repos
     depends_on:
-      - autoland.hg-init
+      autoland.hg-init:
+        condition: service_completed_successfully
+      autoland.hg-init-try:
+        condition: service_completed_successfully
+        # This service is only available when the stack is started with `--profile try`.
+        # We just let the service start if this dependency is missing.
+        required: false
+
 
   ###############################
   # Phabricator-Emails
@@ -574,6 +601,7 @@ volumes:
   git-repos:
   git_hg_sync_clones:
   lando-postgres-db:
+  lando-try-worker:
   local-dev:
   media:
   phabricator-emails-postgres-db:
