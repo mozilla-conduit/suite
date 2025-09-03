@@ -234,6 +234,8 @@ services:
     command: lando start_landing_worker hg
     volumes:
       - ../lando:/code
+      # Keep those in a persistent volume, as the firefox-try repo takes a while to clone.
+      - lando-try-worker-repos:/files/repos
     restart: on-failure
     depends_on:
       lando:
@@ -353,6 +355,21 @@ services:
     volumes:
       - autoland-hg:/repos
 
+  autoland.hg-init-try:
+    platform: linux/amd64
+    image: mozilla/autolandhg:latest
+    build:
+      context: ../conduit-autoland-hg
+      dockerfile: ./Dockerfile
+    profiles:
+     # It takes a while to clone m-u, when it's not always needed.
+     # This service only starts when `--profile try` is passed.
+     - try
+    entrypoint: hg
+    command: clone https://hg.mozilla.org/mozilla-unified /repos/firefox-try
+    volumes:
+      - autoland-hg:/repos
+
   autoland.hg:
     platform: linux/amd64
     image: mozilla/autolandhg:latest
@@ -366,7 +383,14 @@ services:
     volumes:
       - autoland-hg:/repos
     depends_on:
-      - autoland.hg-init
+      autoland.hg-init:
+        condition: service_completed_successfully
+      autoland.hg-init-try:
+        condition: service_completed_successfully
+        # This service is only available when the stack is started with `--profile try`.
+        # We just let the service start if this dependency is missing.
+        required: false
+
 
   ###############################
   # Phabricator-Emails
@@ -463,6 +487,9 @@ services:
     volumes:
       - local-dev:/home/phab
       - ../review:/home/phab/review
+      # Mount some external sources for Try tests
+      # - ~/.mozbuild/lando.toml:/root/.mozbuild/lando.toml
+      # - ~/work/firefox/:/firefox/
     depends_on:
       - tinyproxy
       - phabricator.test
@@ -569,6 +596,7 @@ volumes:
   git-repos:
   git_hg_sync_clones:
   lando-postgres-db:
+  lando-try-worker-repos:
   local-dev:
   media:
   phabricator-emails-postgres-db:
