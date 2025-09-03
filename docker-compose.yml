@@ -253,6 +253,10 @@ services:
     #    ...
     command: lando start_landing_worker git
 
+  lando.try-automation-worker:
+    <<: *worker
+    command: lando start_automation_worker hg-automation-worker
+
   lando.git-automation-worker:
     <<: *git-worker
     command: lando start_automation_worker git-automation-worker
