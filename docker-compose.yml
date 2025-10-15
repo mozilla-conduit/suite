@@ -182,6 +182,7 @@ services:
       PHABRICATOR_URL: http://phabricator.test
       PHABRICATOR_UNPRIVILEGED_API_KEY: api-qdaethogwpld3wmn2cnhbh57wkux
       TREESTATUS_URL: https://treestatus.mozilla-releng.net
+      LANDO_CACHE_REDIS: redis://lando.redis:6379
       # DATA_UPLOAD_MAX_MEMORY_SIZE: 10
     env_file: ../lando/.env
     command: bash -c "
