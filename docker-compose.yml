@@ -183,6 +183,11 @@ services:
       PHABRICATOR_UNPRIVILEGED_API_KEY: api-qdaethogwpld3wmn2cnhbh57wkux
       TREESTATUS_URL: https://treestatus.mozilla-releng.net
       # DATA_UPLOAD_MAX_MEMORY_SIZE: 10
+      #
+      # lando-web-dev-mozilla github app
+      # GITHUB_APP_ID: ...
+      # GITHUB_APP_PRIVKEY: |
+      #  ...
     env_file: ../lando/.env
     command: bash -c "
       echo "version=0" > src/lando/version.py &&
@@ -215,7 +220,7 @@ services:
     platform: linux/amd64
     image: suite_lando
     user: "${UID:-}:${GID:-}" # needed for file generation in the mounted volumes
-    environment:
+    environment: &worker-env
       <<: *lando-env
       DEFAULT_GRACE_SECONDS: 10
       LANDING_WORKER_USERNAME: app
@@ -236,12 +241,19 @@ services:
       lando.db:
         condition: service_healthy
 
-  lando.git-landing-worker:
+  lando.git-landing-worker: &git-worker
     <<: *worker
+    #environment:
+    #  <<: *worker-env
+    #
+    #  lando-dev-mozilla github-app
+    #  GITHUB_APP_ID: ...
+    #  GITHUB_APP_PRIVKEY: |
+    #    ...
     command: lando start_landing_worker git
 
   lando.git-automation-worker:
-    <<: *worker
+    <<: *git-worker
     command: lando start_automation_worker git-automation-worker
 
   lando.db:
