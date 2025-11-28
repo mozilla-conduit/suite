@@ -28,13 +28,15 @@ ENV PATH="/root/.cargo/bin:${PATH}"
 RUN pip install --upgrade pip \
  setuptools \
  wheel \
- lando \
- mots \
  mercurial \
  requests \
  simplejson \
  hg-evolve \
- MozPhab
+ pipx \
+ && pipx install --global \
+ MozPhab \
+ lando-cli \
+ mots
 
 # Install git-cinnabar
 RUN git clone --branch release --single-branch \
