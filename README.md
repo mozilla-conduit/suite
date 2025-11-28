@@ -85,6 +85,21 @@ their dependencies.
 docker compose up phabricator.test lando.test
 ```
 
+### Compose overrides
+
+If temporary local changes to the compose stack are needed, overrides can be
+added to the `docker-compose.override.yml` file. This file is listed in the
+`.gitignore` file, and will therefore not be committed.
+
+The `./d0cker` script can be used as a drop-in replacement of the system
+`docker`, and adds the necessary command line arguments to compose so the
+overrides are honoured.
+
+```shell
+./d0cker compose ps
+```
+
+
 ## Accessing the websites provided by the suite
 
 ### Firefox configuration
