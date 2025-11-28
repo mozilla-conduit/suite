@@ -28,6 +28,7 @@ ENV PATH="/root/.cargo/bin:${PATH}"
 RUN pip install --upgrade pip \
  setuptools \
  wheel \
+ lando \
  mots \
  mercurial \
  requests \
