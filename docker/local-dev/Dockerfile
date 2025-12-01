@@ -2,7 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-FROM python:3.9-slim
+FROM python:3.10-slim
 
 RUN apt-get update \
  && apt-get install -y \
@@ -28,12 +28,15 @@ ENV PATH="/root/.cargo/bin:${PATH}"
 RUN pip install --upgrade pip \
  setuptools \
  wheel \
- mots \
  mercurial \
  requests \
  simplejson \
  hg-evolve \
- MozPhab
+ pipx \
+ && pipx install --global \
+ MozPhab \
+ lando-cli \
+ mots
 
 # Install git-cinnabar
 RUN git clone --branch release --single-branch \
