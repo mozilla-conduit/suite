@@ -69,11 +69,14 @@ OIDC_RP_CLIENT_SECRET=...
 
 ## Usage
 
+The `./suite` script can be used as a wrapper of the system `docker compose`,
+and adds the necessary command line arguments as needed.
+
 By default, all images are built locally from your clones, and are
 started by docker-compose:
 
 ```shell
-docker compose up --build
+./suite up --build
 ```
 
 If you don't want to spin up all configured containers, you can
@@ -82,8 +85,16 @@ specify the ones you'd like to work on. The command below runs
 their dependencies.
 
 ```shell
-docker compose up phabricator.test lando.test
+./suite up phabricator.test lando.test
 ```
+
+### Compose overrides
+
+If temporary local changes to the compose stack are needed, overrides can be
+added to the `docker-compose.override.yml` file. This file is listed in the
+`.gitignore` file, and will therefore not be committed.
+
+The `./suite` script transparently apply the overrides if the file is present.
 
 ## Accessing the websites provided by the suite
 
@@ -160,7 +171,7 @@ this service are
 The "local-dev" container includes command-line tools used to interact
 with Conduit services.
 
-To set up the container run `docker compose run --rm local-dev`.
+To set up the container run `./suite run --rm local-dev`.
 You will be placed inside of a repository cloned from http://hg.test. You can
 use it as a normal local development repository.
 
@@ -197,14 +208,14 @@ the application database with the settings we want.
 
 To update the preloaded database with new settings:
 
-1.  **Important:** Run `docker compose down` and
+1.  **Important:** Run `./suite down` and
     `docker volume rm suite_phabricator-mysql-db` to ensure you have a
     fresh DB!
-2.  Start the application with `docker compose up` and log in with the
+2.  Start the application with `./suite up` and log in with the
     appropriate user ("admin" to update global settings, "phab-bot" for
     things like API keys).
 3.  Change the desired setting.
-4.  Run `docker compose run phabricator dump > demo.sql` to dump the
+4.  Run `./suite run phabricator dump > demo.sql` to dump the
     database.
 5.  Edit `demo.sql` and delete the extra shell output at the beginning of the file.
 6.  `$ gzip demo.sql`
@@ -228,13 +239,13 @@ directories and clone the repositories using `hg` and `git-cinnabar`:
 Start the suite:
 
 ```shell
-docker compose up -d
+./suite up -d
 ```
 
 Create a diff:
 
 ```shell
-docker compose run --rm local-dev
+./suite run --rm local-dev
 
 cd repos
 cd test-repo
