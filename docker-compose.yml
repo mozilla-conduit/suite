@@ -379,7 +379,7 @@ services:
     volumes:
       # Due to the current way the container is built, mounting the current source code is not sufficient
       # - ../phabricator-emails/:/app/:z
-      - ./docker/phabricator-emails/settings.suite.ini:/app/.local/lib/python3.9/site-packages/settings.ini:z
+      - ./docker/phabricator-emails/settings.suite.ini:/app/.local/lib/python3.10/site-packages/settings.ini:z
     command: prepare
     depends_on:
       phabricator.test:
