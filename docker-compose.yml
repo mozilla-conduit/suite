@@ -235,6 +235,8 @@ services:
     command: lando start_landing_worker hg
     volumes:
       - ../lando:/code
+      # Keep those in a persistent volume, as the firefox-try repo takes a while to clone.
+      - lando-try-worker-repos:/files/repos
     restart: on-failure
     depends_on:
       lando:
@@ -252,15 +254,6 @@ services:
     #  GITHUB_APP_PRIVKEY: |
     #    ...
     command: lando start_landing_worker git
-
-  lando.try-automation-worker:
-    <<: *worker
-    profiles:
-     - try
-    volumes:
-      - ../lando:/code
-      - lando-try-worker:/files/repos
-    command: lando start_automation_worker hg-automation-worker
 
   lando.git-automation-worker:
     <<: *git-worker
@@ -495,6 +488,9 @@ services:
     volumes:
       - local-dev:/home/phab
       - ../review:/home/phab/review
+      # Mount some external sources for Try tests
+      # - ~/.mozbuild/lando.toml:/root/.mozbuild/lando.toml
+      # - ~/work/firefox/:/firefox/
     depends_on:
       - tinyproxy
       - phabricator.test
@@ -601,7 +597,7 @@ volumes:
   git-repos:
   git_hg_sync_clones:
   lando-postgres-db:
-  lando-try-worker:
+  lando-try-worker-repos:
   local-dev:
   media:
   phabricator-emails-postgres-db:
