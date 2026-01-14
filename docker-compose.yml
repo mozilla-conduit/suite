@@ -258,7 +258,7 @@ services:
 
   lando.db:
     platform: linux/amd64
-    image: postgres
+    image: postgres:17
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
