@@ -174,11 +174,21 @@ services:
     stdin_open: true
     tty: true
     environment: &lando-env
+      # To simulate a remote environment, uncomment the following lines...
+      # ENVIRONMENT: development
+      # DJANGO_SETTINGS_MODULE: lando.remote_settings
+
+      # ... and comment this one.
+      ENVIRONMENT: local
+      #
+      # This will likely trigger errors when running the `setup_dev` and
+      # `collectstatic` commands below. They need to be manually disabled
+      # during such a simulation.
+
       <<: *pulse_env
       DJANGO_LOG_LEVEL: debug
       LOG_LEVEL: INFO
       DEFAULT_DB_HOST: lando.db
-      ENVIRONMENT: local
       PHABRICATOR_URL: http://phabricator.test
       PHABRICATOR_UNPRIVILEGED_API_KEY: api-qdaethogwpld3wmn2cnhbh57wkux
       TREESTATUS_URL: https://treestatus.mozilla-releng.net
@@ -259,7 +269,7 @@ services:
 
   lando.db:
     platform: linux/amd64
-    image: postgres
+    image: postgres:17
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
