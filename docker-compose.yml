@@ -155,7 +155,6 @@ services:
         AwEHoUQDQgAEdakNgjerNLFXy1uMfwLjPd5/pBTbIEoZMdMV/o6s+uoMg776LF+v
         gtbfIaZbhDcJElzHwpnqGfHYU+cM4KyurA==
         -----END EC PRIVATE KEY-----
-      PYTHONTRACEMALLOC: 1
     depends_on:
       git_hg_sync-cinnabar_init:
         condition: service_completed_successfully
