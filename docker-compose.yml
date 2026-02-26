@@ -190,7 +190,7 @@ services:
       #  ...
     env_file: ../lando/.env
     command: bash -c "
-      echo "version=0" > src/lando/version.py &&
+      lando migrate &&
       lando collectstatic --clear --no-input &&
       lando setup_dev &&
       lando runserver 0.0.0.0:80"
@@ -209,6 +209,7 @@ services:
       - ../lando:/code
       - ../lando/staticfiles:/code/staticfiles
       - ../lando-prorotype/media:/mediafiles
+      - /code/src/lando/version
     healthcheck:
       test: ["CMD", "curl", "-sfko/dev/null", "http://localhost/__heartbeat__"]
       interval: 10s
