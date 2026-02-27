@@ -20,6 +20,11 @@ while :; do
 					;;
 			esac
 			;;
+
+		local-dev)
+			set - run --rm -it local-dev "${@}"
+			;;
+
 		*)
 			break
 			;;

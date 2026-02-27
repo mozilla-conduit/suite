@@ -115,6 +115,10 @@ the normal name of command and argument list, and work by simply prefixing
 them with `./suite`. Under the hood, the script should select the most
 appropriate container to run the selected command in.
 
+Available shortcuts:
+* lando
+* local-dev
+
 ## Accessing the websites provided by the suite
 
 ### Firefox configuration
