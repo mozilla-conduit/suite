@@ -191,7 +191,6 @@ services:
     env_file: ../lando/.env
     command: bash -c "
       echo "version=0" > src/lando/version.py &&
-      lando generate_version_file &&
       lando collectstatic --clear --no-input &&
       lando setup_dev &&
       lando runserver 0.0.0.0:80"
