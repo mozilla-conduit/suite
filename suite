@@ -1,9 +1,40 @@
 #!/bin/sh
 # A simple wrapper that takes care of using compose overrides if present.
 
+while :; do
+	case $1 in
+		lando)
+			shift
+			case $1 in
+				dbshell)
+					shift
+					# Fake the DB shell command by running in the correct container
+					set - exec -it lando.db psql -U postgres "${@}"
+					;;
+				*)
+					if docker compose ps -q lando >/dev/null 2>&1; then
+						set - exec -it lando lando "${@}"
+					else
+						set - run --rm -it lando lando "${@}"
+					fi
+					;;
+			esac
+			;;
+
+		local-dev)
+			set - run --rm -it local-dev "${@}"
+			;;
+
+		*)
+			break
+			;;
+	esac
+done
+
 if [ -e docker-compose.override.yml ]; then
   set - -f docker-compose.override.yml "${@}"
 fi
 set - compose -f docker-compose.yml "${@}"
 
+echo "docker ${@}" >&2
 docker "${@}"

@@ -96,6 +96,29 @@ added to the `docker-compose.override.yml` file. This file is listed in the
 
 The `./suite` script transparently apply the overrides if the file is present.
 
+
+### In-container command shortcuts
+
+There are shortcuts for running common commands in the appropriate container,
+e.g.,
+
+```shell
+./suite lando [DJANGO-COMMAND]
+```
+
+will run any Django command accepted by the `lando` script in the `lando`
+container. One exception is the `dbshell` command, which will be emulated by
+running in the `lando.db` container instead.
+
+HINT: As a rule of thumb when adding more commands in this ilk, they should take
+the normal name of command and argument list, and work by simply prefixing
+them with `./suite`. Under the hood, the script should select the most
+appropriate container to run the selected command in.
+
+Available shortcuts:
+* lando
+* local-dev
+
 ## Accessing the websites provided by the suite
 
 ### Firefox configuration
