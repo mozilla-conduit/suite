@@ -96,6 +96,7 @@ added to the `docker-compose.override.yml` file. This file is listed in the
 
 The `./suite` script transparently apply the overrides if the file is present.
 
+
 ### In-container command shortcuts
 
 There are shortcuts for running common commands in the appropriate container,
@@ -135,15 +136,6 @@ different profiles.
 
 The following optional profiles currently exist:
  - `try`: clones mozilla-unified twice, in hg.test and in the try worker.
-
-## Accessing the websites provided by the suite
-
-### Firefox configuration
-
-You can either configure an existing Firefox instance to use our
-proxy, or run a preconfigured Firefox.
-
-**To configure your current browser**:
 
 1. Open `Options -> Network Proxy -> Settings`
 2. Choose the `Manual Proxy Configuration` radio button
