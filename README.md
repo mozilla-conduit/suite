@@ -119,14 +119,23 @@ Available shortcuts:
 * lando
 * local-dev
 
-## Accessing the websites provided by the suite
 
-### Firefox configuration
+### Optional services
 
-You can either configure an existing Firefox instance to use our
-proxy, or run a preconfigured Firefox.
+Some services are disabled by default. This is generally because they are heavy
+to start and/or run, and not always necessary in a basic environment.
 
-**To configure your current browser**:
+Those services can be started as [docker compose profiles](https://docs.docker.com/compose/how-tos/profiles/),
+
+```shell
+$ ./suite --profile <PROFILE> up [...]
+```
+
+The `--profile` option can be repeated on a single command as many times for
+different profiles.
+
+The following optional profiles currently exist:
+ - `try`: clones mozilla-unified twice, in hg.test and in the try worker.
 
 1. Open `Options -> Network Proxy -> Settings`
 2. Choose the `Manual Proxy Configuration` radio button
