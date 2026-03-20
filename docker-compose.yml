@@ -146,7 +146,7 @@ services:
       PULSE_PORT: 5672
       PULSE_QUEUE: queue/suite/git-hg-sync
       PULSE_EXCHANGE: exchange/suite/git-hg-sync
-      PULSE_ROUTING_KEY: git-hg-sync
+      PULSE_ROUTING_KEY: gitpushes
       PULSE_SSL: "" # False
       # Same as the lando.hg-landing_worker
       SSH_PRIVATE_KEY: |
