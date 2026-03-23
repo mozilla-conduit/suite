@@ -210,13 +210,13 @@ use it as a normal local development repository.
 **Note**: A `git-cinnabar` version of the same repository is located at
 `~/test-repo-cinnabar/`.
 
-## Using the git_hg_sync service
+## Using the git-hg-sync service
 
 While a Pulse exchange is created by default, nothing listens to it. It
-is possible to start a `git_hg_sync` container to test the SCM sync
+is possible to start a `git-hg-sync` container to test the SCM sync
 logic.
 
-git_hg_sync will create a `unified-cinnabar` git repository in
+git-hg-sync will create a `unified-cinnabar` git repository in
 `git.test`. It contains multiple branches, each one cloned from the Mercurial
 repositories using git-cinnabar. The branches are configured by default in Phabricator
 and Lando (via the `create_environment_repos` command).
@@ -228,7 +228,7 @@ repository.  To do so, the callsign of the repo needs to be updated by adding
 `GIT` at the end. Otherwise, revisions will be submitted against the original Hg
 repo.
 
-When the git_hg_sync service is running, any revision landed to the
+When the git-hg-sync service is running, any revision landed to the
 `unified-cinnabar` repository, on any of the default branches, will be synced to
 the associated Mercurial repository.
 

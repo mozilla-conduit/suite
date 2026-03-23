@@ -4,7 +4,7 @@
       "arguments": {},
       "destination": "queue/suite/git-hg-sync",
       "destination_type": "queue",
-      "routing_key": "git-hg-sync",
+      "routing_key": "gitpushes",
       "source": "exchange/suite/git-hg-sync",
       "vhost": "/"
     }

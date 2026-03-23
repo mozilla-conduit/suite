@@ -28,7 +28,7 @@ git clone hg::http://hg.test/first-repo test-repo-cinnabar
 git clone http://git.test/test-repo test-repo-git
 
 git clone http://git.test/unified-cinnabar \
-  || echo -e "${BLUE}no unified-cinnabar repo present; this is expected if the git_hg_sync logic is not running${NC}" >&2
+  || echo -e "${BLUE}no unified-cinnabar repo present; this is expected if the git-hg-sync logic is not running${NC}" >&2
 
 for REPO in /repos/*; do
   pushd "${REPO}"
