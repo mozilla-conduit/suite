@@ -115,7 +115,7 @@ services:
   # Git-Hg-Sync
   ###########################
 
-  git_hg_sync-cinnabar_init:
+  git-hg-sync-cinnabar_init:
     platform: linux/amd64
     user: 101:101 # match the owner in the Cgit container
     build:
@@ -131,7 +131,7 @@ services:
       git.test:
         condition: service_healthy
 
-  git_hg_sync:
+  git-hg-sync:
     platform: linux/amd64
     build:
       context: ../git-hg-sync
@@ -140,7 +140,7 @@ services:
       - ../git-hg-sync:/app:z
       - ./ssh:/app/.ssh:z
       - ./docker/git-hg-sync/config-suite.toml:/app/config-suite.toml
-      - git_hg_sync_clones:/clones
+      - git-hg-sync_clones:/clones
     environment: &pulse_env
       PULSE_HOST: pulse.test
       PULSE_PORT: 5672
@@ -156,7 +156,7 @@ services:
         gtbfIaZbhDcJElzHwpnqGfHYU+cM4KyurA==
         -----END EC PRIVATE KEY-----
     depends_on:
-      git_hg_sync-cinnabar_init:
+      git-hg-sync-cinnabar_init:
         condition: service_completed_successfully
       pulse.test:
         condition: service_healthy
@@ -198,7 +198,7 @@ services:
     depends_on:
       lando.db:
         condition: service_healthy
-      git_hg_sync-cinnabar_init:
+      git-hg-sync-cinnabar_init:
         condition: service_completed_successfully
       lando.redis:
         condition: service_healthy
@@ -583,7 +583,7 @@ volumes:
   caches_cache:
   cgit-cache:
   git-repos:
-  git_hg_sync_clones:
+  git-hg-sync_clones:
   lando-postgres-db:
   lando-try-worker-repos:
   local-dev:
