@@ -289,7 +289,7 @@ moz-phab submit -b 1
 ```
 
 - Log in to https://lando.test.
-- Navigate to httsp://lando.test/revisions/D2.
+- Navigate to https://lando.test/revisions/D2.
 - Confirm the warning and click on the `Land` button.
 - Reload the page. Observe the landing confirmation.
 - Check if the commit is present in the http://hg.test/.
