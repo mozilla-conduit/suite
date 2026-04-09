@@ -140,6 +140,7 @@ The following optional profiles currently exist:
 1. Open `Options -> Network Proxy -> Settings`
 2. Choose the `Manual Proxy Configuration` radio button
 3. Set `HTTP Proxy` to `localhost` and `Port` to `1080`.
+3. Set `HTTPS Proxy` to `localhost` and `Port` to `1080`.
 
 **To run Firefox with an empty profile**:
 
@@ -153,7 +154,7 @@ The following optional profiles currently exist:
 
 - Bugzilla - http://bmo.test
 - Phabricator - http://phabricator.test
-- Lando - http://lando.test
+- Lando - https://lando.test
 - Mercurial - http://hg.test
 - Git - http://git.test
 
@@ -287,8 +288,8 @@ moz-phab install-certificate
 moz-phab submit -b 1
 ```
 
-- Log in to http://lando.test.
-- Navigate to http://lando.test/revisions/D2.
+- Log in to https://lando.test.
+- Navigate to httsp://lando.test/revisions/D2.
 - Confirm the warning and click on the `Land` button.
 - Reload the page. Observe the landing confirmation.
 - Check if the commit is present in the http://hg.test/.
