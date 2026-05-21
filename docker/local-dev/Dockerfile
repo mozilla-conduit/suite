@@ -50,6 +50,7 @@ COPY arcrc .arcrc
 COPY hgrc .hgrc
 COPY gitconfig .gitconfig
 COPY moz-phab-config .moz-phab-config
+COPY lando.toml /root/.mozbuild/lando.toml
 COPY initfile.sh ./
 COPY clone_repositories.sh ./
 COPY generate_revision.sh ./
