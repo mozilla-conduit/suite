@@ -1,0 +1,5 @@
+[auth]
+api_token = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+user_email = "test@example.org"
+lando_url = "https://lando.test"
+verify_tls = false
