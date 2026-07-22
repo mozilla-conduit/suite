@@ -149,6 +149,8 @@ The following optional profiles currently exist:
    `firefox-proxy $(docker-machine ip)` if you are using `docker-machine`.
 3. A new browser with an empty profile will open.
 
+The `firefox-proxy` can also be started with `./suite firefox`.
+
 ### Websites provided by the suite
 
 - Bugzilla - http://bmo.test

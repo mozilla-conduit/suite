@@ -3,9 +3,21 @@
 
 while :; do
 	case $1 in
+    firefox*)
+      shift
+      exec nohup ./firefox-proxy ${*} &
+      exit 0
+      ;;
 		lando)
 			shift
 			case $1 in
+				bash)
+					if docker compose ps -q lando >/dev/null 2>&1; then
+						set - exec -it lando bash
+					else
+						set - run --rm -it lando bash
+					fi
+					;;
 				dbshell)
 					shift
 					# Fake the DB shell command by running in the correct container
