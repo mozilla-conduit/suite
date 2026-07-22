@@ -7,4 +7,8 @@ else
   echo "Initializing repos..."
   ./clone_repositories.sh
   touch ~/.volume-initialized
+
+  if [ -d /firefox ]; then
+    git config --global --add safe.directory /firefox
+  fi
 fi
