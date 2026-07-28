@@ -5,7 +5,7 @@ while :; do
 	case $1 in
     firefox*)
       shift
-      exec nohup ./firefox-proxy ${*} &
+      exec nohup ./firefox-proxy "${@}" &
       exit 0
       ;;
 		lando)
@@ -38,6 +38,19 @@ while :; do
 			;;
 
 		*)
+			case $2 in
+        bash|sh)
+          CONTAINER=${1}
+          SHELL=${2}
+          shift
+          shift
+					if docker compose ps -q $1 >/dev/null 2>&1; then
+						set - exec -it "${CONTAINER}" "${SHELL}" "${@}"
+					else
+						set - run --rm -it "${CONTAINER}" "${SHELL}" "${@}"
+					fi
+        ;;
+      esac
 			break
 			;;
 	esac

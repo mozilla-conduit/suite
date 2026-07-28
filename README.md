@@ -88,6 +88,13 @@ their dependencies.
 ./suite up phabricator.test lando.test
 ```
 
+A shell in a specific container can be obtained with the `sbash` or `sh` subcommands, depending on what's available in the container.
+
+```shell
+./suite lando bash
+./suite phabricator sh
+```
+
 ### Compose overrides
 
 If temporary local changes to the compose stack are needed, overrides can be
