@@ -8,11 +8,17 @@ RUN apt-get update \
  && apt-get install -y \
         bash \
         build-essential \
+        findutils \
         ca-certificates \
         curl \
         git \
+        gzip \
         iputils-ping \
         less \
+        make \
+        perl \
+        tar \
+        unzip \
         vim \
         && rm -rf /var/lib/apt/lists/*
 
